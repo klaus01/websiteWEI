@@ -9,6 +9,7 @@ var mongoStore = require('connect-mongo')(session);
 
 var adminRoutes = require('./routes/admin');
 var partnerRoutes = require('./routes/partner');
+var settings = require('./settings');
 
 var app = express();
 
@@ -22,11 +23,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'keyboard cat',
+    secret: settings.cookie.secret,
     store: new mongoStore({
-        db: 'mongodb://localhost/test-app'
+        db: settings.cookie.sessionMongoDB
     }),
-    cookie: { maxAge: 10 * 60 * 1000 }
+    cookie: { maxAge: settings.cookie.maxAge }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 

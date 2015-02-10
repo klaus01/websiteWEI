@@ -27,11 +27,12 @@ router.get('/login', function(req, res, next) {
 router.post('/login', function(req, res, next) {
 	dbHelper.backendUsers.find(req.body.username, function(rows) {
 		if (rows.length) {
-			// TODO
-		// if (req.body.username === user.username && req.body.password === user.password) {
-		// 	req.session.user = user;
-		// 	resRedirect(res, '/');
-		// } else
+            if (req.body.password === rows[0].LoginPassword) {
+                req.session.user = rows[0];
+                dbHelper.backendUsers.login(req.session.user.ID, req.connection.remoteAddress);
+                resRedirect(res, '/');
+            } else
+                resRedirect(res, '/login');
 		} else
 			resRedirect(res, '/login');
 	});

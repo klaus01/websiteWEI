@@ -25,6 +25,12 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/login', function(req, res, next) {
+    var verificationCode = req.session.verificationCode;
+    if (!verificationCode || verificationCode !== req.body.verificationCode.toUpperCase()) {
+        resRedirect(res, '/login');
+        return;
+    }
+
 	dbHelper.backendUsers.find(req.body.username, function(rows) {
 		if (rows.length) {
             if (req.body.password === rows[0].LoginPassword) {

@@ -7,6 +7,7 @@ var ejs = require('ejs');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
+var indexRoutes = require('./routes/index');
 var adminRoutes = require('./routes/admin');
 var partnerRoutes = require('./routes/partner');
 var settings = require('./settings');
@@ -31,6 +32,7 @@ app.use(session({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', indexRoutes);
 app.use('/' + adminRoutes.PATHHEADER, adminRoutes);
 app.use('/' + partnerRoutes.PATHHEADER, partnerRoutes);
 

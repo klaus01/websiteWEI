@@ -1,34 +1,23 @@
 <% include header.html %>
-<div class="container-fluid">
-	<form class="form-horizontal" method="post">
-		<fieldset>
-			<legend><%= title %></legend>
-			<div class="control-group">
-				<label class="control-label" for="username">用户名</label>
-				<div class="controls">
-					<input type="text" class="input-xlarge" id="username" name="username">
-				</div>
-			</div>
-			<div class="control-group">
-				<label class="control-label" for="password">密码</label>
-				<div class="controls">
-					<input type="password" class="input-xlarge" id="password" name="password">
-				</div>
-			</div>
-            <div class="control-group">
-                <label class="control-label" for="password">验证码</label>
-                <div class="controls">
-                    <input type="text" class="input-xlarge" id="verificationCode" name="verificationCode">
-                    <img src="http://localhost:3000/VerificationCode">
-                </div>
-            </div>
-            <% if (locals.message && message.length > 0) { %>
-                <div class="alert alert-danger" role="alert"><%= message %></div>
-            <% } %>
-			<div class="form-actions">
-				<button type="submit" class="btn btn-primary">登陆</button>
-			</div>
-		</fieldset>
-	</form>
+<div style="width: 260px; margin: 20px auto;">
+    <form role="form" method="post">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" class="form-control" id="username" name="username" >
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" class="form-control" id="password" name="password" >
+        </div>
+        <div class="form-group">
+            <label for="verificationCode">验证码</label>
+            <input type="text" class="form-control" id="verificationCode" name="verificationCode" >
+            <img src="/VerificationCode" style="cursor: pointer" onclick="this.src='/VerificationCode?' + new Date().getTime()" title="点击更换验证码">
+        </div>
+        <% if (locals.message && message.length > 0) { %>
+        <div class="alert alert-danger" role="alert"><%= message %></div>
+        <% } %>
+        <button type="submit" class="btn btn-primary">提交</button>
+    </form>
 </div>
 <% include footer.html %>

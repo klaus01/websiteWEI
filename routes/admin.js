@@ -33,6 +33,18 @@ router.post('/login', function(req, res, next) {
         });
     }
 
+    if (!req.body.username) {
+        loginError('请输入用户名');
+        return;
+    }
+    if (!req.body.password) {
+        loginError('请输入密码');
+        return;
+    }
+    if (!req.body.verificationCode) {
+        loginError('请输入验证码');
+        return;
+    }
     var verificationCode = req.session.verificationCode;
     if (!verificationCode || verificationCode !== req.body.verificationCode.toUpperCase()) {
         loginError('验证码错误');

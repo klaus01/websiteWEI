@@ -25,9 +25,17 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/login', function(req, res, next) {
+
+    function loginError(message) {
+        resRender(res, 'login', {
+            title: '用户登录',
+            message: message
+        });
+    }
+
     var verificationCode = req.session.verificationCode;
     if (!verificationCode || verificationCode !== req.body.verificationCode.toUpperCase()) {
-        resRedirect(res, '/login');
+        loginError('验证码错误');
         return;
     }
 
@@ -38,9 +46,9 @@ router.post('/login', function(req, res, next) {
                 dbHelper.backendUsers.login(req.session.user.ID, req.connection.remoteAddress);
                 resRedirect(res, '/');
             } else
-                resRedirect(res, '/login');
+                loginError('密码错误');
 		} else
-			resRedirect(res, '/login');
+            loginError('无此用户');
 	});
 });
 

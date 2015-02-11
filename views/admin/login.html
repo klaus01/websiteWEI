@@ -2,7 +2,7 @@
 <div class="container-fluid">
 	<form class="form-horizontal" method="post">
 		<fieldset>
-			<legend>用户登陆</legend>
+			<legend><%= title %></legend>
 			<div class="control-group">
 				<label class="control-label" for="username">用户名</label>
 				<div class="controls">
@@ -22,7 +22,9 @@
                     <img src="http://localhost:3000/VerificationCode">
                 </div>
             </div>
-
+            <% if (locals.message && message.length > 0) { %>
+                <div class="alert alert-danger" role="alert"><%= message %></div>
+            <% } %>
 			<div class="form-actions">
 				<button type="submit" class="btn btn-primary">登陆</button>
 			</div>

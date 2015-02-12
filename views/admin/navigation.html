@@ -1,10 +1,32 @@
-<div style="width: 200px">
-<ul class="nav nav-pills nav-stacked">
-<li role="presentation" class="active"><a href="#">后台用户管理</a></li>
-<li role="presentation"><a href="#">应用用户管理</a></li>
-<li role="presentation"><a href="#">字列表</a></li>
-<li role="presentation"><a href="#">短信列表</a></li>
-<li role="presentation"><a href="#">公众号管理</a></li>
-<li role="presentation"><a href="./logout">退出</a></li>
-</ul>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <div class="navbar-brand">WEI管理</div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="./logout">退出</a></li>
+            </ul>
+            <div class="navbar-brand navbar-right"><%= user.Name %></div>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="./">首页</a></li>
+                <li><a href="./backendUsers">后台用户管理</a></li>
+            </ul>
+            <ul class="nav nav-sidebar">
+                <li><a href="#">应用用户管理</a></li>
+                <li><a href="#">字列表</a></li>
+                <li><a href="#">短信列表</a></li>
+                <li><a href="#">公众号管理</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        </div>
+    </div>
 </div>

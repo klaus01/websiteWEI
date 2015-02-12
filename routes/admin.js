@@ -14,10 +14,13 @@ function resRedirect(res, path) {
 
 
 router.get('/', function(req, res, next) {
-	if (req.session.user)
-		resRender(res, 'index', { title: '首页' });
-	else
-		resRedirect(res, '/login');
+    if (req.session.user)
+        resRender(res, 'index', {
+            title: '管理首页',
+            user: req.session.user
+        });
+    else
+        resRedirect(res, '/login');
 });
 
 router.get('/login', function(req, res, next) {
@@ -55,7 +58,7 @@ router.post('/login', function(req, res, next) {
 		if (rows.length) {
             if (req.body.password === rows[0].LoginPassword) {
                 req.session.user = rows[0];
-                dbHelper.backendUsers.login(req.session.user.ID, req.connection.remoteAddress);
+                dbHelper.backendUsers.updateLoginInfo(req.session.user.ID, req.connection.remoteAddress);
                 resRedirect(res, '/');
             } else
                 loginError('密码错误');
@@ -67,6 +70,20 @@ router.post('/login', function(req, res, next) {
 router.get('/logout', function(req, res, next) {
 	req.session.user = null;
 	resRedirect(res, '/');
+});
+
+router.get('/backendUsers', function(req, res, next) {
+    if (req.session.user) {
+        if (req.session.user.IsManager)
+            resRender(res, 'backendUsers', {
+                title: '后台用户管理',
+                user: req.session.user
+            });
+        else
+            resRedirect(res, '/');
+    }
+    else
+        resRedirect(res, '/login');
 });
 
 

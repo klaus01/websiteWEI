@@ -1,5 +1,13 @@
-<% include header.html %>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+</head>
+<body>
 <div style="width: 260px; margin: 20px auto;">
+    <h1 class="page-header"><%= title %></h1>
     <form role="form" method="post">
         <div class="form-group">
             <label for="username">用户名</label>
@@ -17,7 +25,10 @@
         <% if (locals.message && message.length > 0) { %>
         <div class="alert alert-danger" role="alert"><%= message %></div>
         <% } %>
-        <button type="submit" class="btn btn-primary">登录</button>
+        <button type="submit" class="btn btn-primary btn-lg">登录</button>
     </form>
 </div>
-<% include footer.html %>
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script>$("#username").focus();</script>
+</body>
+</html>

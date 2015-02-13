@@ -1,6 +1,6 @@
 <% include header.html %>
 <h1 class="page-header">后台用户列表</h1>
-<p><a class="btn btn-primary" href="./newBackendUser" target="_blank" role="button">新增后台用户</a></p>
+<p><a class="btn btn-primary" href="./editBackendUser" target="_blank" role="button">新增后台用户</a></p>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
@@ -26,8 +26,8 @@
                 <td><%= row.LastLoginIP %></td>
                 <td>
                 <% if (!row.IsManager) { %>
-                    <a class="btn btn-default" href="./editBackendUser<%= row.ID %>" target="_blank" role="button">修改</a>
-                    <a class="btn btn-default" href="./deleteBackendUser<%= row.ID %>" target="_blank" role="button">删除</a>
+                    <a class="btn btn-default btn-xs" href="./editBackendUser/<%= row.ID %>" target="_blank" role="button">修改</a>
+                    <a class="btn btn-default btn-xs" href="./deleteBackendUser/<%= row.ID %>" target="_blank" role="button">删除</a>
                 <% } %>
                 </td>
             </tr>

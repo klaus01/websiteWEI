@@ -67,7 +67,7 @@ router.post('/login', function(req, res) {
         return;
     }
 
-	dbHelper.backendUsers.find(data.username, function(rows) {
+	dbHelper.backendUsers.findByLoginName(data.username, function(rows) {
 		if (rows.length) {
             if (data.password === rows[0].LoginPassword) {
                 req.session.user = rows[0];
@@ -88,7 +88,7 @@ router.get('/logout', function(req, res) {
 router.get('/backendUsers', function(req, res) {
     checkIsLogged(req, res, function() {
         checkIsManager(req, res, function() {
-            dbHelper.backendUsers.find(function(rows) {
+            dbHelper.backendUsers.findAll(function(rows) {
                 resRender(res, 'backendUsers', {
                     title: '后台用户管理',
                     user: req.session.user,
@@ -99,35 +99,52 @@ router.get('/backendUsers', function(req, res) {
     });
 });
 
-router.get('/newBackendUser', function(req, res) {
+router.get('/editBackendUser/:id?', function(req, res) {
     checkIsLogged(req, res, function() {
         checkIsManager(req, res, function() {
-            resRender(res, 'newBackendUser', {
-                title: '新增后台用户',
-                id: 0
-            });
+            var id = req.params.id;
+            if (id)
+                dbHelper.backendUsers.findByID(parseInt(id), function(rows){
+                    if (rows.length)
+                        resRender(res, 'editBackendUser', {
+                            title: '修改后台用户',
+                            data: rows[0]
+                        });
+                    else
+                        res.end('无此用户信息');
+                });
+            else
+                resRender(res, 'editBackendUser', {
+                    title: '新增后台用户',
+                    data: null
+                });
         });
     });
 });
 
-router.post('/newBackendUser', function(req, res) {
+router.post('/editBackendUser/:id?', function(req, res) {
     checkIsLogged(req, res, function() {
         checkIsManager(req, res, function() {
+            var id = req.params.id ? parseInt(req.params.id) : 0;
+            var data = req.body;
 
-            function showMessage(id, isError, message) {
-                resRender(res, 'newBackendUser', {
-                    title: '新增后台用户',
-                    id: id,
+            function showMessage(isError, message) {
+                resRender(res, 'editBackendUser', {
+                    title: id ? '修改' : '新增' + '后台用户',
+                    data: {
+                        Name: data.name,
+                        LoginName: data.loginname
+                    },
                     isError: isError,
                     message: message
                 });
             }
             function error(message) {
-                showMessage(req.body.id, true, message);
+                showMessage(true, message);
             }
             function success(rows) {
                 console.log(rows);
-                showMessage(0, false, '成功');
+                showMessage(false, '成功');
             }
 
             var data = req.body;
@@ -143,15 +160,29 @@ router.post('/newBackendUser', function(req, res) {
                 error('请输入密码');
                 return;
             }
-            dbHelper.backendUsers.find(data.loginname, data.id, function(rows) {
+            dbHelper.backendUsers.findByLoginName(data.loginname, id, function(rows) {
                 if (rows.length > 0)
                     error('登录名' + data.loginname + '已存在，请更换');
-                else if (data.id > 0)
-                    dbHelper.backendUsers.update(data.id, data.name, 0, data.loginname, data.password, success);
+                else if (id > 0)
+                    dbHelper.backendUsers.update(id, data.name, 0, data.loginname, data.password, success);
                 else
-                    dbHelper.backendUsers.new(data.name, 0, data.loginname, data.password, success);
+                    dbHelper.backendUsers.new(0, data.loginname, data.password, success);
             });
+        });
+    });
+});
 
+router.get('/deleteBackendUser/:id', function(req, res) {
+    checkIsLogged(req, res, function() {
+        checkIsManager(req, res, function() {
+            var id = parseInt(req.params.id);
+            if (id)
+                dbHelper.backendUsers.delete(id, function(rows){
+                    console.log(rows);
+                    res.end('成功');
+                });
+            else
+                res.end('失败：缺少ID');
         });
     });
 });

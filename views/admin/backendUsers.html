@@ -1,6 +1,7 @@
 <% include header.html %>
+<% include editBackendUser.html %>
 <h1 class="page-header">后台用户列表</h1>
-<p><a class="btn btn-primary" href="./editBackendUser" target="_blank" role="button">新增后台用户</a></p>
+<p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBackendUser">新增后台用户</button></p>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
@@ -26,8 +27,8 @@
                 <td><%= row.LastLoginIP %></td>
                 <td>
                 <% if (!row.IsManager) { %>
-                    <a class="btn btn-default btn-xs" href="./editBackendUser/<%= row.ID %>" target="_blank" role="button">修改</a>
-                    <a class="btn btn-default btn-xs" href="./deleteBackendUser/<%= row.ID %>" target="_blank" role="button">删除</a>
+                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editBackendUser" data-userid="<%= row.ID %>">修改</button>
+                    <button type="button" class="btn btn-default btn-xs" onclick="var btn=$(this);deleteBackendUser(btn, <%= row.ID %>, function(){btn.parent().parent().remove();});">删除</button>
                 <% } %>
                 </td>
             </tr>

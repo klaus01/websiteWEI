@@ -1,33 +1,128 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="utf-8">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
-</head>
-<body>
-<div style="width: 260px; margin: 20px auto;">
-    <h1 class="page-header"><%= title %></h1>
-    <form role="form" method="post">
-        <div class="form-group">
-            <label for="name">姓名</label>
-            <input type="text" class="form-control" id="name" name="name" value="<%= data ? data.Name : '' %>" >
+<div class="modal fade" id="editBackendUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">新增/编辑</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post">
+                    <input type="hidden" id="id" name="id">
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" class="form-control" id="name" name="name" >
+                    </div>
+                    <div class="form-group">
+                        <label for="loginname">登录名</label>
+                        <input type="text" class="form-control" id="loginname" name="loginname" >
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" >
+                    </div>
+                </form>
+                <div class="alert alert-danger" id="message" role="alert" hidden="hidden"></div>
+            </div>
+            <div class="modal-footer" style="text-align: left">
+                <button type="submit" class="btn btn-primary" autocomplete="off">提交</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="loginname">登录名</label>
-            <input type="text" class="form-control" id="loginname" name="loginname" value="<%= data ? data.LoginName : '' %>" >
-        </div>
-        <div class="form-group">
-            <label for="password">密码</label>
-            <input type="password" class="form-control" id="password" name="password" >
-        </div>
-        <% if (locals.message && message.length > 0) { %>
-        <div class="alert alert-<%= isError ? 'danger' : 'success' %>" role="alert"><%= message %></div>
-        <% } %>
-        <button type="submit" class="btn btn-primary btn-lg">提交</button>
-    </form>
+    </div>
 </div>
-<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
-<script>$("#name").focus();</script>
-</body>
-</html>
+<script type="text/javascript">
+    var $editBackendUser = $('#editBackendUser');
+
+    $editBackendUser.on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var userid = button.data('userid');
+        var modal = $(this);
+        modal.find('.modal-title').text((userid ? '编辑' : '新增') + '后台用户');
+        if (userid == undefined) {
+            modal.find('.modal-body #id').val('0');
+            modal.find('.modal-body #name').val('');
+            modal.find('.modal-body #loginname').val('');
+            modal.find('.modal-body #password').val('');
+        }
+        else {
+            modal.find('.modal-body #id').val(userid);
+            var $btn = modal.find('.modal-footer button');
+            $btn.attr('data-loading-text', '正在加载用户信息...');
+            $btn.button('loading');
+            $.ajax({
+                type: 'POST',
+                url: '/ajax/backendUser/get',
+                dataType: 'json',
+                data: {id: userid},
+                complete: function() {
+                    $btn.button('reset');
+                },
+                success: function(result) {
+                    if (!result.success)
+                        return;
+                    modal.find('.modal-body #name').val(result.data.Name);
+                    modal.find('.modal-body #loginname').val(result.data.LoginName);
+                }
+            });
+        }
+    });
+
+    $editBackendUser.on('shown.bs.modal', function (event) {
+        $editBackendUser.find('.modal-body input[type="text"]')[0].focus();
+    });
+
+    $editBackendUser.find('.modal-footer button').on('click', function () {
+        var $msg = $editBackendUser.find('#message');
+        $msg.hide();
+        var $btn = $(this);
+        $btn.attr('data-loading-text', '正在提交...');
+        $btn.button('loading');
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/backendUser/post',
+            dataType: 'json',
+            data: {
+                id: $editBackendUser.find('#id').val(),
+                name: $editBackendUser.find('#name').val(),
+                loginname: $editBackendUser.find('#loginname').val(),
+                password: $editBackendUser.find('#password').val()
+            },
+            complete: function() {
+                $btn.button('reset');
+            },
+            success: function(result) {
+                if (result.success)
+                    window.location.reload();
+                else {
+                    $msg.text(result.message);
+                    $msg.show();
+                }
+            }
+        });
+    });
+
+    $editBackendUser.keyup(function(event){
+        if(event.keyCode == 13)
+            $editBackendUser.find('.modal-footer button').trigger("click");
+    });
+
+    function deleteBackendUser(button, id, success) {
+        button.attr('data-loading-text', '正在删除...');
+        button.attr('autocomplete', 'off');
+        button.button('loading');
+        $.ajax({
+            type: 'POST',
+            url: '/ajax/backendUser/delete',
+            dataType: 'json',
+            data: { id: id },
+            complete: function() {
+                button.button('reset');
+            },
+            success: function(result) {
+                if (result.success)
+                    success();
+                else
+                    alert(result.message);
+            }
+        });
+    }
+</script>

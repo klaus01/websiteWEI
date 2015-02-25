@@ -58,16 +58,17 @@ router.post('/login', function(req, res) {
         return;
     }
 
+    var password = new Buffer(data.password, 'base64').toString();
 	dbHelper.backendUsers.findByLoginName(data.username, function(rows) {
 		if (rows.length) {
-            if (data.password === rows[0].LoginPassword) {
+            if (password === rows[0].LoginPassword) {
                 req.session.user = rows[0];
                 dbHelper.backendUsers.updateLoginInfo(req.session.user.ID, req.connection.remoteAddress);
                 resRedirect(res, '/');
             } else
-                loginError('密码错误');
+                error('密码错误');
 		} else
-            loginError('无此用户');
+            error('无此用户');
 	});
 });
 

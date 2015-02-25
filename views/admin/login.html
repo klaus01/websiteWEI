@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title><%= title %></title>
     <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="/js/jquery.base64.min.js"></script>
 </head>
 <body>
 <div style="width: 260px; margin: 20px auto;">
@@ -28,7 +30,12 @@
         <button type="submit" class="btn btn-primary btn-lg">登录</button>
     </form>
 </div>
-<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
-<script>$("#username").focus();</script>
+<script>
+    $('form').submit(function(e){
+        var input = $('#password');
+        input.val($.base64.encode(input.val()));
+    });
+    $('#username').focus();
+</script>
 </body>
 </html>

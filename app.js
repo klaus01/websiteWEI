@@ -33,6 +33,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRoutes);
+app.use(adminRoutes.checkLogin);
 app.use('/' + adminRoutes.PATHHEADER, adminRoutes);
 app.use('/' + partnerRoutes.PATHHEADER, partnerRoutes);
 

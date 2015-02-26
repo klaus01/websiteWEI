@@ -89,6 +89,13 @@ router.get('/backendUsers', function(req, res) {
     });
 });
 
+router.get('/appUsers', function(req, res) {
+    resRender(res, 'appUsers', {
+        title: 'APP用户列表',
+        user: req.session.user
+    });
+});
+
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

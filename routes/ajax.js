@@ -107,10 +107,11 @@ router.post('/backendUser/delete', function(req, res) {
  ********************************/
 
 router.post('/appUser/search', function(req, res) {
+    var ROWCOUNT = 20;
+
     var data = req.body;
     var searchMode = 0;
     var pageNumber = 1;
-    var ROWCOUNT = 20;
     if (data.mode) {
         searchMode = parseInt(data.mode);
         pageNumber = parseInt(data.pageNumber);

@@ -83,6 +83,7 @@ router.get('/backendUsers', function(req, res) {
             resRender(res, 'backendUsers', {
                 title: '后台用户管理',
                 user: req.session.user,
+                isBackendUsers: true,
                 rows: rows
             });
         })
@@ -92,7 +93,8 @@ router.get('/backendUsers', function(req, res) {
 router.get('/appUsers', function(req, res) {
     resRender(res, 'appUsers', {
         title: 'APP用户列表',
-        user: req.session.user
+        user: req.session.user,
+        isAppUsers: true
     });
 });
 

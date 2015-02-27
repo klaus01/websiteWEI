@@ -27,14 +27,12 @@
         <div class="col-sm-3 col-md-2 sidebar">
             <% if (user.IsManager) { %>
             <ul class="nav nav-sidebar">
-                <li><a href="./backendUsers">后台用户管理</a></li>
-            </ul>
-            <% } %>
-            <ul class="nav nav-sidebar">
-                <li><a href="./appUsers">APP用户列表</a></li>
+                <li <%= locals.isBackendUsers ? 'class=active' : '' %>><a href="./backendUsers">后台用户管理</a></li>
+                <li <%= locals.isAppUsers ? 'class=active' : '' %>><a href="./appUsers">APP用户列表</a></li>
                 <li><a href="#">字列表</a></li>
                 <li><a href="#">短信列表</a></li>
                 <li><a href="#">公众号管理</a></li>
             </ul>
+            <% } %>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

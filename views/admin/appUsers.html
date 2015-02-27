@@ -34,7 +34,7 @@
         <div role="tabpanel" class="tab-pane fade" id="isMan" aria-labelledby="isMan-tab">
             <form class="form-inline">
                 <div class="form-group">
-                    <select>
+                    <select class="form-control">
                         <option value="0">女</option>
                         <option value="1">男</option>
                     </select>
@@ -45,7 +45,7 @@
         <div role="tabpanel" class="tab-pane fade" id="registrationStatus" aria-labelledby="registrationStatus-tab">
             <form class="form-inline">
                 <div class="form-group">
-                    <select>
+                    <select class="form-control">
                         <option value="0">手机未验证</option>
                         <option value="1">手机已验证</option>
                         <option value="2">已经完善用户资料</option>
@@ -90,7 +90,7 @@
         <div class="table-responsive">\
             <table class="table table-striped table-hover">\
                 <thead>\
-                    <tr><th>昵称</th><th>头像</th><th>手机号</th><th>性别</th><th>注册状态</th><th>注册时间</th><th>上次登录时间</th><th>上次登录IP</th><th>上次登录地理信息</th></tr>\
+                    <tr><th>头像</th><th>昵称</th><th>手机号</th><th>性别</th><th>注册状态</th><th>注册时间</th><th>上次登录时间</th><th>上次登录IP</th><th>上次登录地理信息</th><th></th></tr>\
                 </thead>\
                 <tbody>';
     var TABLEEND = '\
@@ -121,15 +121,16 @@
                     var row = result.data.rows[i];
                     newTable = newTable
                     + '<tr>'
-                    + '<td>' + row.Nickname + '</td>'
-                    + '<td>' + row.IconFileName + '</td>'
+                    + '<td>' + (row.IconFileName ? row.IconFileName : '') + '</td>'
+                    + '<td>' + (row.Nickname ? row.Nickname : '') + '</td>'
                     + '<td>' + row.PhoneNumber + '</td>'
                     + '<td>' + row.IsManDescription + '</td>'
                     + '<td>' + row.RegistrationStatusDescription + '</td>'
                     + '<td>' + row.RegistrationTime + '</td>'
-                    + '<td>' + row.LastLoginTime + '</td>'
-                    + '<td>' + row.LastLoginIP + '</td>'
-                    + '<td>' + row.LastLoginLongitude + '|' + row.LastLoginLatitude + '</td>'
+                    + '<td>' + (row.LastLoginTime ? row.LastLoginTime : '') + '</td>'
+                    + '<td>' + (row.LastLoginIP ? row.LastLoginIP : '') + '</td>'
+                    + '<td>' + (row.LastLoginLongitude && ow.LastLoginLatitude ? row.LastLoginLongitude + '|' + row.LastLoginLatitude : '') + '</td>'
+                    + '<td><a class="btn btn-default btn-xs" target="_blank" href="./appUser/' + row.AppUserID + '">详情</a></td>'
                     + '</tr>';
                 }
                 newTable += TABLEEND;

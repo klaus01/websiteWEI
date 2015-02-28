@@ -98,6 +98,22 @@ router.get('/appUsers', function(req, res) {
     });
 });
 
+router.get('/appUser/:id', function(req, res) {
+    var id = parseInt(req.params.id);
+    if (id)
+        dbHelper.appUsers.findByID(id, function(rows){
+            if (rows.length <= 0)
+                res.end('用户' + id + '不存在');
+            else
+                resRender(res, 'appUserInfo', {
+                    title: 'APP用户信息',
+                    user: rows[0]
+                });
+        });
+    else
+        res.end('缺少ID');
+});
+
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

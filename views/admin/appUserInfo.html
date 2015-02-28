@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</head>
+<body style="padding: 0px 20px;">
+    <h1 class="page-header"><%= title %></h1>
+    <div style="padding-right: 10px; float: left;">
+        <p>
+            昵称：<%= user.Nickname %><br>
+            手机号：<%= user.PhoneNumber %><br>
+            性别：<%= user.IsManDescription %><br>
+            注册状态：<%= user.RegistrationStatusDescription %><br>
+            注册时间：<%= user.RegistrationTime.toJSON() %><br>
+            注册时设备：<%= user.RegistrationDevice ? user.RegistrationDevice : '' %><br>
+            注册时版本：<%= user.RegistrationOS ? user.RegistrationOS : '' %><br>
+            上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toJSON() : '' %><br>
+            上次登录IP：<%= user.LastLoginIP ? user.LastLoginIP : '' %><br>
+            上次登录地理信息：<%= user.LastLoginLongitude && user.LastLoginLatitude ? user.LastLoginLongitude + '|' + user.LastLoginLatitude : '' %>
+        </p>
+    </div>
+    <div><img src="<%= user.IconFileName %>" alt="头像" class="img-thumbnail" style="width: 200px; height: 200px;"></div>
+    <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs" style="margin-top: 20px;">
+        <ul style="margin-bottom: 15px;" class="nav nav-tabs" role="tablist">
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#friends"   id="friends-tab"    aria-controls="friends">朋友列表</a></li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#words"     id="words-tab"      aria-controls="words">发送的字列表</a></li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#partners"  id="partners-tab"   aria-controls="partners">订阅公众号列表</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" id="friends" aria-labelledby="friends-tab">
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="words" aria-labelledby="words-tab">
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="partners" aria-labelledby="partners-tab">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

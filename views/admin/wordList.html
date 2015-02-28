@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-paginator.min.js"></script>
+    <style>
+        .thumbnail {
+            width: 200px;
+            float: left;
+            margin-right: 20px;
+        }
+        img.word {
+            height: 200px;
+            width: 100%;
+            display: block;
+        }
+        img.user {
+            height: 50px;
+            width: 50px;
+        }
+        p.username {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+<% if (rows.length > 0) {
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+%>
+        <div class="thumbnail">
+            <img alt="字图片" src="<%= row.PictureFileName %>" class="word">
+            <div class="caption">
+                <p><%= row.Description %></p>
+            </div>
+            <div>
+                <img alt="接收者头像" src="<%= row.IconFileName %>" class="user">
+                <p class="username"><%= row.Nickname %></p>
+            </div>
+        </div>
+    <% } %>
+    <div><ul name="pages"></ul></div>
+    <script type="text/javascript">
+        var pages = $('ul[name="pages"]');
+        pages.bootstrapPaginator({
+            bootstrapMajorVersion: 3,
+            currentPage: <%= currentPage %>,
+            totalPages: <%= totalPages %>,
+            pageUrl: function(type, page, current){
+                return '<%- pageUrl %>pageNumber=' + page;
+            }
+        });
+    </script>
+<% } %>
+</body>
+</html>

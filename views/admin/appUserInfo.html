@@ -39,5 +39,35 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        function setIframeHeight(iframe) {
+            var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+            if (iframeWin.document.body)
+                iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+        }
+        function getIframeHtml(src) {
+            return '<iframe frameborder="0" scrolling="no" width="100%" onload="setIframeHeight(this);" src="' + src + '"></iframe>';
+        }
+        var userID = <%= user.AppUserID %>;
+
+        $(window).resize(function(){
+            var iframes = $('iframe');
+            for (var i = 0; i < iframes.length; i++) {
+                setIframeHeight(iframes[i]);
+            }
+        });
+        $('#friends-tab').on('click', function(){
+            var panel = $('#friends');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/admin/appUser/search?mode=8&content=' + userID + '&pageNumber=1'));
+        });
+        $('#words-tab').on('click', function(){
+            var panel = $('#words');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/admin/word/search?mode=1&content=' + userID + '&pageNumber=1'));
+        });
+    </script>
 </body>
 </html>

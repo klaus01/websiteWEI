@@ -98,6 +98,114 @@ router.get('/appUsers', function(req, res) {
     });
 });
 
+router.get('/appUser/search', function(req, res) {
+    var RESULTCOUNT = 20;
+
+    var data = req.query;
+    var searchMode = 0;
+    var pageNumber = 1;
+    if (data.mode) {
+        searchMode = parseInt(data.mode);
+        pageNumber = parseInt(data.pageNumber);
+    }
+    if (pageNumber < 1)
+        pageNumber = 1;
+    var offset = (pageNumber - 1) * RESULTCOUNT;
+
+    var rowCount = 0;
+    function resultRows(rows) {
+        delete data.pageNumber;
+        var pageUrl = '/admin/appUser/search?';
+        for (var p in data) {
+            pageUrl += p + '=' + encodeURIComponent(data[p]) + '&';
+        }
+        resRender(res, 'appUserList', {
+            pageUrl: pageUrl,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(rowCount / RESULTCOUNT),
+            rows: rows
+        });
+    }
+
+    switch(searchMode) {
+        case 1://昵称
+            dbHelper.appUsers.getCountByNickname(data.content, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByNickname(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 2://手机号
+            dbHelper.appUsers.getCountByPhoneNumber(data.content, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByPhoneNumber(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 3://性别。0女，1男
+            dbHelper.appUsers.getCountByIsMan(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByIsMan(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 4://注册状态。0手机未验证，1手机已验证，2已经完善用户资料，3已进入应用主页
+            dbHelper.appUsers.getCountByRegistrationStatus(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByRegistrationStatus(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 5://注册时间段
+            dbHelper.appUsers.getCountByRegistrationTime(data.bTime, data.eTime, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByRegistrationTime(data.bTime, data.eTime, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 6://登录时间段
+            dbHelper.appUsers.getCountByLastLoginTime(data.bTime, data.eTime, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByLastLoginTime(data.bTime, data.eTime, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 7://坐标范围
+            var lonlatRange = lonlatHelper.getAround(data.lon, data.lat, data.raidus);
+            dbHelper.appUsers.getCountByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 8://指定用户的朋友
+            dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        default:
+            dbHelper.appUsers.findAll(offset, RESULTCOUNT, resultRows);
+    }
+});
+
 router.get('/appUser/:id', function(req, res) {
     var id = parseInt(req.params.id);
     if (id)
@@ -112,6 +220,57 @@ router.get('/appUser/:id', function(req, res) {
         });
     else
         res.end('缺少ID');
+});
+
+router.get('/word/search', function(req, res) {
+    var RESULTCOUNT = 20;
+
+    var data = req.query;
+    var searchMode = 0;
+    var pageNumber = 1;
+    if (data.mode) {
+        searchMode = parseInt(data.mode);
+        pageNumber = parseInt(data.pageNumber);
+    }
+    if (pageNumber < 1)
+        pageNumber = 1;
+    var offset = (pageNumber - 1) * RESULTCOUNT;
+
+    var rowCount = 0;
+    function resultRows(rows) {
+        delete data.pageNumber;
+        var pageUrl = '/admin/word/search?';
+        for (var p in data) {
+            pageUrl += p + '=' + encodeURIComponent(data[p]) + '&';
+        }
+        resRender(res, 'wordList', {
+            pageUrl: pageUrl,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(rowCount / RESULTCOUNT),
+            rows: rows
+        });
+    }
+
+    switch(searchMode) {
+        case 1://发送者ID
+            dbHelper.words.getCountBySourceUserID(data.content, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.words.findBySourceUserID(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 2://接收者ID
+            dbHelper.words.getCountByReceiveUserID(data.content, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.words.findByReceiveUserID(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+    }
 });
 
 

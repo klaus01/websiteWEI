@@ -1,7 +1,6 @@
 <% include header.html %>
-<script src="/js/bootstrap-paginator.min.js"></script>
 <style type="text/css">
-    .table-responsive { margin-top: 20px; }
+    iframe { margin-top: 20px; }
 </style>
 <h1 class="page-header"><%= title %></h1>
 <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
@@ -22,6 +21,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="phoneNumber" aria-labelledby="phoneNumber-tab">
             <form class="form-inline">
@@ -30,6 +30,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="isMan" aria-labelledby="isMan-tab">
             <form class="form-inline">
@@ -41,6 +42,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="registrationStatus" aria-labelledby="registrationStatus-tab">
             <form class="form-inline">
@@ -54,6 +56,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="registrationTime" aria-labelledby="registrationTime-tab">
             <form class="form-inline">
@@ -67,6 +70,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="loginTime" aria-labelledby="loginTime-tab">
             <form class="form-inline">
@@ -80,106 +84,81 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
+            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="lonlatRange" aria-labelledby="lonlatRange-tab">
         </div>
     </div>
 </div>
 <script type="text/javascript">
-    var TABLEBEGIN = '\
-        <div class="table-responsive">\
-            <table class="table table-striped table-hover">\
-                <thead>\
-                    <tr><th>头像</th><th>昵称</th><th>手机号</th><th>性别</th><th>注册状态</th><th>注册时间</th><th>上次登录时间</th><th>上次登录IP</th><th>上次登录地理信息</th><th></th></tr>\
-                </thead>\
-                <tbody>';
-    var TABLEEND = '\
-                </tbody>\
-            </table>\
-            <div><ul name="pages"></ul></div>\
-        </div>';
-    function search(data, btn, tableContainer){
-        btn.button('loading');
-        $.ajax({
-            type: 'POST',
-            url: '/ajax/appUser/search',
-            dataType: 'json',
-            data: data,
-            complete: function() {
-                btn.button('reset');
-            },
-            success: function(result) {
-                if (!result.success)
-                    return;
-                // 清除之前的表格
-                var tableDIV = tableContainer.find('.table-responsive');
-                if (tableDIV)
-                    tableDIV.remove();
-                // 生成表格内容
-                var newTable = TABLEBEGIN;
-                for (var i = 0; i < result.data.rows.length; i++) {
-                    var row = result.data.rows[i];
-                    newTable = newTable
-                    + '<tr>'
-                    + '<td>' + (row.IconFileName ? row.IconFileName : '') + '</td>'
-                    + '<td>' + (row.Nickname ? row.Nickname : '') + '</td>'
-                    + '<td>' + row.PhoneNumber + '</td>'
-                    + '<td>' + row.IsManDescription + '</td>'
-                    + '<td>' + row.RegistrationStatusDescription + '</td>'
-                    + '<td>' + row.RegistrationTime + '</td>'
-                    + '<td>' + (row.LastLoginTime ? row.LastLoginTime : '') + '</td>'
-                    + '<td>' + (row.LastLoginIP ? row.LastLoginIP : '') + '</td>'
-                    + '<td>' + (row.LastLoginLongitude && row.LastLoginLatitude ? row.LastLoginLongitude + '|' + row.LastLoginLatitude : '') + '</td>'
-                    + '<td><a class="btn btn-default btn-xs" target="_blank" href="./appUser/' + row.AppUserID + '">详情</a></td>'
-                    + '</tr>';
-                }
-                newTable += TABLEEND;
-                tableContainer.append(newTable);
-                // 处理分页
-                if (result.data.rows.length > 0) {
-                    var pages = tableContainer.find('[name="pages"]');
-                    pages.bootstrapPaginator({
-                        bootstrapMajorVersion: 3,
-                        currentPage: result.data.currentPage,
-                        totalPages: result.data.totalPages,
-                        onPageClicked: function(e, originalEvent, type, page){
-                            if (data.pageNumber === page)
-                                return;
-                            data.pageNumber = page;
-                            search(data, btn, tableContainer);
-                        }
-                    });
-                }
-            }
-        });
+    function getSearchUrl(parameters) {
+        var ret = '/ajax/appUser/search?';
+        for (var p in parameters) {
+            ret += p + '=' + encodeURIComponent(parameters[p]) + '&';
+        }
+        ret = ret.substr(0, ret.length - 1);
+        return ret;
     }
+    $('iframe').on('load', function(){
+        var iframeWin = this.contentWindow || this.contentDocument.parentWindow;
+        if (iframeWin.document.body)
+            this.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+    });
     $('#nickname form').on('submit', function(){
-        search({mode: 1, content: $(this).find('input').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 1,
+            content: $(this).find('input').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
     $('#phoneNumber form').on('submit', function(){
-        search({mode: 2, content: $(this).find('input').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 2,
+            content: $(this).find('input').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
     $('#isMan form').on('submit', function(){
-        search({mode: 3, content: $(this).find('select').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 3,
+            content: $(this).find('select').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
     $('#registrationStatus form').on('submit', function(){
-        search({mode: 4, content: $(this).find('select').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 4,
+            content: $(this).find('select').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
     $('#registrationTime form').on('submit', function(){
-        search({mode: 5, bTime: $(this).find('#registrationTime-bTime').val(), eTime: $(this).find('#registrationTime-eTime').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 5,
+            bTime: $(this).find('#registrationTime-bTime').val(),
+            eTime: $(this).find('#registrationTime-eTime').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
     $('#loginTime form').on('submit', function(){
-        search({mode: 6, bTime: $(this).find('#loginTime-bTime').val(), eTime: $(this).find('#loginTime-eTime').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
+        var parameters = {
+            mode: 6,
+            bTime: $(this).find('#loginTime-bTime').val(),
+            eTime: $(this).find('#loginTime-eTime').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
         return false;
     });
-//    $('#lonlatRange form').on('submit', function(){
-//        search({mode: 7, bTime: $(this).find('#loginTime-bTime').val(), eTime: $(this).find('#loginTime-eTime').val(), pageNumber: 1}, $(this).find('button'), $(this).parent());
-//        return false;
-//    });
 </script>
 <% include footer.html %>

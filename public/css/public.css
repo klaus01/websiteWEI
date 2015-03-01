@@ -1,0 +1,19 @@
+
+img.userIcon {
+    width: 20px;
+    height: 20px;
+}
+
+img.wordPic {
+    width: 20px;
+    height: 20px;
+}
+
+div.tab-pane>iframe {
+    margin-top: 20px;
+    width: 100%;
+}
+
+ul.nav-tabs {
+    margin-bottom: 15px;
+}

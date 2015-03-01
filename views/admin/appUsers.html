@@ -1,10 +1,7 @@
 <% include header.html %>
-<style type="text/css">
-    iframe { margin-top: 20px; }
-</style>
 <h1 class="page-header"><%= title %></h1>
 <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
-    <ul style="margin-bottom: 15px;" class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"  ><a role="tab" data-toggle="tab" aria-expanded="true"  href="#nickname"             id="nickname-tab"           aria-controls="nickname">昵称</a></li>
         <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#phoneNumber"          id="phoneNumber-tab"        aria-controls="phoneNumber">手机号</a></li>
         <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#isMan"                id="isMan-tab"              aria-controls="isMan">性别</a></li>
@@ -21,7 +18,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="phoneNumber" aria-labelledby="phoneNumber-tab">
             <form class="form-inline">
@@ -30,7 +27,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="isMan" aria-labelledby="isMan-tab">
             <form class="form-inline">
@@ -42,7 +39,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="registrationStatus" aria-labelledby="registrationStatus-tab">
             <form class="form-inline">
@@ -56,7 +53,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="registrationTime" aria-labelledby="registrationTime-tab">
             <form class="form-inline">
@@ -70,7 +67,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="loginTime" aria-labelledby="loginTime-tab">
             <form class="form-inline">
@@ -84,33 +81,22 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
             </form>
-            <iframe frameborder="0" scrolling="no" width="100%"></iframe>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="lonlatRange" aria-labelledby="lonlatRange-tab">
         </div>
     </div>
 </div>
 <script type="text/javascript">
-    function getSearchUrl(parameters) {
-        var ret = '/admin/appUser/search?';
-        for (var p in parameters) {
-            ret += p + '=' + encodeURIComponent(parameters[p]) + '&';
-        }
-        ret = ret.substr(0, ret.length - 1);
-        return ret;
-    }
-    $('iframe').on('load', function(){
-        var iframeWin = this.contentWindow || this.contentDocument.parentWindow;
-        if (iframeWin.document.body)
-            this.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
-    });
+    setIframeAutoHeight();
+    var SEARCHURL = '/admin/appUser/search?';
     $('#nickname form').on('submit', function(){
         var parameters = {
             mode: 1,
             content: $(this).find('input').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     $('#phoneNumber form').on('submit', function(){
@@ -119,7 +105,7 @@
             content: $(this).find('input').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     $('#isMan form').on('submit', function(){
@@ -128,7 +114,7 @@
             content: $(this).find('select').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     $('#registrationStatus form').on('submit', function(){
@@ -137,7 +123,7 @@
             content: $(this).find('select').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     $('#registrationTime form').on('submit', function(){
@@ -147,7 +133,7 @@
             eTime: $(this).find('#registrationTime-eTime').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     $('#loginTime form').on('submit', function(){
@@ -157,7 +143,7 @@
             eTime: $(this).find('#loginTime-eTime').val(),
             pageNumber: 1
         };
-        $(this).parent().find('iframe').attr('src', getSearchUrl(parameters));
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
     // TODO 按经纬度范围查询

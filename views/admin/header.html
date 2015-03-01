@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title><%= title %></title>
-<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/dashboard.css">
-<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
-<script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/public.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="/js/public.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -27,9 +29,9 @@
         <div class="col-sm-3 col-md-2 sidebar">
             <% if (user.IsManager) { %>
             <ul class="nav nav-sidebar">
-                <li <%= locals.isBackendUsers ? 'class=active' : '' %>><a href="./backendUsers">后台用户管理</a></li>
-                <li <%= locals.isAppUsers ? 'class=active' : '' %>><a href="./appUsers">APP用户列表</a></li>
-                <li><a href="#">字列表</a></li>
+                <li <%= locals.isBackendUsersPage ? 'class=active' : '' %>><a href="./backendUsers">后台用户管理</a></li>
+                <li <%= locals.isAppUsersPage ? 'class=active' : '' %>><a href="./appUsers">APP用户列表</a></li>
+                <li <%= locals.isWordsPage ? 'class=active' : '' %>><a href="./words">字列表</a></li>
                 <li><a href="#">短信列表</a></li>
                 <li><a href="#">公众号管理</a></li>
             </ul>

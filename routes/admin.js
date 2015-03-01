@@ -83,7 +83,7 @@ router.get('/backendUsers', function(req, res) {
             resRender(res, 'backendUsers', {
                 title: '后台用户管理',
                 user: req.session.user,
-                isBackendUsers: true,
+                isBackendUsersPage: true,
                 rows: rows
             });
         })
@@ -94,7 +94,15 @@ router.get('/appUsers', function(req, res) {
     resRender(res, 'appUsers', {
         title: 'APP用户列表',
         user: req.session.user,
-        isAppUsers: true
+        isAppUsersPage: true
+    });
+});
+
+router.get('/words', function(req, res) {
+    resRender(res, 'words', {
+        title: '字列表',
+        user: req.session.user,
+        isWordsPage: true
     });
 });
 
@@ -270,6 +278,26 @@ router.get('/word/search', function(req, res) {
                 userCaption = '发送者';
                 if (count > 0)
                     dbHelper.words.findByReceiveUserID(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 3://字编号
+            dbHelper.words.getCountByNumber(data.content, function(count){
+                rowCount = count;
+                userCaption = '创建者';
+                if (count > 0)
+                    dbHelper.words.findByNumber(data.content, offset, RESULTCOUNT, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 4://字解释
+            dbHelper.words.getCountByDescription(data.content, function(count){
+                rowCount = count;
+                userCaption = '创建者';
+                if (count > 0)
+                    dbHelper.words.findByDescription(data.content, offset, RESULTCOUNT, resultRows);
                 else
                     resultRows([]);
             });

@@ -1,0 +1,51 @@
+<% include header.html %>
+<h1 class="page-header"><%= title %></h1>
+<div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"  ><a role="tab" data-toggle="tab" aria-expanded="true"  href="#number"       id="number-tab"         aria-controls="number">编号</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#description"  id="description-tab"    aria-controls="description">解释</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade active in" id="number" aria-labelledby="number-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="description" aria-labelledby="description-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    setIframeAutoHeight();
+    var SEARCHURL = '/admin/word/search?';
+    $('#number form').on('submit', function(){
+        var parameters = {
+            mode: 3,
+            content: $(this).find('input').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#description form').on('submit', function(){
+        var parameters = {
+            mode: 4,
+            content: $(this).find('input').val(),
+            pageNumber: 1
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+</script>
+<% include footer.html %>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="/js/bootstrap-paginator.min.js"></script>
@@ -13,7 +14,7 @@
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
-        <tr><th>头像</th><th>昵称</th><th>手机号</th><th>性别</th><th>注册状态</th><th>注册时间</th><th>上次登录时间</th><th>上次登录IP</th><th>上次登录地理信息</th><th></th></tr>
+        <tr><th>头像</th><th>昵称</th><th>手机号</th><th>性别</th><th>注册状态</th><th>注册时间</th><th>上次登录时间</th><th>上次登录IP</th><th>上次登录位置</th><th></th></tr>
         </thead>
         <tbody>
         <%
@@ -21,7 +22,7 @@
             var row = rows[i];
         %>
             <tr>
-                <td><%= row.IconFileName ? row.IconFileName : '' %></td>
+                <td><a href="<%= row.IconFileName ? row.IconFileName : '' %>"><img src="<%= row.IconFileName ? row.IconFileName : '' %>" class="userIcon"></a></td>
                 <td><%= row.Nickname ? row.Nickname : '' %></td>
                 <td><%= row.PhoneNumber %></td>
                 <td><%= row.IsManDescription %></td>

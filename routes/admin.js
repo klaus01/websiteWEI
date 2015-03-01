@@ -237,6 +237,7 @@ router.get('/word/search', function(req, res) {
     var offset = (pageNumber - 1) * RESULTCOUNT;
 
     var rowCount = 0;
+    var userCaption = '';
     function resultRows(rows) {
         delete data.pageNumber;
         var pageUrl = '/admin/word/search?';
@@ -244,6 +245,7 @@ router.get('/word/search', function(req, res) {
             pageUrl += p + '=' + encodeURIComponent(data[p]) + '&';
         }
         resRender(res, 'wordList', {
+            userCaption: userCaption,
             pageUrl: pageUrl,
             currentPage: pageNumber,
             totalPages: Math.ceil(rowCount / RESULTCOUNT),
@@ -252,18 +254,20 @@ router.get('/word/search', function(req, res) {
     }
 
     switch(searchMode) {
-        case 1://发送者ID
+        case 1://字发送者ID
             dbHelper.words.getCountBySourceUserID(data.content, function(count){
                 rowCount = count;
+                userCaption = '接收者';
                 if (count > 0)
                     dbHelper.words.findBySourceUserID(data.content, offset, RESULTCOUNT, resultRows);
                 else
                     resultRows([]);
             });
             break;
-        case 2://接收者ID
+        case 2://字接收者ID
             dbHelper.words.getCountByReceiveUserID(data.content, function(count){
                 rowCount = count;
+                userCaption = '发送者';
                 if (count > 0)
                     dbHelper.words.findByReceiveUserID(data.content, offset, RESULTCOUNT, resultRows);
                 else

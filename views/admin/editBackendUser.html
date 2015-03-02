@@ -46,7 +46,7 @@
         else {
             modal.find('.modal-body #id').val(userid);
             var $btn = modal.find('.modal-footer button');
-            $btn.attr('data-loading-text', '正在加载用户信息...');
+            $btn.attr('data-loading-text', '正在加载信息...');
             $btn.button('loading');
             $.ajax({
                 type: 'POST',

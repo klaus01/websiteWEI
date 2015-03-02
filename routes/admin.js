@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var settings = require('../settings');
+var lonlatHelper = require('../lib/LonLat');
 var PATHHEADER = 'admin';
 
 
@@ -126,6 +127,21 @@ router.get('/smsLogs', function(req, res) {
                 totalPages: Math.ceil(count / settings.pageRows),
                 rows: rows
             });
+        });
+    });
+});
+
+router.get('/partnerUsers', function(req, res) {
+    dbHelper.partnerUsers.findAll(function(rows) {
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            row.IconFileUrl = settings.partnerUserIconsDir + row.IconFileName;
+        }
+        resRender(res, 'partnerUsers', {
+            title: '公众号管理',
+            user: req.session.user,
+            isPartnerUsersPage: true,
+            rows: rows
         });
     });
 });

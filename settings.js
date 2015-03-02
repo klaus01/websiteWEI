@@ -10,5 +10,7 @@ module.exports = {
         user     : 'root',
         password : '111'
     },
-    pageRows: 20
+    pageRows: 20,
+    tempUploadDir: './uploads/',
+    partnerUserIconsDir: '/images/partnerUserIcons/'
 };

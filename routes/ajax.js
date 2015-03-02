@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
-var lonlatHelper = require('../lib/LonLat');
+var fileHelper = require('../lib/fileHelper');
+var settings = require('../settings');
 var PATHHEADER = 'ajax';
 
 
@@ -58,6 +59,7 @@ router.post('/backendUser/post', function(req, res) {
                 error(res, '缺少id');
                 return;
             }
+            var id = parseInt(data.id);
             if (!data.name) {
                 error(res, '缺少姓名');
                 return;
@@ -66,12 +68,11 @@ router.post('/backendUser/post', function(req, res) {
                 error(res, '缺少登录名');
                 return;
             }
-            if (!data.password) {
+            if ((id <= 0) && !data.password) {
                 error(res, '缺少密码');
                 return;
             }
 
-            var id = parseInt(data.id);
             dbHelper.backendUsers.findByLoginName(data.loginname, id, function(rows) {
                 if (rows.length > 0)
                     error(res, '登录名' + data.loginname + '已存在，请更换');
@@ -103,8 +104,79 @@ router.post('/backendUser/delete', function(req, res) {
 });
 
 /********************************
- * APP用户相关
+ * 公众用户相关
  ********************************/
+
+router.post('/partnerUser/get', function(req, res) {
+    var id = req.body.id;
+    if (id)
+        dbHelper.partnerUsers.findByID(parseInt(id), function(rows){
+            if (rows.length)
+                success(res, rows[0]);
+            else
+                error(res, '无此用户');
+        });
+    else
+        error(res, '缺少id');
+});
+
+router.post('/partnerUser/post', function(req, res) {
+    var data = req.body;
+    var files = req.files;
+    if (!data.id) {
+        error(res, '缺少id');
+        return;
+    }
+    var id = parseInt(data.id);
+    if (!data.name) {
+        error(res, '缺少名称');
+        return;
+    }
+    if ((id <= 0) && !files.iconfile) {
+        error(res, '缺少头像');
+        return;
+    }
+    if (!data.description) {
+        error(res, '缺少描述');
+        return;
+    }
+    if (!data.loginname) {
+        error(res, '缺少登录名');
+        return;
+    }
+    if ((id <= 0) && !data.password) {
+        error(res, '缺少密码');
+        return;
+    }
+    if (!data.enabled) {
+        error(res, '缺少启用状态');
+        return;
+    }
+
+    dbHelper.partnerUsers.findByLoginName(data.loginname, id, function(rows) {
+        if (rows.length > 0) {
+            error(res, '登录名' + data.loginname + '已存在，请更换');
+            return;
+        }
+
+        function operatingDB(){
+            var iconFileName = files.iconfile ? files.iconfile.name : null;
+            if (id > 0)
+                dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, function (data) {
+                    success(res, data);
+                });
+            else
+                dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, function (data) {
+                    success(res, data);
+                });
+        }
+
+        if (files.iconfile)
+            fileHelper.movePartnerUserIconFile(files.iconfile, operatingDB);
+        else
+            operatingDB();
+    });
+});
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

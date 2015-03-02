@@ -33,7 +33,7 @@
                 <li <%= locals.isAppUsersPage ? 'class=active' : '' %>><a href="./appUsers">APP用户列表</a></li>
                 <li <%= locals.isWordsPage ? 'class=active' : '' %>><a href="./words">字列表</a></li>
                 <li <%= locals.isSMSLogs ? 'class=active' : '' %>><a href="./smsLogs">短信列表</a></li>
-                <li><a href="#">公众号管理</a></li>
+                <li <%= locals.isPartnerUsers ? 'class=active' : '' %>><a href="./partnerUsers">公众号管理</a></li>
             </ul>
             <% } %>
         </div>

@@ -9,5 +9,6 @@ module.exports = {
         database : 'WEIDB',
         user     : 'root',
         password : '111'
-    }
+    },
+    pageRows: 20
 };

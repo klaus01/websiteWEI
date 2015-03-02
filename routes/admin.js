@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
+var settings = require('../settings');
 var PATHHEADER = 'admin';
 
 
@@ -106,9 +107,30 @@ router.get('/words', function(req, res) {
     });
 });
 
-router.get('/appUser/search', function(req, res) {
-    var RESULTCOUNT = 20;
+router.get('/smsLogs', function(req, res) {
+    dbHelper.sms.getCount(function(count){
+        var pageNumber = 1;
+        if (req.query.pageNumber)
+            pageNumber = parseInt(req.query.pageNumber);
+        if (pageNumber < 1)
+            pageNumber = 1;
+        var offset = (pageNumber - 1) * settings.pageRows;
 
+        dbHelper.sms.findAll(offset, settings.pageRows, function(rows){
+            resRender(res, 'smsLogs', {
+                title: '短信列表',
+                user: req.session.user,
+                isSMSLogs: true,
+                pageUrl: '/admin/smsLogs?',
+                currentPage: pageNumber,
+                totalPages: Math.ceil(count / settings.pageRows),
+                rows: rows
+            });
+        });
+    });
+});
+
+router.get('/appUser/search', function(req, res) {
     var data = req.query;
     var searchMode = 0;
     var pageNumber = 1;
@@ -118,7 +140,7 @@ router.get('/appUser/search', function(req, res) {
     }
     if (pageNumber < 1)
         pageNumber = 1;
-    var offset = (pageNumber - 1) * RESULTCOUNT;
+    var offset = (pageNumber - 1) * settings.pageRows;
 
     var rowCount = 0;
     function resultRows(rows) {
@@ -130,7 +152,7 @@ router.get('/appUser/search', function(req, res) {
         resRender(res, 'appUserList', {
             pageUrl: pageUrl,
             currentPage: pageNumber,
-            totalPages: Math.ceil(rowCount / RESULTCOUNT),
+            totalPages: Math.ceil(rowCount / settings.pageRows),
             rows: rows
         });
     }
@@ -140,7 +162,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByNickname(data.content, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByNickname(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByNickname(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -149,7 +171,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByPhoneNumber(data.content, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByPhoneNumber(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByPhoneNumber(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -158,7 +180,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByIsMan(parseInt(data.content), function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByIsMan(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByIsMan(parseInt(data.content), offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -167,7 +189,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByRegistrationStatus(parseInt(data.content), function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByRegistrationStatus(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByRegistrationStatus(parseInt(data.content), offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -176,7 +198,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByRegistrationTime(data.bTime, data.eTime, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByRegistrationTime(data.bTime, data.eTime, offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByRegistrationTime(data.bTime, data.eTime, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -185,7 +207,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByLastLoginTime(data.bTime, data.eTime, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByLastLoginTime(data.bTime, data.eTime, offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByLastLoginTime(data.bTime, data.eTime, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -195,7 +217,7 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getCountByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -204,13 +226,13 @@ router.get('/appUser/search', function(req, res) {
             dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, RESULTCOUNT, resultRows);
+                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
             break;
         default:
-            dbHelper.appUsers.findAll(offset, RESULTCOUNT, resultRows);
+            dbHelper.appUsers.findAll(offset, settings.pageRows, resultRows);
     }
 });
 
@@ -231,8 +253,6 @@ router.get('/appUser/:id', function(req, res) {
 });
 
 router.get('/word/search', function(req, res) {
-    var RESULTCOUNT = 20;
-
     var data = req.query;
     var searchMode = 0;
     var pageNumber = 1;
@@ -242,7 +262,7 @@ router.get('/word/search', function(req, res) {
     }
     if (pageNumber < 1)
         pageNumber = 1;
-    var offset = (pageNumber - 1) * RESULTCOUNT;
+    var offset = (pageNumber - 1) * settings.pageRows;
 
     var rowCount = 0;
     var userCaption = '';
@@ -256,7 +276,7 @@ router.get('/word/search', function(req, res) {
             userCaption: userCaption,
             pageUrl: pageUrl,
             currentPage: pageNumber,
-            totalPages: Math.ceil(rowCount / RESULTCOUNT),
+            totalPages: Math.ceil(rowCount / settings.pageRows),
             rows: rows
         });
     }
@@ -267,7 +287,7 @@ router.get('/word/search', function(req, res) {
                 rowCount = count;
                 userCaption = '接收者';
                 if (count > 0)
-                    dbHelper.words.findBySourceUserID(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.words.findBySourceUserID(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -277,7 +297,7 @@ router.get('/word/search', function(req, res) {
                 rowCount = count;
                 userCaption = '发送者';
                 if (count > 0)
-                    dbHelper.words.findByReceiveUserID(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.words.findByReceiveUserID(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -287,7 +307,7 @@ router.get('/word/search', function(req, res) {
                 rowCount = count;
                 userCaption = '创建者';
                 if (count > 0)
-                    dbHelper.words.findByNumber(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.words.findByNumber(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -297,7 +317,7 @@ router.get('/word/search', function(req, res) {
                 rowCount = count;
                 userCaption = '创建者';
                 if (count > 0)
-                    dbHelper.words.findByDescription(data.content, offset, RESULTCOUNT, resultRows);
+                    dbHelper.words.findByDescription(data.content, offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });

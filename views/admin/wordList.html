@@ -36,14 +36,15 @@
     <script type="text/javascript">
         var pages = $('ul[name="pages"]');
         pages.bootstrapPaginator({
-                    bootstrapMajorVersion: 3,
-                    currentPage: <%= currentPage %>,
-                totalPages: <%= totalPages %>,
+            bootstrapMajorVersion: 3,
+            currentPage: <%= currentPage %>,
+            totalPages: <%= totalPages %>,
                 pageUrl: function(type, page, current){
-            return '<%- pageUrl %>pageNumber=' + page;
-        }
+                return '<%- pageUrl %>pageNumber=' + page;
+            }
         });
     </script>
-    <% } %>
+</div>
+<% } %>
 </body>
 </html>

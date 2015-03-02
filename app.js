@@ -3,6 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var multer = require('multer');
 var ejs = require('ejs');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
@@ -23,6 +24,7 @@ app.set('view engine', 'html');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({dest: settings.tempUploadDir}));
 app.use(cookieParser());
 app.use(session({
     secret: settings.cookie.secret,

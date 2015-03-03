@@ -121,7 +121,7 @@ router.get('/smsLogs', function(req, res) {
             resRender(res, 'smsLogs', {
                 title: '短信列表',
                 user: req.session.user,
-                isSMSLogs: true,
+                isSMSLogsPage: true,
                 pageUrl: '/admin/smsLogs?',
                 currentPage: pageNumber,
                 totalPages: Math.ceil(count / settings.pageRows),

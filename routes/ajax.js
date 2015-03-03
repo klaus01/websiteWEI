@@ -14,7 +14,7 @@ function resultJSON(res, isSuccess, content) {
         ret.data = content;
     else
         ret.message = content;
-    res.jsonp(ret);
+    res.json(ret);
 }
 function error(res, message) {
     resultJSON(res, false, message);

@@ -16,10 +16,10 @@
             手机号：<%= user.PhoneNumber %><br>
             性别：<%= user.IsManDescription %><br>
             注册状态：<%= user.RegistrationStatusDescription %><br>
-            注册时间：<%= user.RegistrationTime.toJSON() %><br>
+            注册时间：<%= user.RegistrationTime.toStandardString() %><br>
             注册时设备：<%= user.RegistrationDevice ? user.RegistrationDevice : '' %><br>
             注册时版本：<%= user.RegistrationOS ? user.RegistrationOS : '' %><br>
-            上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toJSON() : '' %><br>
+            上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toStandardString() : '' %><br>
             上次登录IP：<%= user.LastLoginIP ? user.LastLoginIP : '' %><br>
             上次登录地理信息：<%= user.LastLoginLongitude && user.LastLoginLatitude ? user.LastLoginLongitude + '|' + user.LastLoginLatitude : '' %>
         </p>

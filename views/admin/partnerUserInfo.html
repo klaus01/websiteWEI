@@ -16,8 +16,8 @@
         介绍：<%= user.Description %><br>
         登录名：<%= user.LoginName %><br>
         状态：<%= user.EnabledDescription %><br>
-        创建时间：<%= user.CreateTime.toJSON() %><br>
-        上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toJSON() : '' %><br>
+        创建时间：<%= user.CreateTime.toStandardString() %><br>
+        上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toStandardString() : '' %><br>
         上次登录IP：<%= user.LastLoginIP ? user.LastLoginIP : '' %><br>
         关联App用户：
         <% if (user.AppUser) { %>

@@ -22,8 +22,8 @@
             <tr>
                 <td><%= row.Name %></td>
                 <td><%= row.LoginName %></td>
-                <td><%= row.CreateTime.toJSON() %></td>
-                <td><%= row.LastLoginTime ? row.LastLoginTime.toJSON() : '' %></td>
+                <td><%= row.CreateTime.toStandardString() %></td>
+                <td><%= row.LastLoginTime ? row.LastLoginTime.toStandardString() : '' %></td>
                 <td><%= row.LastLoginIP %></td>
                 <td class="text-right">
                 <% if (!row.IsManager) { %>

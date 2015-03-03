@@ -16,8 +16,8 @@
                 <td><%= row.PhoneNumber %></td>
                 <td><%= row.IsManDescription %></td>
                 <td><%= row.RegistrationStatusDescription %></td>
-                <td><%= row.RegistrationTime.toJSON() %></td>
-                <td><%= row.LastLoginTime ? row.LastLoginTime.toJSON() : '' %></td>
+                <td><%= row.RegistrationTime.toStandardString() %></td>
+                <td><%= row.LastLoginTime ? row.LastLoginTime.toStandardString() : '' %></td>
                 <td><%= row.LastLoginIP ? row.LastLoginIP : '' %></td>
                 <td><%= row.LastLoginLongitude && row.LastLoginLatitude ? row.LastLoginLongitude + '|' + row.LastLoginLatitude : '' %></td>
                 <td class="text-right"><a class="btn btn-default btn-xs" target="_blank" href="/admin/appUserInfo/<%= row.AppUserID %>">详情</a></td>

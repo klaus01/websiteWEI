@@ -16,7 +16,7 @@
             <td><%= row.TypeDescription %></td>
             <td><%= row.Content %></td>
             <td><%= row.IsVerifiedDescription %></td>
-            <td><%= row.SendTime ? row.SendTime.toJSON() : '' %></td>
+            <td><%= row.SendTime ? row.SendTime.toStandardString() : '' %></td>
         </tr>
         <% } %>
         </tbody>

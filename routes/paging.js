@@ -207,6 +207,40 @@ router.get('/wordList', function(req, res) {
     }
 });
 
+router.get('/activityList', function(req, res) {
+    var data = req.query;
+    var searchMode = data.mode ? parseInt(data.mode) : 0;
+    var pageNumber = data.pageNumber ? parseInt(data.pageNumber) : 1;
+    if (pageNumber < 1)
+        pageNumber = 1;
+    var offset = (pageNumber - 1) * settings.pageRows;
+
+    var rowCount = 0;
+    function resultRows(rows) {
+        // 将URL中的pageNumber参数对掉，并返回给页面使用
+        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+
+        resRender(res, 'wordList', {
+            pageUrl: pageUrl,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(rowCount / settings.pageRows),
+            rows: rows
+        });
+    }
+
+    switch(searchMode) {
+        case 1://根据 活动创建者 查询
+            dbHelper.activities.getCountByPartnerUserID(data.content, function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.activities.findByPartnerUserID(data.content, offset, settings.pageRows, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+    }
+});
+
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

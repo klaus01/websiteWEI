@@ -65,7 +65,12 @@
             return;
         panel.append(getIframeHtml('/paging/appUserList?mode=9&content=' + userID));
     });
-    // TODO 活动列表
+    $('#activities-tab').on('click', function(){
+        var panel = $('#activities');
+        if (panel.find('iframe').length > 0)
+            return;
+        panel.append(getIframeHtml('/paging/activityList?mode=1&content=' + userID));
+    });
     $('#words-tab').on('click', function(){
         var panel = $('#words');
         if (panel.find('iframe').length > 0)

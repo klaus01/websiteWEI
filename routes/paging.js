@@ -19,12 +19,8 @@ function resRender(res, moduleFileName, json) {
 
 router.get('/appUserList', function(req, res) {
     var data = req.query;
-    var searchMode = 0;
-    var pageNumber = 1;
-    if (data.mode) {
-        searchMode = parseInt(data.mode);
-        pageNumber = parseInt(data.pageNumber);
-    }
+    var searchMode = data.mode ? parseInt(data.mode) : 0;
+    var pageNumber = data.pageNumber ? parseInt(data.pageNumber) : 1;
     if (pageNumber < 1)
         pageNumber = 1;
     var offset = (pageNumber - 1) * settings.pageRows;
@@ -116,19 +112,38 @@ router.get('/appUserList', function(req, res) {
                     resultRows([]);
             });
             break;
+        case 9://指定公众号的订阅用户
+            dbHelper.appUsers.getFriendsCountByPartnerUserID(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findFriendsByPartnerUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
         default:
             dbHelper.appUsers.findAll(offset, settings.pageRows, resultRows);
     }
 });
 
+router.get('/partnerUserList', function(req, res) {
+    var data = req.query;
+    var searchMode = data.mode ? parseInt(data.mode) : 0;
+    switch(searchMode) {
+        case 1://根据 订阅者ID 查询公众号列表
+            dbHelper.partnerUsers.findBySubscriberID(data.content, function(rows){
+                resRender(res, 'partnerUserList', {
+                    rows: rows
+                });
+            });
+            break;
+    }
+});
+
 router.get('/wordList', function(req, res) {
     var data = req.query;
-    var searchMode = 0;
-    var pageNumber = 1;
-    if (data.mode) {
-        searchMode = parseInt(data.mode);
-        pageNumber = parseInt(data.pageNumber);
-    }
+    var searchMode = data.mode ? parseInt(data.mode) : 0;
+    var pageNumber = data.pageNumber ? parseInt(data.pageNumber) : 1;
     if (pageNumber < 1)
         pageNumber = 1;
     var offset = (pageNumber - 1) * settings.pageRows;
@@ -149,7 +164,7 @@ router.get('/wordList', function(req, res) {
     }
 
     switch(searchMode) {
-        case 1://字发送者ID
+        case 1://根据 字发送者ID 查询发送的字和接收者信息
             dbHelper.words.getCountBySourceUserID(data.content, function(count){
                 rowCount = count;
                 userCaption = '接收者';
@@ -159,7 +174,7 @@ router.get('/wordList', function(req, res) {
                     resultRows([]);
             });
             break;
-        case 2://字接收者ID
+        case 2://根据 字接收者ID 查询接收的字和发送者信息
             dbHelper.words.getCountByReceiveUserID(data.content, function(count){
                 rowCount = count;
                 userCaption = '发送者';

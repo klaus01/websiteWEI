@@ -29,12 +29,12 @@
 </div>
 <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs" style="margin-top: 20px;">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#subscribers"   id="subscribers-tab"    aria-controls="subscribers">订阅者列表</a></li>
-        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#activities"    id="activities-tab"     aria-controls="activities">活动列表</a></li>
-        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#words"         id="words-tab"          aria-controls="words">收到的消息列表</a></li>
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#friends"    id="friends-tab"    aria-controls="friends">订阅者列表</a></li>
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#activities" id="activities-tab" aria-controls="activities">活动列表</a></li>
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#words"      id="words-tab"      aria-controls="words">收到的消息列表</a></li>
     </ul>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane fade" id="subscribers" aria-labelledby="subscribers-tab">
+        <div role="tabpanel" class="tab-pane fade" id="friends" aria-labelledby="friends-tab">
         </div>
         <div role="tabpanel" class="tab-pane fade" id="activities" aria-labelledby="activities-tab">
         </div>
@@ -59,13 +59,19 @@
             setIframeHeight(iframes[i]);
         }
     });
+    $('#friends-tab').on('click', function(){
+        var panel = $('#friends');
+        if (panel.find('iframe').length > 0)
+            return;
+        panel.append(getIframeHtml('/paging/appUserList?mode=9&content=' + userID));
+    });
+    // TODO 活动列表
     $('#words-tab').on('click', function(){
         var panel = $('#words');
         if (panel.find('iframe').length > 0)
             return;
-        panel.append(getIframeHtml('/paging/wordList?mode=1&content=' + userID + '&pageNumber=1'));
+        panel.append(getIframeHtml('/paging/wordList?mode=2&content=' + userID));
     });
-    // TODO
 </script>
 </body>
 </html>

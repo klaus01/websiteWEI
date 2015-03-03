@@ -61,15 +61,20 @@
             var panel = $('#friends');
             if (panel.find('iframe').length > 0)
                 return;
-            panel.append(getIframeHtml('/paging/appUserList?mode=8&content=' + userID + '&pageNumber=1'));
+            panel.append(getIframeHtml('/paging/appUserList?mode=8&content=' + userID));
         });
         $('#words-tab').on('click', function(){
             var panel = $('#words');
             if (panel.find('iframe').length > 0)
                 return;
-            panel.append(getIframeHtml('/paging/wordList?mode=1&content=' + userID + '&pageNumber=1'));
+            panel.append(getIframeHtml('/paging/wordList?mode=1&content=' + userID));
         });
-        // TODO 公众号列表
+        $('#partners-tab').on('click', function(){
+            var panel = $('#partners');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/paging/partnerUserList?mode=1&content=' + userID));
+        });
     </script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 var express = require('express');
+var path = require('path');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var fileHelper = require('../lib/fileHelper');
-var settings = require('../settings');
-var PATHHEADER = 'ajax';
+var PATHHEADER = path.basename(__filename, '.js');
 
 
 function resultJSON(res, isSuccess, content) {

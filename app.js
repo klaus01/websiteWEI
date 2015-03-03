@@ -11,7 +11,7 @@ var mongoStore = require('connect-mongo')(session);
 var indexRoutes = require('./routes/index');
 var adminRoutes = require('./routes/admin');
 var ajaxRoutes = require('./routes/ajax');
-var partnerRoutes = require('./routes/partner');
+var pagingRoutes = require('./routes/paging');
 var settings = require('./settings');
 
 var app = express();
@@ -39,7 +39,8 @@ app.use('/', indexRoutes);
 app.use('/' + ajaxRoutes.PATHHEADER, ajaxRoutes);
 app.use(adminRoutes.checkLogin);
 app.use('/' + adminRoutes.PATHHEADER, adminRoutes);
-app.use('/' + partnerRoutes.PATHHEADER, partnerRoutes);
+app.use(pagingRoutes.checkLogin);
+app.use('/' + pagingRoutes.PATHHEADER, pagingRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

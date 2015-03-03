@@ -60,13 +60,13 @@
             var panel = $('#friends');
             if (panel.find('iframe').length > 0)
                 return;
-            panel.append(getIframeHtml('/admin/appUser/search?mode=8&content=' + userID + '&pageNumber=1'));
+            panel.append(getIframeHtml('/paging/appUserList?mode=8&content=' + userID + '&pageNumber=1'));
         });
         $('#words-tab').on('click', function(){
             var panel = $('#words');
             if (panel.find('iframe').length > 0)
                 return;
-            panel.append(getIframeHtml('/admin/word/search?mode=1&content=' + userID + '&pageNumber=1'));
+            panel.append(getIframeHtml('/paging/wordList?mode=1&content=' + userID + '&pageNumber=1'));
         });
         // TODO 公众号列表
     </script>

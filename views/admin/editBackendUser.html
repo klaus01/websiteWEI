@@ -36,7 +36,7 @@
         var button = $(event.relatedTarget);
         var userid = button.data('userid');
         var modal = $(this);
-        modal.find('.modal-title').text((userid ? '编辑' : '新增') + '后台用户');
+        modal.find('.modal-title').text((userid ? '编辑' : '新增'));
         if (userid == undefined) {
             modal.find('.modal-body #id').val('0');
             modal.find('.modal-body #name').val('');

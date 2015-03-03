@@ -1,11 +1,17 @@
 var express = require('express');
 var path = require('path');
+var url = require('url');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var settings = require('../settings');
 var lonlatHelper = require('../lib/LonLat');
 var PATHHEADER = path.basename(__filename, '.js');
 
+function deleteUrlPageNumberQuery(urlString){
+    var urlObj = url.parse(urlString, true);
+    delete urlObj.query.pageNumber;
+    return url.format({pathname: urlObj.pathname, query: urlObj.query});
+}
 
 function resRender(res, moduleFileName, json) {
     res.render(PATHHEADER + '/' + moduleFileName, json);
@@ -25,11 +31,9 @@ router.get('/appUserList', function(req, res) {
 
     var rowCount = 0;
     function resultRows(rows) {
-        delete data.pageNumber;
-        var pageUrl = '/' + PATHHEADER + '/appUserList?';
-        for (var p in data) {
-            pageUrl += p + '=' + encodeURIComponent(data[p]) + '&';
-        }
+        // 将URL中的pageNumber参数对掉，并返回给页面使用
+        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+
         resRender(res, 'appUserList', {
             pageUrl: pageUrl,
             currentPage: pageNumber,
@@ -132,11 +136,9 @@ router.get('/wordList', function(req, res) {
     var rowCount = 0;
     var userCaption = '';
     function resultRows(rows) {
-        delete data.pageNumber;
-        var pageUrl = '/' + PATHHEADER + '/wordList?';
-        for (var p in data) {
-            pageUrl += p + '=' + encodeURIComponent(data[p]) + '&';
-        }
+        // 将URL中的pageNumber参数对掉，并返回给页面使用
+        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+
         resRender(res, 'wordList', {
             userCaption: userCaption,
             pageUrl: pageUrl,

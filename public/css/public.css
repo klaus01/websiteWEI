@@ -1,12 +1,26 @@
 
-img.userIcon {
+body.info-page {
+    padding: 0px 20px;
+}
+
+img.user-icon-sm {
     width: 20px;
     height: 20px;
 }
 
-img.wordPic {
+img.word-pic-sm {
     width: 20px;
     height: 20px;
+}
+
+img.user-icon-lg {
+    width: 200px;
+    height: 200px;
+}
+
+img.word-pic-lg {
+    width: 200px;
+    height: 200px;
 }
 
 div.tab-pane>iframe {
@@ -16,4 +30,8 @@ div.tab-pane>iframe {
 
 ul.nav-tabs {
     margin-bottom: 15px;
+}
+
+p.info-list {
+    padding-right: 10px; float: left;
 }

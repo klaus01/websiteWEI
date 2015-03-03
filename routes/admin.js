@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
+var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
 var PATHHEADER = path.basename(__filename, '.js');
 
@@ -133,10 +134,7 @@ router.get('/smsLogs', function(req, res) {
 
 router.get('/partnerUsers', function(req, res) {
     dbHelper.partnerUsers.findAll(function(rows) {
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            row.IconFileUrl = settings.partnerUserIconsDir + row.IconFileName;
-        }
+        rows = publicFunction.addPartnerUserIconUrl(rows);
         resRender(res, 'partnerUsers', {
             title: '公众号管理',
             user: req.session.user,
@@ -146,7 +144,7 @@ router.get('/partnerUsers', function(req, res) {
     });
 });
 
-router.get('/appUser/:id', function(req, res) {
+router.get('/appUserInfo/:id', function(req, res) {
     var id = parseInt(req.params.id);
     if (id)
         dbHelper.appUsers.findByID(id, function(rows){
@@ -157,6 +155,41 @@ router.get('/appUser/:id', function(req, res) {
                     title: 'APP用户信息',
                     user: rows[0]
                 });
+        });
+    else
+        res.end('缺少ID');
+});
+
+router.get('/partnerUserInfo/:id', function(req, res) {
+    var id = parseInt(req.params.id);
+    if (id)
+        dbHelper.partnerUsers.findByID(id, function(rows){
+
+            if (rows.length) {
+                rows = publicFunction.addPartnerUserIconUrl(rows);
+                var data = rows[0];
+
+                function resultFunc(){
+                    resRender(res, 'partnerUserInfo', {
+                        title: '公众号用户信息',
+                        user: data
+                    });
+                }
+
+                if (data.AppUserID)
+                    dbHelper.appUsers.findByID(data.AppUserID, function(rows){
+                        if (rows.length) {
+                            data.AppUser = rows[0];
+                            resultFunc();
+                        }
+                        else
+                            res.end('公众号关联的App用户ID：' + data.AppUserID + '不存在');
+                    });
+                else
+                    resultFunc();
+            }
+            else
+                res.end('公众号' + id + '不存在');
         });
     else
         res.end('缺少ID');

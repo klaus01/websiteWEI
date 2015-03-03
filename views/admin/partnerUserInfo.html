@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/public.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</head>
+<body class="info-page">
+<h1 class="page-header"><%= title %></h1>
+<div>
+    <p class="info-list">
+        名称：<%= user.Name %><br>
+        介绍：<%= user.Description %><br>
+        登录名：<%= user.LoginName %><br>
+        状态：<%= user.EnabledDescription %><br>
+        创建时间：<%= user.CreateTime.toJSON() %><br>
+        上次登录时间：<%= user.LastLoginTime ? user.LastLoginTime.toJSON() : '' %><br>
+        上次登录IP：<%= user.LastLoginIP ? user.LastLoginIP : '' %><br>
+        关联App用户：
+        <% if (user.AppUser) { %>
+            <a href="/admin/appUserInfo/<%= user.AppUser.AppUserID %>"><%= user.AppUser.PhoneNumber %></a>
+        <% } %>
+        <br>
+    </p>
+    <a href="<%= user.IconFileUrl %>" target="_blank"><img src="<%= user.IconFileUrl %>" class="img-thumbnail user-icon-lg"></a>
+</div>
+<div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs" style="margin-top: 20px;">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#subscribers"   id="subscribers-tab"    aria-controls="subscribers">订阅者列表</a></li>
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#activities"    id="activities-tab"     aria-controls="activities">活动列表</a></li>
+        <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#words"         id="words-tab"          aria-controls="words">收到的消息列表</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" id="subscribers" aria-labelledby="subscribers-tab">
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="activities" aria-labelledby="activities-tab">
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="words" aria-labelledby="words-tab">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function setIframeHeight(iframe) {
+        var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+        if (iframeWin.document.body)
+            iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+    }
+    function getIframeHtml(src) {
+        return '<iframe frameborder="0" scrolling="no" width="100%" onload="setIframeHeight(this);" src="' + src + '"></iframe>';
+    }
+    var userID = <%= user.PartnerUserID %>;
+
+    $(window).resize(function(){
+        var iframes = $('iframe');
+        for (var i = 0; i < iframes.length; i++) {
+            setIframeHeight(iframes[i]);
+        }
+    });
+    $('#words-tab').on('click', function(){
+        var panel = $('#words');
+        if (panel.find('iframe').length > 0)
+            return;
+        panel.append(getIframeHtml('/paging/wordList?mode=1&content=' + userID + '&pageNumber=1'));
+    });
+    // TODO
+</script>
+</body>
+</html>

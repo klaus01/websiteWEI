@@ -111,8 +111,20 @@ router.post('/partnerUser/get', function(req, res) {
     var id = req.body.id;
     if (id)
         dbHelper.partnerUsers.findByID(parseInt(id), function(rows){
-            if (rows.length)
-                success(res, rows[0]);
+            if (rows.length) {
+                var data = rows[0];
+                if (data.AppUserID)
+                    dbHelper.appUsers.findByID(data.AppUserID, function(rows){
+                        if (rows.length) {
+                            data.AppUser = rows[0];
+                            success(res, data);
+                        }
+                        else
+                            error(res, '公众号关联的App用户ID:' + data.AppUserID + '不存在');
+                    });
+                else
+                    success(res, data);
+            }
             else
                 error(res, '无此用户');
         });
@@ -159,22 +171,39 @@ router.post('/partnerUser/post', function(req, res) {
             return;
         }
 
+        var appUserID = null;
+        // 操作入库
         function operatingDB(){
             var iconFileName = files.iconfile ? files.iconfile.name : null;
             if (id > 0)
-                dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, function (data) {
+                dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, appUserID, function (data) {
                     success(res, data);
                 });
             else
-                dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, function (data) {
+                dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, appUserID, function (data) {
                     success(res, data);
                 });
         }
 
+        // 根据App用户手机号查询出用户ID
+        function findAppUserID(){
+            if (data.appUserPhoneNumber)
+                dbHelper.appUsers.findByPhoneNumber(data.appUserPhoneNumber, function(rows){
+                    if (rows.length) {
+                        appUserID = rows[0].AppUserID;
+                        operatingDB();
+                    }
+                    else
+                        error(res, 'App用户手机号' + data.appUserPhoneNumber + '不存在，请确认是否输入正确');
+                });
+            else
+                operatingDB();
+        }
+
         if (files.iconfile)
-            fileHelper.movePartnerUserIconFile(files.iconfile, operatingDB);
+            fileHelper.movePartnerUserIconFile(files.iconfile, findAppUserID);
         else
-            operatingDB();
+            findAppUserID();
     });
 });
 

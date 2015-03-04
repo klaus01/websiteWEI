@@ -73,6 +73,13 @@ router.get('/logout', function(req, res) {
     resRedirect(res, '/');
 });
 
+router.get('/appUsers', function(req, res) {
+    resRender(res, 'appUsers', {
+        title: '订阅者列表',
+        user: req.session.partnerUser,
+        isAppUsersPage: true
+    });
+});
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

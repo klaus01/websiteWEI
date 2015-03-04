@@ -23,13 +23,13 @@ router.get('/', function(req, res) {
 });
 
 router.get('/login', function(req, res) {
-    resRender(res, 'login', { title: '公众号用户登录' });
+    res.render('public/login', { title: '公众号用户登录' });
 });
 
 router.post('/login', function(req, res) {
 
     function error(message) {
-        resRender(res, 'login', {
+        res.render('public/login', {
             title: '公众号用户登录',
             message: message
         });

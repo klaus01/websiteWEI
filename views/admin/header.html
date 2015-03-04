@@ -14,7 +14,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <div class="navbar-brand">WEI管理</div>
+            <div class="navbar-brand">WEI后台管理</div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -27,14 +27,14 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
-            <% if (user.IsManager) { %>
             <ul class="nav nav-sidebar">
+                <% if (user.IsManager) { %>
                 <li <%= locals.isBackendUsersPage ? 'class=active' : '' %>><a href="./backendUsers">后台用户管理</a></li>
+                <% } %>
                 <li <%= locals.isAppUsersPage ? 'class=active' : '' %>><a href="./appUsers">APP用户列表</a></li>
                 <li <%= locals.isWordsPage ? 'class=active' : '' %>><a href="./words">字列表</a></li>
                 <li <%= locals.isSMSLogsPage ? 'class=active' : '' %>><a href="./smsLogs">短信列表</a></li>
                 <li <%= locals.isPartnerUsersPage ? 'class=active' : '' %>><a href="./partnerUsers">公众号管理</a></li>
             </ul>
-            <% } %>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

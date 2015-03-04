@@ -1,10 +1,154 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-
-</body>
-</html>
+<h1 class="page-header"><%= title %></h1>
+<div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"  ><a role="tab" data-toggle="tab" aria-expanded="true"  href="#nickname"             id="nickname-tab"           aria-controls="nickname">昵称</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#phoneNumber"          id="phoneNumber-tab"        aria-controls="phoneNumber">手机号</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#isMan"                id="isMan-tab"              aria-controls="isMan">性别</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#registrationStatus"   id="registrationStatus-tab" aria-controls="registrationStatus">注册状态</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#registrationTime"     id="registrationTime-tab"   aria-controls="registrationTime">注册时间</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#loginTime"            id="loginTime-tab"          aria-controls="loginTime">登录时间</a></li>
+        <li role="presentation"                 ><a role="tab" data-toggle="tab" aria-expanded="false" href="#lonlatRange"          id="lonlatRange-tab"        aria-controls="lonlatRange">坐标范围</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade active in" id="nickname" aria-labelledby="nickname-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="phoneNumber" aria-labelledby="phoneNumber-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="isMan" aria-labelledby="isMan-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <select class="form-control">
+                        <option value="0">女</option>
+                        <option value="1">男</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="registrationStatus" aria-labelledby="registrationStatus-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <select class="form-control">
+                        <option value="0">手机未验证</option>
+                        <option value="1">手机已验证</option>
+                        <option value="2">已经完善用户资料</option>
+                        <option value="3">已进入应用主页</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="registrationTime" aria-labelledby="registrationTime-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="registrationTime-bTime">开始时间</label>
+                    <input type="text" class="form-control" id="registrationTime-bTime" placeholder="yyyy-mm-dd hh:nn:ss">
+                </div>
+                <div class="form-group">
+                    <label for="registrationTime-eTime">结束时间</label>
+                    <input type="text" class="form-control" id="registrationTime-eTime" placeholder="yyyy-mm-dd hh:nn:ss">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="loginTime" aria-labelledby="loginTime-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="loginTime-bTime">开始时间</label>
+                    <input type="text" class="form-control" id="loginTime-bTime" placeholder="yyyy-mm-dd hh:nn:ss">
+                </div>
+                <div class="form-group">
+                    <label for="loginTime-eTime">结束时间</label>
+                    <input type="text" class="form-control" id="loginTime-eTime" placeholder="yyyy-mm-dd hh:nn:ss">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="lonlatRange" aria-labelledby="lonlatRange-tab">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    setIframeAutoHeight();
+    var SEARCHURL = '/paging/appUserList?';
+    <% if (user.PartnerUserID) { %>
+        var PARTNERUSERID = <%= user.PartnerUserID %>;
+    <% } else { %>
+        var PARTNERUSERID = '';
+    <% } %>
+    $('#nickname form').on('submit', function(){
+        var parameters = {
+            mode: 1,
+            content: $(this).find('input').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#phoneNumber form').on('submit', function(){
+        var parameters = {
+            mode: 2,
+            content: $(this).find('input').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#isMan form').on('submit', function(){
+        var parameters = {
+            mode: 3,
+            content: $(this).find('select').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#registrationStatus form').on('submit', function(){
+        var parameters = {
+            mode: 4,
+            content: $(this).find('select').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#registrationTime form').on('submit', function(){
+        var parameters = {
+            mode: 5,
+            bTime: $(this).find('#registrationTime-bTime').val(),
+            eTime: $(this).find('#registrationTime-eTime').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    $('#loginTime form').on('submit', function(){
+        var parameters = {
+            mode: 6,
+            bTime: $(this).find('#loginTime-bTime').val(),
+            eTime: $(this).find('#loginTime-eTime').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
+    // TODO 按经纬度范围查询
+</script>

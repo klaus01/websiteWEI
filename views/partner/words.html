@@ -1,0 +1,7 @@
+<% include header.html %>
+<h1 class="page-header"><%= title %></h1>
+<iframe frameborder="0" scrolling="no" width="100%" src="/paging/wordList?mode=2&content=<%= user.PartnerUserID %>"></iframe>
+<script type="text/javascript">
+    setIframeAutoHeight();
+</script>
+<% include footer.html %>

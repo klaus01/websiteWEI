@@ -81,6 +81,15 @@ router.get('/appUsers', function(req, res) {
     });
 });
 
+router.get('/words', function(req, res) {
+    resRender(res, 'words', {
+        title: '收到的字列表',
+        user: req.session.partnerUser,
+        isWordsPage: true
+    });
+});
+
+
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;
 module.exports.checkLogin = function (req, res, next) {

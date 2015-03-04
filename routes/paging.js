@@ -40,83 +40,83 @@ router.get('/appUserList', function(req, res) {
 
     switch(searchMode) {
         case 1://昵称
-            dbHelper.appUsers.getCountByNickname(data.content, function(count){
+            dbHelper.appUsers.getCountByNickname(data.content, data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByNickname(data.content, offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByNickname(data.content, offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 2://手机号
-            dbHelper.appUsers.getCountByPhoneNumber(data.content, function(count){
+            dbHelper.appUsers.getCountByPhoneNumber(data.content, data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByPhoneNumber(data.content, offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByPhoneNumber(data.content, offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 3://性别。0女，1男
-            dbHelper.appUsers.getCountByIsMan(parseInt(data.content), function(count){
+            dbHelper.appUsers.getCountByIsMan(parseInt(data.content), data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByIsMan(parseInt(data.content), offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByIsMan(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 4://注册状态。0手机未验证，1手机已验证，2已经完善用户资料，3已进入应用主页
-            dbHelper.appUsers.getCountByRegistrationStatus(parseInt(data.content), function(count){
+            dbHelper.appUsers.getCountByRegistrationStatus(parseInt(data.content), data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByRegistrationStatus(parseInt(data.content), offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByRegistrationStatus(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 5://注册时间段
-            dbHelper.appUsers.getCountByRegistrationTime(data.bTime, data.eTime, function(count){
+            dbHelper.appUsers.getCountByRegistrationTime(data.bTime, data.eTime, data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByRegistrationTime(data.bTime, data.eTime, offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByRegistrationTime(data.bTime, data.eTime, offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 6://登录时间段
-            dbHelper.appUsers.getCountByLastLoginTime(data.bTime, data.eTime, function(count){
+            dbHelper.appUsers.getCountByLastLoginTime(data.bTime, data.eTime, data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByLastLoginTime(data.bTime, data.eTime, offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByLastLoginTime(data.bTime, data.eTime, offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 7://坐标范围
             var lonlatRange = lonlatHelper.getAround(data.lon, data.lat, data.raidus);
-            dbHelper.appUsers.getCountByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, function(count){
+            dbHelper.appUsers.getCountByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 8://指定用户的朋友
-            dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), function(count){
+            dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 9://指定公众号的订阅用户
-            dbHelper.appUsers.getFriendsCountByPartnerUserID(parseInt(data.content), function(count){
+            dbHelper.appUsers.getFriendsCountByPartnerUserID(parseInt(data.content), data.partnerUserID, function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findFriendsByPartnerUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                    dbHelper.appUsers.findFriendsByPartnerUserID(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
                 else
                     resultRows([]);
             });

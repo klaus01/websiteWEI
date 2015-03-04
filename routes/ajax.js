@@ -24,7 +24,7 @@ function success(res, data) {
 }
 
 function checkIsManager(req, res, isManager) {
-    if (req.session.user.IsManager)
+    if (req.session.adminUser.IsManager)
         isManager();
     else
         error(res, '不是管理员用户');

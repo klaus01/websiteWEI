@@ -16,7 +16,7 @@ function resRedirect(res, path) {
 }
 
 function checkIsManager(req, res, next) {
-    if (req.session.user.IsManager)
+    if (req.session.adminUser.IsManager)
         next();
     else
         resRedirect(res, '/');
@@ -24,20 +24,20 @@ function checkIsManager(req, res, next) {
 
 router.get('/', function(req, res) {
     resRender(res, 'index', {
-        title: '管理首页',
-        user: req.session.user
+        title: 'WEI后台管理首页',
+        user: req.session.adminUser
     });
 });
 
 router.get('/login', function(req, res) {
-	resRender(res, 'login', { title: '用户登录' });
+	resRender(res, 'login', { title: '后台用户登录' });
 });
 
 router.post('/login', function(req, res) {
 
     function error(message) {
         resRender(res, 'login', {
-            title: '用户登录',
+            title: '后台用户登录',
             message: message
         });
     }
@@ -65,8 +65,8 @@ router.post('/login', function(req, res) {
 	dbHelper.backendUsers.findByLoginName(data.username, function(rows) {
 		if (rows.length) {
             if (password === rows[0].LoginPassword) {
-                req.session.user = rows[0];
-                dbHelper.backendUsers.updateLoginInfo(req.session.user.ID, req.connection.remoteAddress);
+                req.session.adminUser = rows[0];
+                dbHelper.backendUsers.updateLoginInfo(req.session.adminUser.ID, req.connection.remoteAddress);
                 resRedirect(res, '/');
             } else
                 error('密码错误');
@@ -76,7 +76,7 @@ router.post('/login', function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
-	req.session.user = null;
+	req.session.adminUser = null;
 	resRedirect(res, '/');
 });
 
@@ -85,7 +85,7 @@ router.get('/backendUsers', function(req, res) {
         dbHelper.backendUsers.findAll(function(rows) {
             resRender(res, 'backendUsers', {
                 title: '后台用户管理',
-                user: req.session.user,
+                user: req.session.adminUser,
                 isBackendUsersPage: true,
                 rows: rows
             });
@@ -96,7 +96,7 @@ router.get('/backendUsers', function(req, res) {
 router.get('/appUsers', function(req, res) {
     resRender(res, 'appUsers', {
         title: 'APP用户列表',
-        user: req.session.user,
+        user: req.session.adminUser,
         isAppUsersPage: true
     });
 });
@@ -104,7 +104,7 @@ router.get('/appUsers', function(req, res) {
 router.get('/words', function(req, res) {
     resRender(res, 'words', {
         title: '字列表',
-        user: req.session.user,
+        user: req.session.adminUser,
         isWordsPage: true
     });
 });
@@ -121,7 +121,7 @@ router.get('/smsLogs', function(req, res) {
         dbHelper.sms.findAll(offset, settings.pageRows, function(rows){
             resRender(res, 'smsLogs', {
                 title: '短信列表',
-                user: req.session.user,
+                user: req.session.adminUser,
                 isSMSLogsPage: true,
                 pageUrl: '/admin/smsLogs?',
                 currentPage: pageNumber,
@@ -137,7 +137,7 @@ router.get('/partnerUsers', function(req, res) {
         rows = publicFunction.addPartnerUserIconUrl(rows);
         resRender(res, 'partnerUsers', {
             title: '公众号管理',
-            user: req.session.user,
+            user: req.session.adminUser,
             isPartnerUsersPage: true,
             rows: rows
         });
@@ -199,13 +199,8 @@ router.get('/partnerUserInfo/:id', function(req, res) {
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;
 module.exports.checkLogin = function (req, res, next) {
-    var url = req.originalUrl;
-    if (url.indexOf('/' + PATHHEADER) == 0) {
-        if ((url !== '/' + PATHHEADER + '/login')
-            && (url !== '/' + PATHHEADER + '/logout')
-            && !req.session.user)
-
-            return resRedirect(res, '/login');
-    }
+    var url = req.url;
+    if ((url !== '/login') && (url !== '/logout') && !req.session.adminUser)
+        return resRedirect(res, '/login');
     next();
 };

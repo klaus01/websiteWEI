@@ -245,7 +245,7 @@ router.get('/activityList', function(req, res) {
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;
 module.exports.checkLogin = function (req, res, next) {
-    if (!req.session.user)
+    if (!req.session.adminUser && !req.session.partnerUser)
         return res.end('登录已过期，请重新登录');
     next();
 };

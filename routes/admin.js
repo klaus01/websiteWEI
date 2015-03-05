@@ -1,5 +1,6 @@
 var express = require('express');
 var path = require('path');
+var url = require('url');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
@@ -83,7 +84,7 @@ router.get('/logout', function(req, res) {
 router.get('/backendUsers', function(req, res) {
     checkIsManager(req, res, function() {
         dbHelper.backendUsers.findAll(function(rows) {
-            resRender(res, 'backendUsers', {
+            resRender(res, req.url, {
                 title: '后台用户管理',
                 user: req.session.adminUser,
                 isBackendUsersPage: true,
@@ -94,7 +95,7 @@ router.get('/backendUsers', function(req, res) {
 });
 
 router.get('/appUsers', function(req, res) {
-    resRender(res, 'appUsers', {
+    resRender(res, req.url, {
         title: 'APP用户列表',
         user: req.session.adminUser,
         isAppUsersPage: true
@@ -102,7 +103,7 @@ router.get('/appUsers', function(req, res) {
 });
 
 router.get('/words', function(req, res) {
-    resRender(res, 'words', {
+    resRender(res, req.url, {
         title: '字列表',
         user: req.session.adminUser,
         isWordsPage: true
@@ -119,11 +120,11 @@ router.get('/smsLogs', function(req, res) {
         var offset = (pageNumber - 1) * settings.pageRows;
 
         dbHelper.sms.findAll(offset, settings.pageRows, function(rows){
-            resRender(res, 'smsLogs', {
+            resRender(res, url.parse(req.url).pathname, {
                 title: '短信列表',
                 user: req.session.adminUser,
                 isSMSLogsPage: true,
-                pageUrl: '/admin/smsLogs?',
+                pageUrl: url.parse(req.originalUrl).pathname + '?',
                 currentPage: pageNumber,
                 totalPages: Math.ceil(count / settings.pageRows),
                 rows: rows
@@ -135,7 +136,7 @@ router.get('/smsLogs', function(req, res) {
 router.get('/partnerUsers', function(req, res) {
     dbHelper.partnerUsers.findAll(function(rows) {
         rows = publicFunction.addPartnerUserIconUrl(rows);
-        resRender(res, 'partnerUsers', {
+        resRender(res, req.url, {
             title: '公众号管理',
             user: req.session.adminUser,
             isPartnerUsersPage: true,
@@ -151,7 +152,7 @@ router.get('/appUserInfo/:id', function(req, res) {
             if (rows.length <= 0)
                 res.end('用户' + id + '不存在');
             else
-                resRender(res, 'appUserInfo', {
+                resRender(res, path.dirname(req.url), {
                     title: 'APP用户信息',
                     user: rows[0]
                 });
@@ -170,7 +171,7 @@ router.get('/partnerUserInfo/:id', function(req, res) {
                 var data = rows[0];
 
                 function resultFunc(){
-                    resRender(res, 'partnerUserInfo', {
+                    resRender(res, path.dirname(req.url), {
                         title: '公众号用户信息',
                         user: data
                     });

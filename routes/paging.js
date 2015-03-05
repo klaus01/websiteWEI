@@ -28,9 +28,9 @@ router.get('/appUserList', function(req, res) {
     var rowCount = 0;
     function resultRows(rows) {
         // 将URL中的pageNumber参数对掉，并返回给页面使用
-        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+        var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
 
-        resRender(res, 'appUserList', {
+        resRender(res, req._parsedUrl.pathname, {
             pageUrl: pageUrl,
             currentPage: pageNumber,
             totalPages: Math.ceil(rowCount / settings.pageRows),
@@ -132,7 +132,7 @@ router.get('/partnerUserList', function(req, res) {
     switch(searchMode) {
         case 1://根据 订阅者ID 查询公众号列表
             dbHelper.partnerUsers.findBySubscriberID(data.content, function(rows){
-                resRender(res, 'partnerUserList', {
+                resRender(res, req._parsedUrl.pathname, {
                     rows: rows
                 });
             });
@@ -152,9 +152,9 @@ router.get('/wordList', function(req, res) {
     var userCaption = '';
     function resultRows(rows) {
         // 将URL中的pageNumber参数对掉，并返回给页面使用
-        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+        var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
 
-        resRender(res, 'wordList', {
+        resRender(res, req._parsedUrl.pathname, {
             userCaption: userCaption,
             pageUrl: pageUrl,
             currentPage: pageNumber,
@@ -218,9 +218,9 @@ router.get('/activityList', function(req, res) {
     var rowCount = 0;
     function resultRows(rows) {
         // 将URL中的pageNumber参数对掉，并返回给页面使用
-        var pageUrl = '/' + PATHHEADER + deleteUrlPageNumberQuery(req.url) + '&';
+        var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
 
-        resRender(res, 'wordList', {
+        resRender(res, req._parsedUrl.pathname, {
             pageUrl: pageUrl,
             currentPage: pageNumber,
             totalPages: Math.ceil(rowCount / settings.pageRows),

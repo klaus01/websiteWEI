@@ -74,7 +74,7 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/appUsers', function(req, res) {
-    resRender(res, 'appUsers', {
+    resRender(res, req.url, {
         title: '订阅者列表',
         user: req.session.partnerUser,
         isAppUsersPage: true
@@ -82,10 +82,18 @@ router.get('/appUsers', function(req, res) {
 });
 
 router.get('/words', function(req, res) {
-    resRender(res, 'words', {
+    resRender(res, req.url, {
         title: '收到的字列表',
         user: req.session.partnerUser,
         isWordsPage: true
+    });
+});
+
+router.get('/activities', function(req, res) {
+    resRender(res, req.url, {
+        title: '活动管理',
+        user: req.session.partnerUser,
+        isActivitiesPage: true
     });
 });
 

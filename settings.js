@@ -12,5 +12,6 @@ module.exports = {
     },
     pageRows: 20,
     tempUploadDir: './uploads/',
-    partnerUserIconsDir: '/images/partnerUserIcons/'
+    partnerUserIconsDir: '/images/partnerUserIcons/',
+    activityPicturesDir: '/images/activityPictures/'
 };

@@ -1,0 +1,9 @@
+<% include header.html %>
+<% include editActivity.html %>
+<h1 class="page-header"><%= title %></h1>
+<p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editActivity">新增活动</button></p>
+<iframe frameborder="0" scrolling="no" width="100%" src="/paging/activityList?mode=1&content=<%= user.PartnerUserID %>"></iframe>
+<script type="text/javascript">
+    setIframeAutoHeight();
+</script>
+<% include footer.html %>

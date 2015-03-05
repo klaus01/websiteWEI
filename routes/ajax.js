@@ -144,7 +144,7 @@ router.post('/partnerUser/post', function(req, res) {
         error(res, '缺少名称');
         return;
     }
-    if ((id <= 0) && !files.iconfile) {
+    if ((id <= 0) && !files.iconFile) {
         error(res, '缺少头像');
         return;
     }
@@ -152,7 +152,7 @@ router.post('/partnerUser/post', function(req, res) {
         error(res, '缺少描述');
         return;
     }
-    if (!data.loginname) {
+    if (!data.loginName) {
         error(res, '缺少登录名');
         return;
     }
@@ -165,22 +165,22 @@ router.post('/partnerUser/post', function(req, res) {
         return;
     }
 
-    dbHelper.partnerUsers.findByLoginName(data.loginname, id, function(rows) {
+    dbHelper.partnerUsers.findByLoginName(data.loginName, id, function(rows) {
         if (rows.length > 0) {
-            error(res, '登录名' + data.loginname + '已存在，请更换');
+            error(res, '登录名' + data.loginName + '已存在，请更换');
             return;
         }
 
         var appUserID = null;
         // 操作入库
         function operatingDB(){
-            var iconFileName = files.iconfile ? files.iconfile.name : null;
+            var iconFileName = files.iconFile ? files.iconFile.name : null;
             if (id > 0)
-                dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, appUserID, function (data) {
+                dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginName, data.password, data.enabled, appUserID, function (data) {
                     success(res, data);
                 });
             else
-                dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginname, data.password, data.enabled, appUserID, function (data) {
+                dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginName, data.password, data.enabled, appUserID, function (data) {
                     success(res, data);
                 });
         }
@@ -200,12 +200,75 @@ router.post('/partnerUser/post', function(req, res) {
                 operatingDB();
         }
 
-        if (files.iconfile)
-            fileHelper.movePartnerUserIconFile(files.iconfile, findAppUserID);
+        if (files.iconFile)
+            fileHelper.movePartnerUserIconFile(files.iconFile, findAppUserID);
         else
             findAppUserID();
     });
 });
+
+/********************************
+ * 活动相关
+ ********************************/
+
+router.post('/activity/post', function(req, res) {
+    var data = req.body;
+    var files = req.files;
+
+    if (!data.partnerUserID) {
+        error(res, '缺少公众号ID');
+        return;
+    }
+    if (parseInt(data.partnerUserID) <= 0) {
+        error(res, '公众号ID错误');
+        return;
+    }
+    if (!data.mode) {
+        error(res, '缺少活动类型');
+        return;
+    }
+    mode = parseInt(data.mode);
+    switch(mode) {
+        case 2:
+            if (!data.longitude) {
+                error(res, '缺少经度');
+                return;
+            }
+            if (!data.latitude) {
+                error(res, '缺少纬度');
+                return;
+            }
+            if (!data.distanceMeters) {
+                error(res, '缺少距离');
+                return;
+            }
+        case 1:
+            if (!data.beginTime) {
+                error(res, '缺少开始时间');
+                return;
+            }
+            if (!data.endTime) {
+                error(res, '缺少结束时间');
+                return;
+            }
+        default:
+            if (!files.pictureFile) {
+                error(res, '缺少图片');
+                return;
+            }
+            if (!data.content) {
+                error(res, '缺少文字内容');
+                return;
+            }
+    }
+
+    fileHelper.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
+        dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
+            success(res, data);
+        });
+    });
+});
+
 
 module.exports = router;
 module.exports.PATHHEADER = PATHHEADER;

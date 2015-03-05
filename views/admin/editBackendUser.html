@@ -6,7 +6,7 @@
                 <h4 class="modal-title" id="myModalLabel">新增/编辑</h4>
             </div>
             <div class="modal-body">
-                <form role="form" method="post">
+                <form role="form">
                     <input type="hidden" id="id" name="id">
                     <div class="form-group">
                         <label for="name">姓名</label>
@@ -20,11 +20,9 @@
                         <label for="password">密码</label>
                         <input type="password" class="form-control" id="password" name="password" >
                     </div>
+                    <div class="alert alert-danger" id="message" role="alert" hidden="hidden"></div>
+                    <button type="submit" class="btn btn-primary" autocomplete="off">提交</button>
                 </form>
-                <div class="alert alert-danger" id="message" role="alert" hidden="hidden"></div>
-            </div>
-            <div class="modal-footer" style="text-align: left">
-                <button type="submit" class="btn btn-primary" autocomplete="off">提交</button>
             </div>
         </div>
     </div>
@@ -45,7 +43,7 @@
         }
         else {
             modal.find('.modal-body #id').val(userid);
-            var $btn = modal.find('.modal-footer button');
+            var $btn = modal.find('button[type="submit"]');
             $btn.attr('data-loading-text', '正在加载信息...');
             $btn.button('loading');
             $.ajax({
@@ -70,10 +68,10 @@
         $editBackendUser.find('.modal-body input[type="text"]')[0].focus();
     });
 
-    $editBackendUser.find('.modal-footer button').on('click', function () {
+    $editBackendUser.find('form').on('submit', function(){
         var $msg = $editBackendUser.find('#message');
         $msg.hide();
-        var $btn = $(this);
+        var $btn = $editBackendUser.find('button[type="submit"]');
         $btn.attr('data-loading-text', '正在提交...');
         $btn.button('loading');
         $.ajax({
@@ -98,11 +96,7 @@
                 }
             }
         });
-    });
-
-    $editBackendUser.keyup(function(event){
-        if(event.keyCode == 13)
-            $editBackendUser.find('.modal-footer button').trigger("click");
+        return false;
     });
 
     function deleteBackendUser(button, id, success) {

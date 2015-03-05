@@ -11,8 +11,8 @@
         var row = rows[i];
         %>
         <tr>
-            <td><a href="<%= row.PictureFileName ? row.PictureFileName : '#' %>"><img src="<%= row.PictureFileName ? row.PictureFileName : '' %>" class="word-pic-sm"></a></td>
-            <td><a href="<%= row.AudioFileName ? row.AudioFileName : '#' %>">播放</a></td>
+            <td><a href="<%= row.PictureFileName ? row.PictureFileName : '#' %>" target="_blank"><img src="<%= row.PictureFileName ? row.PictureFileName : '' %>" class="word-pic-sm"></a></td>
+            <td><a href="<%= row.AudioFileName ? row.AudioFileName : '#' %>" target="_blank">播放</a></td>
             <td><%= row.Number %></td>
             <td><%= row.UseCount %></td>
             <td><%= row.Description %></td>

@@ -23,7 +23,7 @@
             上次登录IP：<%= user.LastLoginIP ? user.LastLoginIP : '' %><br>
             上次登录地理信息：<%= user.LastLoginLongitude && user.LastLoginLatitude ? user.LastLoginLongitude + '|' + user.LastLoginLatitude : '' %>
         </p>
-        <img src="<%= user.IconFileName %>" alt="头像" class="img-thumbnail user-icon-lg">
+        <a href="<%= user.IconFileName %>" target="_blank"><img src="<%= user.IconFileName %>" class="img-thumbnail user-icon-lg"></a>
     </div>
     <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs" style="margin-top: 20px;">
         <ul class="nav nav-tabs" role="tablist">

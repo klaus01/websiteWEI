@@ -13,7 +13,7 @@
         <tr>
             <td><%= row.CreateTime.toStandardString() %></td>
             <td><%= row.ModeDescription %></td>
-            <td><a href="<%= row.PictureFileName %>"><img src="<%= row.PictureFileName %>" class="user-icon-sm"></a></td>
+            <td><a href="<%= row.PictureUrl %>" target="_blank"><img src="<%= row.PictureUrl %>" class="user-icon-sm"></a></td>
             <td><%= row.Content %></td>
             <td><%= row.URL ? row.URL : '' %></td>
         </tr>

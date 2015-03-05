@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var url = require('url');
 var router = express.Router();
+var publicFunction = require('../lib/publicFunction');
 var dbHelper = require('../lib/dbHelper');
 var settings = require('../settings');
 var lonlatHelper = require('../lib/LonLat');
@@ -219,7 +220,7 @@ router.get('/activityList', function(req, res) {
     function resultRows(rows) {
         // 将URL中的pageNumber参数对掉，并返回给页面使用
         var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
-
+        rows = publicFunction.addActivityPictureUrl(rows);
         resRender(res, req._parsedUrl.pathname, {
             pageUrl: pageUrl,
             currentPage: pageNumber,

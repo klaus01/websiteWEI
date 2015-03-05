@@ -13,16 +13,16 @@
                         <input type="text" class="form-control" id="name" name="name" >
                     </div>
                     <div class="form-group">
-                        <label for="iconfile">头像</label>
-                        <input type="file" class="form-control" id="iconfile" name="iconfile" >
+                        <label for="iconFile">头像</label>
+                        <input type="file" class="form-control" id="iconFile" name="iconFile" >
                     </div>
                     <div class="form-group">
                         <label for="description">介绍</label>
                         <input type="text" class="form-control" id="description" name="description" >
                     </div>
                     <div class="form-group">
-                        <label for="loginname">登录名</label>
-                        <input type="text" class="form-control" id="loginname" name="loginname" >
+                        <label for="loginName">登录名</label>
+                        <input type="text" class="form-control" id="loginName" name="loginName" >
                     </div>
                     <div class="form-group">
                         <label for="password">密码</label>
@@ -57,9 +57,9 @@
         if (userid == undefined) {
             modal.find('.modal-body #id').val('0');
             modal.find('.modal-body #name').val('');
-            modal.find('.modal-body #iconfile').val('');
+            modal.find('.modal-body #iconFile').val('');
             modal.find('.modal-body #description').val('');
-            modal.find('.modal-body #loginname').val('');
+            modal.find('.modal-body #loginName').val('');
             modal.find('.modal-body #password').val('');
             modal.find('.modal-body #enabled').val('1');
             modal.find('.modal-body #appUserPhoneNumber').val('');
@@ -82,7 +82,7 @@
                         return;
                     modal.find('.modal-body #name').val(result.data.Name);
                     modal.find('.modal-body #description').val(result.data.Description);
-                    modal.find('.modal-body #loginname').val(result.data.LoginName);
+                    modal.find('.modal-body #loginName').val(result.data.LoginName);
                     modal.find('.modal-body #enabled').val(result.data.Enabled);
                     if (result.data.AppUser)
                         modal.find('.modal-body #appUserPhoneNumber').val(result.data.AppUser.PhoneNumber);
@@ -106,10 +106,10 @@
         formdata.append('id', $editPartnerUser.find('#id').val());
         formdata.append('name', $editPartnerUser.find('#name').val());
         formdata.append('description', $editPartnerUser.find('#description').val());
-        formdata.append('loginname', $editPartnerUser.find('#loginname').val());
+        formdata.append('loginName', $editPartnerUser.find('#loginName').val());
         formdata.append('password', $editPartnerUser.find('#password').val());
         formdata.append('enabled', $editPartnerUser.find('#enabled').val());
-        formdata.append('iconfile', $editPartnerUser.find('#iconfile')[0].files[0]);
+        formdata.append('iconFile', $editPartnerUser.find('#iconFile')[0].files[0]);
         formdata.append('appUserPhoneNumber', $editPartnerUser.find('#appUserPhoneNumber').val());
 
         $.ajax({

@@ -122,6 +122,33 @@ router.get('/appUserList', function(req, res) {
                     resultRows([]);
             });
             break;
+        case 10://指定活动的 接收或参与 用户
+            dbHelper.appUsers.getCountByActivityID(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findByActivityID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 11://指定活动的 中奖 用户
+            dbHelper.appUsers.getGiftUsersCountByActivityID(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findGiftUsersByActivityID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
+        case 12://指定活动的 领奖 用户
+            dbHelper.appUsers.getAwardUsersCountByActivityID(parseInt(data.content), function(count){
+                rowCount = count;
+                if (count > 0)
+                    dbHelper.appUsers.findAwardUsersByActivityID(parseInt(data.content), offset, settings.pageRows, resultRows);
+                else
+                    resultRows([]);
+            });
+            break;
         default:
             dbHelper.appUsers.findAll(offset, settings.pageRows, resultRows);
     }

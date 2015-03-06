@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/public.css">
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</head>
+<body class="info-page">
+    <h1 class="page-header"><%= title %></h1>
+    <div>
+        <p class="info-list">
+            创建时间：<%= data.CreateTime.toStandardString() %><br>
+            模式：<%= data.ModeDescription %><br>
+            文字内容：<%= data.Content %><br>
+            链接：<a href="<%= data.URL %>" target="_blank"><%= data.URL %></a><br>
+            <% if (data.Mode == 1 || data.Mode == 2) { %>
+            开始时间：<%= data.BeginTime.toStandardString() %><br>
+            结束时间：<%= data.EndTime.toStandardString() %><br>
+            <% } %>
+            <% if (data.Mode == 2) { %>
+            指定经纬度：<%= data.Longitude %>,<%= data.Latitude %><br>
+            指定距离(米)：<%= data.DistanceMeters %><br>
+            <% } %>
+        </p>
+        <a href="<%= data.PictureUrl %>" target="_blank"><img src="<%= data.PictureUrl %>" class="img-thumbnail user-icon-lg"></a>
+    </div>
+    <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs" style="margin-top: 20px;">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#appUsers" id="appUsers-tab" aria-controls="appUsers"><%= data.Mode == 0 ? '接收消息用户' : '参与用户' %></a></li>
+            <% if (data.Mode != 0) { %>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#giftUsers" id="giftUsers-tab" aria-controls="giftUsers">中奖用户</a></li>
+            <li role="presentation"><a role="tab" data-toggle="tab" aria-expanded="false" href="#awardUsers" id="awardUsers-tab" aria-controls="awardUsers">领奖用户</a></li>
+            <% } %>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" id="appUsers" aria-labelledby="appUsers-tab">
+            </div>
+            <% if (data.Mode != 0) { %>
+            <div role="tabpanel" class="tab-pane fade" id="giftUsers" aria-labelledby="giftUsers-tab">
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="awardUsers" aria-labelledby="awardUsers-tab">
+            </div>
+            <% } %>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function setIframeHeight(iframe) {
+            var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+            if (iframeWin.document.body)
+                iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+        }
+        function getIframeHtml(src) {
+            return '<iframe frameborder="0" scrolling="no" width="100%" onload="setIframeHeight(this);" src="' + src + '"></iframe>';
+        }
+        var activityID = <%= data.ID %>;
+
+        $(window).resize(function(){
+            var iframes = $('iframe');
+            for (var i = 0; i < iframes.length; i++) {
+                setIframeHeight(iframes[i]);
+            }
+        });
+        $('#appUsers-tab').on('click', function(){
+            var panel = $('#appUsers');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/paging/appUserList?mode=10&content=' + activityID));
+        });
+        <% if (data.Mode != 0) { %>
+        $('#giftUsers-tab').on('click', function(){
+            var panel = $('#giftUsers');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/paging/appUserList?mode=11&content=' + activityID));
+        });
+        $('#awardUsers-tab').on('click', function(){
+            var panel = $('#awardUsers');
+            if (panel.find('iframe').length > 0)
+                return;
+            panel.append(getIframeHtml('/paging/appUserList?mode=12&content=' + activityID));
+        });
+        <% } %>
+    </script>
+</body>
+</html>

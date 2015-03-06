@@ -2,8 +2,7 @@ var express = require('express');
 var path = require('path');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
-//var publicFunction = require('../lib/publicFunction');
-//var settings = require('../settings');
+var publicFunction = require('../lib/publicFunction');
 var PATHHEADER = path.basename(__filename, '.js');
 
 
@@ -95,6 +94,25 @@ router.get('/activities', function(req, res) {
         user: req.session.partnerUser,
         isActivitiesPage: true
     });
+});
+
+router.get('/activityInfo/:id', function(req, res) {
+    var id = parseInt(req.params.id);
+    if (id)
+        dbHelper.activities.findByID(id, function(rows){
+            if (rows.length) {
+                rows = publicFunction.addActivityPictureUrl(rows);
+                var data = rows[0];
+                resRender(res, path.dirname(req.url), {
+                    title: '公众号活动信息',
+                    data: data
+                });
+            }
+            else
+                res.end('活动' + id + '不存在');
+        });
+    else
+        res.end('缺少ID');
 });
 
 

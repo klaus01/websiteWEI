@@ -264,7 +264,14 @@ router.post('/activity/post', function(req, res) {
 
     fileHelper.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
         dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
-            success(res, data);
+            var activityID = data.insertId;
+            dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){
+                for (var i = 0; i < rows.length; i++) {
+                    var user = rows[i];
+                    dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, function(){});
+                }
+                success(res, data);
+            });
         });
     });
 });

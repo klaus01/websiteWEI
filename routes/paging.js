@@ -105,19 +105,19 @@ router.get('/appUserList', function(req, res) {
             });
             break;
         case 8://指定用户的朋友
-            dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), data.partnerUserID, function(count){
+            dbHelper.appUsers.getFriendsCountByAppUserID(parseInt(data.content), function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
+                    dbHelper.appUsers.findFriendsByAppUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
             break;
         case 9://指定公众号的订阅用户
-            dbHelper.appUsers.getFriendsCountByPartnerUserID(parseInt(data.content), data.partnerUserID, function(count){
+            dbHelper.appUsers.getFriendsCountByPartnerUserID(parseInt(data.content), function(count){
                 rowCount = count;
                 if (count > 0)
-                    dbHelper.appUsers.findFriendsByPartnerUserID(parseInt(data.content), offset, settings.pageRows, data.partnerUserID, resultRows);
+                    dbHelper.appUsers.findFriendsByPartnerUserID(parseInt(data.content), offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });

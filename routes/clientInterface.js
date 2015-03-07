@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var router = express.Router();
+var fileHelper = require('../lib/fileHelper');
 var dbHelper = require('../lib/dbHelper');
 var settings = require('../settings');
 
@@ -31,7 +32,7 @@ function success(res, data) {
 /**
  * 注册App用户
  * @param phoneNumber, registrationDevice, registrationOS
- * @returns {AppUserID}
+ * @returns {appUserID: Number}
  */
 router.get('/appUser/register', function(req, res, next) {
     var data = req.query;
@@ -44,7 +45,103 @@ router.get('/appUser/register', function(req, res, next) {
             RegistrationOS: data.registrationOS
         };
         dbHelper.appUsers.new(keyValues, function(appUserID){
-            success(res, {AppUserID: appUserID});
+            success(res, {appUserID: appUserID});
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 修改App用户资料
+ * @param appUserID, iconFile, nickname, isMan
+ * @returns {}
+ */
+router.post('/appUser/update', function(req, res, next) {
+    var data = req.body;
+    var files = req.files;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.nickname && data.nickname.length
+        && data.isMan && data.isMan.length
+        && files.iconFile && files.iconFile.length) {
+
+        fileHelper.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
+            var setKeyValues = {
+                IconFileName: files.iconFile.name,
+                Nickname: data.nickname,
+                IsMan: data.isMan,
+                RegistrationStatus: 2//用户已完善资料
+            };
+            dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
+                if (result.affectedRows)
+                    success(res, {});
+                else
+                    error(res, 'App用户' + data.appUserID + '不存在');
+            });
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 更新苹果远程通知令牌
+ * @param appUserID, APNSToken
+ * @returns {}
+ */
+router.get('/appUser/updateAPNSToken', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.APNSToken && data.APNSToken.length) {
+        dbHelper.appUsers.update({APNSToken: data.APNSToken}, {AppUserID: data.appUserID}, function(result){
+            if (result.affectedRows)
+                success(res, {});
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 更新用户状态为 已进入应用主页
+ * @param appUserID
+ * @returns {}
+ */
+router.get('/appUser/enterHome', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
+        dbHelper.appUsers.update({RegistrationStatus: 3}, {AppUserID: data.appUserID}, function(result){
+            if (result.affectedRows)
+                success(res, {});
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
+        });
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 更新登录信息
+ * @param appUserID, longitude, latitude
+ * @returns {}
+ */
+router.get('/appUser/login', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.longitude && data.latitude) {
+        var setKeyValues = {
+            LastLoginTime: new Date(),
+            LastLoginIP: req.connection.remoteAddress,
+            LastLoginLongitude: data.longitude,
+            LastLoginLatitude: data.latitude
+        };
+        dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
+            if (result.affectedRows)
+                success(res, {});
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
         });
     }
     else
@@ -59,7 +156,7 @@ router.get('/appUser/register', function(req, res, next) {
 /**
  * 向手机号发送验证码短信
  * @param phoneNumber
- * @returns {SMSID}
+ * @returns {smsID: Number}
  */
 router.get('/SMS/sendCheck', function(req, res, next) {
     var data = req.query;
@@ -68,7 +165,7 @@ router.get('/SMS/sendCheck', function(req, res, next) {
 
             function newUnsentSMS(smsID){
                 dbHelper.sms.newUnsentSMS(smsID, function(){
-                    success(res, {SMSID: smsID});
+                    success(res, {smsID: smsID});
                 });
             }
 
@@ -79,12 +176,12 @@ router.get('/SMS/sendCheck', function(req, res, next) {
             else {
                 // 生成新的短信且发送
 
-                // 验证码在开发环境中始终是6666，生产环境为随机1000-9999
+                // 验证码在开发环境中始终是666666，生产环境为随机100000-999999
                 var verificationCode = '';
                 if (app.get('env') === 'development')
-                    verificationCode = '6666';
+                    verificationCode = '666666';
                 else {
-                    var codeNumber = Math.floor(Math.random() * 8999 + 1000); //1000-9999
+                    var codeNumber = Math.floor(Math.random() * 899999 + 100000);
                     verificationCode = codeNumber.toString();
                 }
                 var smsContent = '验证码为' + verificationCode + '【' + settings.appName + '】';
@@ -96,6 +193,32 @@ router.get('/SMS/sendCheck', function(req, res, next) {
                     newUnsentSMS(smsID);
                 });
             }
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 校验手机验证码
+ * @param phoneNumber, verificationCode
+ * @returns {}
+ */
+router.get('/SMS/checkVerificationCode', function(req, res, next) {
+    var data = req.query;
+    if (data.phoneNumber && data.phoneNumber.length > 0
+        && data.verificationCode && data.verificationCode.length > 0) {
+        dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
+            if (rows.length > 0) {
+                if (rows[0].VerificationCode === data.verificationCode) {
+                    dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
+                    success(res, {});
+                }
+                else
+                    error(res, '验证码错误');
+            }
+            else
+                error(res, '验证码已过期，请重新获取验证码');
         });
     }
     else

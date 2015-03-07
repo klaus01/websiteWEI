@@ -12,12 +12,16 @@ module.exports = {
     },
     // 分页数据页面，每页显示的记录数
     pageRows: 20,
+    // 客户端App应用名称
+    appName: 'WEI应用',
     // 上传文件的临时目录
     tempUploadDir: './uploads/',
+
+    // 图片目录是放在网站静态文件目录public下的
+    // App用户头像图片存放目录
+    appUserIconsDir: '/images/appUserIcons/',
     // 公众号头像图片存放目录
     partnerUserIconsDir: '/images/partnerUserIcons/',
     // 公众号活动图片存放目录
-    activityPicturesDir: '/images/activityPictures/',
-    // 客户端App应用名称
-    appName: 'WEI应用'
+    activityPicturesDir: '/images/activityPictures/'
 };

@@ -266,10 +266,13 @@ router.post('/activity/post', function(req, res) {
         dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
             var activityID = data.insertId;
             dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){
-                for (var i = 0; i < rows.length; i++) {
-                    var user = rows[i];
-                    dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, function(){});
+                var i = 0;
+                function next(){
+                    if (i >= rows.length) return;
+                    var user = rows[i++];
+                    dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, next);
                 }
+                next();
                 success(res, data);
             });
         });

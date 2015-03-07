@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha --recursive test/ --bail",
+    "test-cov": "node node_modules/istanbul-harmony/lib/cli.js cover ./node_modules/mocha/bin/_mocha  -- --recursive test/ --bail"
   },
   "dependencies": {
     "body-parser": "~1.10.2",
@@ -16,6 +18,11 @@
     "connect-mongo": "~0.7.0",
     "mysql": "~2.5.0",
     "ccap": "~0.5.0",
-    "multer": "~0.1.5"
+    "multer": "~0.1.5",
+
+    "should": "*",
+    "istanbul-harmony": "*",
+    "mocha": "*",
+    "mocha-lcov-reporter": "*"
   }
 }

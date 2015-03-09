@@ -29,6 +29,8 @@ app.use(multer({dest: settings.tempUploadDir}));
 app.use(cookieParser());
 app.use(session({
     secret: settings.cookie.secret,
+    saveUninitialized: true,
+    resave: true,
     store: new mongoStore({
         db: settings.cookie.sessionMongoDB
     }),

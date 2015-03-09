@@ -14,6 +14,8 @@ module.exports = {
     pageRows: 20,
     // 客户端App应用名称
     appName: 'WEI应用',
+    // 客户端App主页地址
+    appHomePageUrl: 'http://weiapp.cf/',
     // 上传文件的临时目录
     tempUploadDir: './uploads/',
 

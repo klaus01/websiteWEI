@@ -3,6 +3,7 @@ var app = express();
 var router = express.Router();
 var fileHelper = require('../lib/fileHelper');
 var dbHelper = require('../lib/dbHelper');
+var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
 
 
@@ -25,9 +26,52 @@ function success(res, data) {
 }
 
 
+/**
+ * 获取朋友信息列表
+ * @param appUserID
+ * @returns [{appUser}]
+ */
+router.get('/getFriends', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)) {
+        dbHelper.appUsers.findFriendsByAppUserID(data.appUserID, function(rows){
+            publicFunction.addAppUserIconUrl(rows);
+            success(res, rows);
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+
 /********************************
  * App用户相关
  ********************************/
+
+/**
+ * 获取App用户信息
+ * @param appUserID or phoneNumber
+ * @returns {appUser}
+ */
+router.get('/appUser/get', function(req, res, next) {
+
+    function result(rows) {
+        if (rows.length) {
+            publicFunction.addAppUserIconUrl(rows);
+            success(res, rows[0]);
+        }
+        else
+            error(res, 'App用户' + data.appUserID + '不存在');
+    }
+
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
+        dbHelper.appUsers.findByID(data.appUserID, result);
+    else if (data.phoneNumber && data.phoneNumber.length)
+        dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, result);
+    else
+        error(res, '缺少参数');
+});
 
 /**
  * 注册App用户
@@ -36,7 +80,7 @@ function success(res, data) {
  */
 router.get('/appUser/register', function(req, res, next) {
     var data = req.query;
-    if (data.phoneNumber && data.phoneNumber.length > 0) {
+    if (data.phoneNumber && data.phoneNumber.length) {
         var keyValues = {
             PhoneNumber: data.phoneNumber,
             LoginPassword: '',
@@ -144,6 +188,78 @@ router.get('/appUser/login', function(req, res, next) {
                 error(res, 'App用户' + data.appUserID + '不存在');
         });
     }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 邀请朋友
+ * @param appUserID, phoneNumber
+ * @returns {message}
+ */
+router.get('/appUser/addFriend', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.phoneNumber && data.phoneNumber.length) {
+        dbHelper.appUsers.findByID(data.appUserID, function(rows){
+            if (rows.length) {
+                var appUserInfo = rows[0];
+                var userName = appUserInfo.PhoneNumber + '(' + appUserInfo.Nickname + ')';
+                dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
+                    if (rows.length) {
+                        // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
+                        var friendUserID = rows[0].AppUserID;
+                        dbHelper.appUsers.isFriend(data.appUserID, friendUserID, function(isFriend){
+                            if (isFriend)
+                                success(res, {message:'你们已经是朋友了'});
+                            else
+                                dbHelper.appUsers.addFriend(data.appUserID, friendUserID, function(){
+                                    dbHelper.messages.newFriendMessage(data.appUserID, friendUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
+                                        success(res, {message:'已经加为朋友'});
+                                    });
+                                });
+                        });
+                    }
+                    else
+                        // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
+                        dbHelper.inviteFriends.find(data.appUserID, data.phoneNumber, function(rows){
+                            if (rows.length <= 0)
+                                dbHelper.inviteFriends.new(data.appUserID, data.phoneNumber, function(){
+                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, userName + '邀请你加为' + settings.appName + '好友。[' + settings.appHomePageUrl + ']', function(smsID){
+                                        dbHelper.sms.newUnsentSMS(smsID, function(){
+                                            success(res, {message:'已邀请'});
+                                        });
+                                    });
+                                });
+                            else
+                                success(res, {message:'你已经邀请过此用户'});
+                        });
+                });
+            }
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
+        });
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 设置朋友是否在黑名单中
+ * @param appUserID, friendUserID, isBlack:0不是，1是
+ * @returns {}
+ */
+router.get('/appUser/setFriendIsBlack', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.friendUserID && data.friendUserID.length && parseInt(data.friendUserID)
+        && data.isBlack && parseInt(data.isBlack))
+        dbHelper.appUsers.setFriendIsBlack(data.appUserID, data.friendUserID, data.isBlack, function(result){
+            if (result.affectedRows)
+                success(res, {});
+            else
+                error(res, '用户' + data.appUserID + '与用户' + data.friendUserID + '不是朋友');
+        });
     else
         error(res, '缺少参数');
 });

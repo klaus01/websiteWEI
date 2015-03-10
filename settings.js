@@ -4,6 +4,7 @@ module.exports = {
         maxAge: 60 * 60 * 1000,
         sessionMongoDB: 'mongodb://localhost/WEIDB'
     },
+    // mysql数据库连接设置
     mysqlConnectionOptions: {
         host     : 'localhost',
         database : 'WEIDB',

@@ -25,24 +25,6 @@ function success(res, data) {
 }
 
 
-/**
- * 获取朋友信息列表
- * @param appUserID
- * @returns [{appUser}]
- */
-router.get('/getFriends', function(req, res, next) {
-    var data = req.query;
-    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)) {
-        dbHelper.appUsers.findFriendsByAppUserID(data.appUserID, function(rows){
-            publicFunction.addAppUserIconUrl(rows);
-            success(res, rows);
-        });
-    }
-    else
-        error(res, '缺少参数');
-});
-
-
 /********************************
  * App用户相关
  ********************************/
@@ -68,6 +50,24 @@ router.get('/appUser/get', function(req, res, next) {
         dbHelper.appUsers.findByID(data.appUserID, result);
     else if (data.phoneNumber && data.phoneNumber.length)
         dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, result);
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 获取朋友信息列表
+ * @param appUserID
+ * @returns [{appUser}]
+ */
+router.get('/appUser/getFriends', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)) {
+        dbHelper.appUsers.findFriendsByAppUserID(data.appUserID, function(rows){
+            // TODO 按消息时间降序排序，需要返回公众号以及有无未读消息
+            publicFunction.addAppUserIconUrl(rows);
+            success(res, rows);
+        });
+    }
     else
         error(res, '缺少参数');
 });
@@ -358,7 +358,7 @@ router.get('/SMS/checkVerificationCode', function(req, res, next) {
 /**
  * 获取字列表
  * @param [appUserID, number, description, (offset, resultCount)]
- * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UserCount降序
+ * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UseCount降序
  */
 router.get('/words/find', function(req, res, next) {
     var data = req.query;
@@ -368,7 +368,6 @@ router.get('/words/find', function(req, res, next) {
             success(res, rows);
         }
 
-        var appUserID = data.appUserID;
         var findNumber = data.number;
         var findDescription = data.description;
         var offset = data.offset;
@@ -389,12 +388,12 @@ router.get('/words/find', function(req, res, next) {
         }
         else {
             // 返回所有字
-            //if (findNumber)
-            //    dbHelper.words.findByNumber(data.appUserID, findNumber, offset, resultCount, resultFunc);
-            //else if (findDescription)
-            //    dbHelper.words.findByDescription(data.appUserID, findDescription, offset, resultCount, resultFunc);
-            //else
-            //    dbHelper.words.find(data.appUserID, offset, resultCount, resultFunc);
+            if (findNumber)
+                dbHelper.words.findByNumber(findNumber, offset, resultCount, resultFunc);
+            else if (findDescription)
+                dbHelper.words.findByDescription(findDescription, offset, resultCount, resultFunc);
+            else
+                dbHelper.words.find(offset, resultCount, resultFunc);
         }
     }
     else
@@ -447,6 +446,43 @@ router.get('/words/send', function(req, res, next) {
             else
                 error(res, 'App用户' + data.appUserID + '不存在');
         });
+    else
+        error(res, '缺少参数');
+});
+
+
+/********************************
+ * 消息相关
+ ********************************/
+
+/**
+ * 获取未读消息列表
+ * @param appUserID
+ * @returns {[message]}
+ */
+router.get('/messages/getUnread', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
+        // TODO
+        //dbHelper.messages.findByID(data.appUserID, function(rows){
+        //    if (rows.length) {
+        //        var user = rows[0];
+        //        var i = 0;
+        //        function nextFunc(){
+        //            if (i >= data.friendsUserID.length) return;
+        //            var friendUserID = parseInt(data.friendsUserID[i++]);
+        //            if (friendUserID)
+        //                dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, user.APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+        //            else
+        //                nextFunc();
+        //        }
+        //        nextFunc();
+        //        success(res, null);
+        //    }
+        //    else
+        //        error(res, 'App用户' + data.appUserID + '不存在');
+        //})
+        ;
     else
         error(res, '缺少参数');
 });

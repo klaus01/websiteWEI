@@ -23,7 +23,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.engine('.html', ejs.__express);
 app.set('view engine', 'html');
 
-app.use(logger('dev'));
+app.use(logger(app.get('env') === 'development' ? 'dev' : 'combined'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({dest: settings.tempUploadDir}));
@@ -42,7 +42,7 @@ app.use(publicFunction.addConnectionIPToRequest);
 
 app.use('/', indexRoutes);
 app.use('/' + ajaxRoutes.PATHHEADER, ajaxRoutes);
-//app.use();
+
 app.use('/' + adminRoutes.PATHHEADER, adminRoutes.checkLogin);
 app.use('/' + adminRoutes.PATHHEADER, adminRoutes);
 app.use('/' + partnerRoutes.PATHHEADER, partnerRoutes.checkLogin);

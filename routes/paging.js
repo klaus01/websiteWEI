@@ -181,7 +181,8 @@ router.get('/wordList', function(req, res) {
     function resultRows(rows) {
         // 将URL中的pageNumber参数对掉，并返回给页面使用
         var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
-
+        publicFunction.addAppUserIconUrl(rows);
+        publicFunction.addWordPictureAndAudioUrl(rows);
         resRender(res, req._parsedUrl.pathname, {
             userCaption: userCaption,
             pageUrl: pageUrl,

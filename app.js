@@ -14,6 +14,7 @@ var partnerRoutes = require('./routes/partner');
 var pagingRoutes = require('./routes/paging');
 var ajaxRoutes = require('./routes/ajax');
 var settings = require('./settings');
+var publicFunction = require('./lib/publicFunction');
 
 var app = express();
 
@@ -37,6 +38,7 @@ app.use(session({
     cookie: { maxAge: settings.cookie.maxAge }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(publicFunction.addConnectionIPToRequest);
 
 app.use('/', indexRoutes);
 app.use('/' + ajaxRoutes.PATHHEADER, ajaxRoutes);

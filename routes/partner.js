@@ -58,7 +58,7 @@ router.post('/login', function(req, res) {
         if (rows.length) {
             if (password === rows[0].LoginPassword) {
                 req.session.partnerUser = rows[0];
-                dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connection.remoteAddress);
+                dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connectionIP);
                 resRedirect(res, '/');
             } else
                 error('密码错误');

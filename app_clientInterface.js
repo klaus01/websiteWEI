@@ -10,6 +10,7 @@ var mongoStore = require('connect-mongo')(session);
 
 var clientInterface = require('./routes/clientInterface');
 var settings = require('./settings');
+var publicFunction = require('./lib/publicFunction');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use(session({
     cookie: { maxAge: settings.cookie.maxAge }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(publicFunction.addConnectionIPToRequest);
 
 app.use('/', clientInterface);
 

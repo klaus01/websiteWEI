@@ -88,8 +88,24 @@ router.get('/appUser/register', function(req, res, next) {
             RegistrationDevice: data.registrationDevice,
             RegistrationOS: data.registrationOS
         };
-        dbHelper.appUsers.new(keyValues, function(appUserID){
-            success(res, {appUserID: appUserID});
+        dbHelper.appUsers.new(keyValues, function(newAppUserID){
+            // 检查是否被邀请过，邀请过则建立邀请朋友关系且发送加好友消息
+            dbHelper.inviteFriends.findByPhoneNumber(data.phoneNumber, function(rows){
+                var i = 0;
+                function nextFunc(){
+                    if (i >= rows.length) return;
+                    var appUserID = rows[i++].AppUserID;
+                    dbHelper.appUsers.addFriend(appUserID, newAppUserID, function(){
+                        // TODO 需要先确认逻辑
+                        //dbHelper.messages.newFriendMessage(newAppUserID, appUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
+                        //    success(res, {message:'已经加为朋友'});
+                        //});
+                        nextFunc();
+                    });
+                }
+                nextFunc();
+            });
+            success(res, {appUserID: newAppUserID});
         });
     }
     else

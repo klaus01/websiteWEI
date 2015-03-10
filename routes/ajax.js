@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
-var fileHelper = require('../lib/fileHelper');
+var publicFunction = require('../lib/publicFunction');
 var PATHHEADER = path.basename(__filename, '.js');
 
 
@@ -201,7 +201,7 @@ router.post('/partnerUser/post', function(req, res) {
         }
 
         if (files.iconFile)
-            fileHelper.movePartnerUserIconFile(files.iconFile, findAppUserID);
+            publicFunction.movePartnerUserIconFile(files.iconFile, findAppUserID);
         else
             findAppUserID();
     });
@@ -262,7 +262,7 @@ router.post('/activity/post', function(req, res) {
             }
     }
 
-    fileHelper.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
+    publicFunction.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
         dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
             var activityID = data.insertId;
             dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){

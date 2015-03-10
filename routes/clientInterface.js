@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var router = express.Router();
-var fileHelper = require('../lib/fileHelper');
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
@@ -115,7 +114,6 @@ router.get('/appUser/register', function(req, res, next) {
 /**
  * 修改App用户资料
  * @param appUserID, iconFile, nickname, isMan
- * @returns {}
  */
 router.post('/appUser/update', function(req, res, next) {
     var data = req.body;
@@ -125,7 +123,7 @@ router.post('/appUser/update', function(req, res, next) {
         && data.isMan && data.isMan.length
         && files.iconFile && files.iconFile.length) {
 
-        fileHelper.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
+        publicFunction.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
             var setKeyValues = {
                 IconFileName: files.iconFile.name,
                 Nickname: data.nickname,
@@ -134,7 +132,7 @@ router.post('/appUser/update', function(req, res, next) {
             };
             dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
                 if (result.affectedRows)
-                    success(res, {});
+                    success(res, null);
                 else
                     error(res, 'App用户' + data.appUserID + '不存在');
             });
@@ -147,7 +145,6 @@ router.post('/appUser/update', function(req, res, next) {
 /**
  * 更新苹果远程通知令牌
  * @param appUserID, APNSToken
- * @returns {}
  */
 router.get('/appUser/updateAPNSToken', function(req, res, next) {
     var data = req.query;
@@ -155,7 +152,7 @@ router.get('/appUser/updateAPNSToken', function(req, res, next) {
         && data.APNSToken && data.APNSToken.length) {
         dbHelper.appUsers.update({APNSToken: data.APNSToken}, {AppUserID: data.appUserID}, function(result){
             if (result.affectedRows)
-                success(res, {});
+                success(res, null);
             else
                 error(res, 'App用户' + data.appUserID + '不存在');
         });
@@ -167,14 +164,13 @@ router.get('/appUser/updateAPNSToken', function(req, res, next) {
 /**
  * 更新用户状态为 已进入应用主页
  * @param appUserID
- * @returns {}
  */
 router.get('/appUser/enterHome', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
         dbHelper.appUsers.update({RegistrationStatus: 3}, {AppUserID: data.appUserID}, function(result){
             if (result.affectedRows)
-                success(res, {});
+                success(res, null);
             else
                 error(res, 'App用户' + data.appUserID + '不存在');
         });
@@ -185,7 +181,6 @@ router.get('/appUser/enterHome', function(req, res, next) {
 /**
  * 更新登录信息
  * @param appUserID, longitude, latitude
- * @returns {}
  */
 router.get('/appUser/login', function(req, res, next) {
     var data = req.query;
@@ -193,13 +188,13 @@ router.get('/appUser/login', function(req, res, next) {
         && data.longitude && data.latitude) {
         var setKeyValues = {
             LastLoginTime: new Date(),
-            LastLoginIP: req.connection.remoteAddress,
+            LastLoginIP: req.connectionIP,
             LastLoginLongitude: data.longitude,
             LastLoginLatitude: data.latitude
         };
         dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
             if (result.affectedRows)
-                success(res, {});
+                success(res, null);
             else
                 error(res, 'App用户' + data.appUserID + '不存在');
         });
@@ -263,7 +258,6 @@ router.get('/appUser/addFriend', function(req, res, next) {
 /**
  * 设置朋友是否在黑名单中
  * @param appUserID, friendUserID, isBlack:0不是，1是
- * @returns {}
  */
 router.get('/appUser/setFriendIsBlack', function(req, res, next) {
     var data = req.query;
@@ -272,7 +266,7 @@ router.get('/appUser/setFriendIsBlack', function(req, res, next) {
         && data.isBlack && parseInt(data.isBlack))
         dbHelper.appUsers.setFriendIsBlack(data.appUserID, data.friendUserID, data.isBlack, function(result){
             if (result.affectedRows)
-                success(res, {});
+                success(res, null);
             else
                 error(res, '用户' + data.appUserID + '与用户' + data.friendUserID + '不是朋友');
         });
@@ -334,7 +328,6 @@ router.get('/SMS/sendCheck', function(req, res, next) {
 /**
  * 校验手机验证码
  * @param phoneNumber, verificationCode
- * @returns {}
  */
 router.get('/SMS/checkVerificationCode', function(req, res, next) {
     var data = req.query;
@@ -344,7 +337,7 @@ router.get('/SMS/checkVerificationCode', function(req, res, next) {
             if (rows.length > 0) {
                 if (rows[0].VerificationCode === data.verificationCode) {
                     dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
-                    success(res, {});
+                    success(res, null);
                 }
                 else
                     error(res, '验证码错误');
@@ -353,6 +346,107 @@ router.get('/SMS/checkVerificationCode', function(req, res, next) {
                 error(res, '验证码已过期，请重新获取验证码');
         });
     }
+    else
+        error(res, '缺少参数');
+});
+
+
+/********************************
+ * 字相关
+ ********************************/
+
+/**
+ * 获取字列表
+ * @param [appUserID, number, description, (offset, resultCount)]
+ * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UserCount降序
+ */
+router.get('/words/find', function(req, res, next) {
+    var data = req.query;
+    if (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) && parseInt(data.resultCount))) {
+        function resultFunc(rows) {
+            publicFunction.addWordPictureAndAudioUrl(rows);
+            success(res, rows);
+        }
+
+        var appUserID = data.appUserID;
+        var findNumber = data.number;
+        var findDescription = data.description;
+        var offset = data.offset;
+        var resultCount = data.resultCount;
+
+        if (data.appUserID) {
+            // 返回系统字、appUserID发送的字 和 appUserID接收到的字
+            if (data.appUserID.length && parseInt(data.appUserID)) {
+                if (findNumber)
+                    dbHelper.words.findByAppUserIDAndNumber(data.appUserID, findNumber, offset, resultCount, resultFunc);
+                else if (findDescription)
+                    dbHelper.words.findByAppUserIDAndDescription(data.appUserID, findDescription, offset, resultCount, resultFunc);
+                else
+                    dbHelper.words.findByAppUserID(data.appUserID, offset, resultCount, resultFunc);
+            }
+            else
+                error(res, '缺少参数');
+        }
+        else {
+            // 返回所有字
+            //if (findNumber)
+            //    dbHelper.words.findByNumber(data.appUserID, findNumber, offset, resultCount, resultFunc);
+            //else if (findDescription)
+            //    dbHelper.words.findByDescription(data.appUserID, findDescription, offset, resultCount, resultFunc);
+            //else
+            //    dbHelper.words.find(data.appUserID, offset, resultCount, resultFunc);
+        }
+    }
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 创建字
+ * @param appUserID, description, pictureFile[, audioFile]
+ * @returns {newWordID}
+ */
+router.post('/words/new', function(req, res, next) {
+    var data = req.body;
+    var files = req.files;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && files.pictureFile)
+        dbHelper.words.new(data.appUserID, files.pictureFile.name, data.description, files.audioFile ? files.audioFile.Name : null, function(newWordID){
+            publicFunction.moveWordPictureFile(newWordID, files.pictureFile);
+            if (files.audioFile) publicFunction.moveWordAudioFile(newWordID, files.audioFile);
+            success(res, {newWordID: newWordID});
+        });
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 发送字
+ * @param wordID, appUserID, friendsUserID[]
+ */
+router.get('/words/send', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.wordID && data.wordID.length && parseInt(data.wordID)
+        && data.friendsUserID && data.friendsUserID.length)
+        dbHelper.appUsers.findByID(data.appUserID, function(rows){
+            if (rows.length) {
+                var user = rows[0];
+                var i = 0;
+                function nextFunc(){
+                    if (i >= data.friendsUserID.length) return;
+                    var friendUserID = parseInt(data.friendsUserID[i++]);
+                    if (friendUserID)
+                        dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, user.APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+                    else
+                        nextFunc();
+                }
+                nextFunc();
+                success(res, null);
+            }
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
+        });
     else
         error(res, '缺少参数');
 });

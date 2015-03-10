@@ -25,5 +25,9 @@ module.exports = {
     // 公众号头像图片存放目录
     partnerUserIconsDir: '/images/partnerUserIcons/',
     // 公众号活动图片存放目录
-    activityPicturesDir: '/images/activityPictures/'
+    activityPicturesDir: '/images/activityPictures/',
+    // 字图片存放目录
+    wordPicturesDir: '/images/wordPictures/',
+    // 字音频存放目录
+    wordAudioDir: '/audio/wordAudio/'
 };

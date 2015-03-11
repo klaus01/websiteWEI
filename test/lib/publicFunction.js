@@ -20,6 +20,12 @@ describe('public function', function(){
         });
     });
 
+    describe('#md5()', function(){
+        it('md5(\'xxxxxx\')=dad3a37aa9d50688b5157698acfd7aee', function(){
+            publicFunction.md5('xxxxxx').should.equal('dad3a37aa9d50688b5157698acfd7aee');
+        });
+    });
+
     describe('#addPartnerUserIconUrl()', function(){
         var rows = [
             {IconFileName: 'x.x'},

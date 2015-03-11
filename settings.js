@@ -13,6 +13,9 @@ module.exports = {
     },
     // 分页数据页面，每页显示的记录数
     pageRows: 20,
+    // 查询待发送短信间隔时间(毫秒)
+    QueryWaitingSmsInterval: 2000,
+
     // 客户端App应用名称
     appName: 'WEI应用',
     // 客户端App主页地址

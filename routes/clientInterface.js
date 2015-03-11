@@ -24,6 +24,15 @@ function success(res, data) {
     resultJSON(res, true, data);
 }
 
+function getAwardUrlParameterStr(appUserID, activityID) {
+    var sign = publicFunction.md5(settings.signMark + appUserID + activityID);
+    return 'appUserID=' + appUserID + '&activityID=' + activityID + '&sign=' + sign;
+}
+
+function checkAwardUrlParameter(appUserID, activityID, sign) {
+    var tSign = publicFunction.md5(settings.signMark + appUserID + activityID);
+    return sign === tSign;
+}
 
 /********************************
  * App用户相关
@@ -493,9 +502,7 @@ router.get('/word/send', function(req, res, next) {
                                                 // 指定时间范围内回复字消息，中奖
                                                 gift = true;
                                             if (gift) {
-                                                var awardQRCodeInfo = 'appUserID=' + data.appUserID + '&activityID=' + friendUserID;
-                                                var sign = publicFunction.md5(settings.signMark + awardQRCodeInfo);
-                                                awardQRCodeInfo = awardQRCodeInfo + '&sign=' + sign;
+                                                var awardQRCodeInfo = getAwardUrlParameterStr(data.appUserID, activityExt.PartnerActivityID);
                                                 dbHelper.messages.newGiftMessage(friendUserID, data.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, '您中奖了，快来领取礼品');
                                             }
                                         }
@@ -557,6 +564,34 @@ router.get('/message/getList', function(req, res, next) {
         dbHelper.messages.findByAppUserIDAndPartnerUserID(data.appUserID, data.partnerUserID, function(rows){
             success(res, rows);
         });
+    else
+        error(res, '缺少参数');
+});
+
+
+/********************************
+ * 活动相关
+ ********************************/
+
+/**
+ * 领奖
+ * @param appUserID, activityID, sign
+ * @returns {message}
+ */
+router.get('/activity/award', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.activityID && data.activityID.length && parseInt(data.activityID)
+        && data.sign && data.sign.length)
+        if (checkAwardUrlParameter(data.appUserID, data.activityID, data.sign))
+            dbHelper.activities.award(data.appUserID, data.activityID, function(result){
+                if (result.affectedRows)
+                    success(res, '领奖登录成功');
+                else
+                    error(res, '该用户未参加此活动，或已经领取过奖品');
+            });
+        else
+            error(res, '活动验证失败，提供的二维码是错误的');
     else
         error(res, '缺少参数');
 });

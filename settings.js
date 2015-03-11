@@ -30,5 +30,8 @@ module.exports = {
     // 字图片存放目录
     wordPicturesDir: '/images/wordPictures/',
     // 字音频存放目录
-    wordAudioDir: '/audio/wordAudio/'
+    wordAudioDir: '/audio/wordAudio/',
+
+    // 用于签名的标识串
+    signMark: 'WEI2015'
 };

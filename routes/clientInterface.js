@@ -477,7 +477,41 @@ router.get('/word/send', function(req, res, next) {
                     if (i >= data.friendsUserID.length) return;
                     var friendUserID = parseInt(data.friendsUserID[i++]);
                     if (friendUserID)
-                        dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, user.APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+                        // 判断是不是发给公众号的
+                        dbHelper.partnerUsers.findByID(friendUserID, function(rows) {
+                            if (rows.length) {
+                                // 是则判断查询有没有可参加的活动且是否中奖
+                                dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
+                                    dbHelper.activities.findActivitiesExtUnexpiredByAppUserID(data.appUserID, function (rows) {
+                                        for (var i = 0; i < rows.length; i++) {
+                                            var activityExt = rows[i];
+                                            var gift = false;
+                                            if (activityExt.DistanceMeters) {
+                                                // TODO 指定范围活动中奖的判断逻辑
+                                            }
+                                            else
+                                                // 指定时间范围内回复字消息，中奖
+                                                gift = true;
+                                            if (gift) {
+                                                var awardQRCodeInfo = 'appUserID=' + data.appUserID + '&activityID=' + friendUserID;
+                                                var sign = publicFunction.md5(settings.signMark + awardQRCodeInfo);
+                                                awardQRCodeInfo = awardQRCodeInfo + '&sign=' + sign;
+                                                dbHelper.messages.newGiftMessage(friendUserID, data.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, '您中奖了，快来领取礼品');
+                                            }
+                                        }
+                                    });
+                                    nextFunc();
+                                });
+                            }
+                            else
+                                // 不是公众号就查询App用户
+                                dbHelper.appUsers.findByID(friendUserID, function(rows){
+                                    if (rows.length)
+                                        dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, rows[0].APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+                                    else
+                                        nextFunc();
+                                });
+                        });
                     else
                         nextFunc();
                 }

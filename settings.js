@@ -15,6 +15,8 @@ module.exports = {
     pageRows: 20,
     // 查询待发送短信间隔时间(毫秒)
     QueryWaitingSmsInterval: 2000,
+    // 查询待发送苹果远程通知间隔时间(毫秒)
+    QueryWaitingAPNSInterval: 2000,
 
     // 客户端App应用名称
     appName: 'WEI应用',

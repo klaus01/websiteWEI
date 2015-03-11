@@ -57,14 +57,12 @@ router.get('/appUser/get', function(req, res, next) {
 /**
  * 获取朋友信息列表
  * @param appUserID
- * @returns [{appUser}]
+ * @returns {[{SourceUserID, LastTime, UneadCount, AppUser:{}, PartnerUser:{}}]}
  */
 router.get('/appUser/getFriends', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)) {
         dbHelper.appUsers.findFriendsByAppUserID(data.appUserID, function(rows){
-            // TODO 按消息时间降序排序，需要返回公众号以及有无未读消息
-            publicFunction.addAppUserIconUrl(rows);
             success(res, rows);
         });
     }
@@ -95,7 +93,7 @@ router.get('/appUser/register', function(req, res, next) {
                     if (i >= rows.length) return;
                     var appUserID = rows[i++].AppUserID;
                     dbHelper.appUsers.addFriend(appUserID, newAppUserID, function(){
-                        // TODO 需要先确认逻辑
+                        // TODO 发注册加好友消息，需要先确认逻辑
                         //dbHelper.messages.newFriendMessage(newAppUserID, appUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
                         //    success(res, {message:'已经加为朋友'});
                         //});
@@ -458,7 +456,7 @@ router.get('/words/send', function(req, res, next) {
 /**
  * 获取未读消息列表
  * @param appUserID
- * @returns {[{AppUser, PartnerUser, Message, Word, Activity, Gift}]}
+ * @returns {[{AppUser:{}, PartnerUser:{}, Message:{}, Word:{}, Activity:{}, Gift:{}}]}
  */
 router.get('/messages/getUnread', function(req, res, next) {
     var data = req.query;

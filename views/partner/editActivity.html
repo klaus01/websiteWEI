@@ -36,6 +36,10 @@
                         <input type="datetime-local" class="form-control" id="endTime" name="endTime">
                     </div>
                     <div class="form-group">
+                        <label for="expireAwardTime">终止领奖时间</label>
+                        <input type="datetime-local" class="form-control" id="expireAwardTime" name="expireAwardTime">
+                    </div>
+                    <div class="form-group">
                         <label for="longitude">经度</label>
                         <input type="number" class="form-control" id="longitude" name="longitude" >
                     </div>
@@ -69,6 +73,7 @@
         modal.find('.modal-body #url').val('');
         modal.find('.modal-body #beginTime').val('');
         modal.find('.modal-body #endTime').val('');
+        modal.find('.modal-body #expireAwardTime').val('');
         modal.find('.modal-body #longitude').val('');
         modal.find('.modal-body #latitude').val('');
         modal.find('.modal-body #distanceMeters').val('');
@@ -92,6 +97,7 @@
         formdata.append('url', $editActivity.find('#url').val());
         formdata.append('beginTime', $editActivity.find('#beginTime').val());
         formdata.append('endTime', $editActivity.find('#endTime').val());
+        formdata.append('expireAwardTime', $editActivity.find('#expireAwardTime').val());
         formdata.append('longitude', $editActivity.find('#longitude').val());
         formdata.append('latitude', $editActivity.find('#latitude').val());
         formdata.append('distanceMeters', $editActivity.find('#distanceMeters').val());
@@ -122,6 +128,7 @@
     $editActivity.find('#mode').on('change', function (event) {
         var beginTime = false;
         var endTime = false;
+        var expireAwardTime = false;
         var longitude = false;
         var latitude = false;
         var distanceMeters = false;
@@ -129,6 +136,7 @@
             case '1':
                 beginTime = true;
                 endTime = true;
+                expireAwardTime = true;
                 break;
             case '2':
                 beginTime = true;
@@ -138,14 +146,14 @@
                 distanceMeters = true;
                 break;
         }
-        function setDisplay($obj, isShow) {
-            $obj.css('display', isShow ? 'block' : 'none');
+        function setDisplay(objID, isShow) {
+            $editActivity.find('#' + objID).parent().css('display', isShow ? 'block' : 'none');
         }
-        setDisplay($editActivity.find('#beginTime').parent(), beginTime);
-        setDisplay($editActivity.find('#endTime').parent(), endTime);
-        setDisplay($editActivity.find('#longitude').parent(), longitude);
-        setDisplay($editActivity.find('#latitude').parent(), latitude);
-        setDisplay($editActivity.find('#distanceMeters').parent(), distanceMeters);
+        setDisplay('#beginTime', beginTime);
+        setDisplay('#endTime', endTime);
+        setDisplay('#expireAwardTime', expireAwardTime);
+        setDisplay('#longitude', longitude);
+        setDisplay('#latitude', latitude);
+        setDisplay('#distanceMeters', distanceMeters);
     });
-
 </script>

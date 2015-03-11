@@ -251,6 +251,10 @@ router.post('/activity/post', function(req, res) {
                 error(res, '缺少结束时间');
                 return;
             }
+            if (!data.expireAwardTime) {
+                error(res, '缺少终止领奖时间');
+                return;
+            }
         default:
             if (!files.pictureFile) {
                 error(res, '缺少图片');
@@ -263,7 +267,7 @@ router.post('/activity/post', function(req, res) {
     }
 
     publicFunction.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
-        dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
+        dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.expireAwardTime, data.longitude, data.latitude, data.distanceMeters, function (data) {
             var activityID = data.insertId;
             dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){
                 var i = 0;

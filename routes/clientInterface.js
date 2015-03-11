@@ -37,10 +37,8 @@ function success(res, data) {
 router.get('/appUser/get', function(req, res, next) {
 
     function result(rows) {
-        if (rows.length) {
-            publicFunction.addAppUserIconUrl(rows);
+        if (rows.length)
             success(res, rows[0]);
-        }
         else
             error(res, 'App用户' + data.appUserID + '不存在');
     }
@@ -299,7 +297,6 @@ router.get('/appUser/setFriendIsBlack', function(req, res, next) {
  */
 router.get('/partnerUser/get', function(req, res, next) {
     dbHelper.partnerUsers.findEnabled(function(rows){
-        rows = publicFunction.addPartnerUserIconUrl(rows);
         success(res, rows);
     });
 });
@@ -409,7 +406,6 @@ router.get('/word/find', function(req, res, next) {
     var data = req.query;
     if (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) && parseInt(data.resultCount))) {
         function resultFunc(rows) {
-            publicFunction.addWordPictureAndAudioUrl(rows);
             success(res, rows);
         }
 

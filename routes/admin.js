@@ -135,7 +135,6 @@ router.get('/smsLogs', function(req, res) {
 
 router.get('/partnerUsers', function(req, res) {
     dbHelper.partnerUsers.findAll(function(rows) {
-        rows = publicFunction.addPartnerUserIconUrl(rows);
         resRender(res, req.url, {
             title: '公众号管理',
             user: req.session.adminUser,
@@ -167,7 +166,6 @@ router.get('/partnerUserInfo/:id', function(req, res) {
         dbHelper.partnerUsers.findByID(id, function(rows){
 
             if (rows.length) {
-                rows = publicFunction.addPartnerUserIconUrl(rows);
                 var data = rows[0];
 
                 function resultFunc(){

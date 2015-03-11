@@ -101,11 +101,9 @@ router.get('/activityInfo/:id', function(req, res) {
     if (id)
         dbHelper.activities.findByID(id, function(rows){
             if (rows.length) {
-                rows = publicFunction.addActivityPictureUrl(rows);
-                var data = rows[0];
                 resRender(res, path.dirname(req.url), {
                     title: '公众号活动信息',
-                    data: data
+                    data: rows[0]
                 });
             }
             else

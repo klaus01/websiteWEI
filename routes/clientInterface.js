@@ -458,31 +458,14 @@ router.get('/words/send', function(req, res, next) {
 /**
  * 获取未读消息列表
  * @param appUserID
- * @returns {[message]}
+ * @returns {[{AppUser, PartnerUser, Message, Word, Activity, Gift}]}
  */
 router.get('/messages/getUnread', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
-        // TODO
-        //dbHelper.messages.findByID(data.appUserID, function(rows){
-        //    if (rows.length) {
-        //        var user = rows[0];
-        //        var i = 0;
-        //        function nextFunc(){
-        //            if (i >= data.friendsUserID.length) return;
-        //            var friendUserID = parseInt(data.friendsUserID[i++]);
-        //            if (friendUserID)
-        //                dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, user.APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
-        //            else
-        //                nextFunc();
-        //        }
-        //        nextFunc();
-        //        success(res, null);
-        //    }
-        //    else
-        //        error(res, 'App用户' + data.appUserID + '不存在');
-        //})
-        ;
+        dbHelper.messages.findUnread(data.appUserID, function(rows){
+            success(res, rows);
+        });
     else
         error(res, '缺少参数');
 });

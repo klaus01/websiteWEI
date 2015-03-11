@@ -254,6 +254,22 @@ router.get('/appUser/addFriend', function(req, res, next) {
 });
 
 /**
+ * 订阅公众号
+ * @param appUserID, partnerUserID
+ * @returns {message}
+ */
+router.get('/appUser/addPartnerUser', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
+        && data.partnerUserID && data.partnerUserID.length && parseInt(data.partnerUserID))
+        dbHelper.appUsers.addPartner(data.appUserID, data.partnerUserID, function(result){
+            success(res, null);
+        });
+    else
+        error(res, '缺少参数');
+});
+
+/**
  * 设置朋友是否在黑名单中
  * @param appUserID, friendUserID, isBlack:0不是，1是
  */
@@ -274,6 +290,37 @@ router.get('/appUser/setFriendIsBlack', function(req, res, next) {
 
 
 /********************************
+ * 公众号相关
+ ********************************/
+
+/**
+ * 获取所有可用公众号列表
+ * @returns {[partnerUser]}
+ */
+router.get('/partnerUser/get', function(req, res, next) {
+    dbHelper.partnerUsers.findEnabled(function(rows){
+        rows = publicFunction.addPartnerUserIconUrl(rows);
+        success(res, rows);
+    });
+});
+
+/**
+ * 获取用户订阅的公众号列表
+ * @param appUserID
+ * @returns {[partnerUser]} 按最近消息时间降序排序，增加了UnreadCount和NoAwardCount属性
+ */
+router.get('/partnerUser/get', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID))
+        dbHelper.partnerUsers.findMessagesBySubscriberID(data.appUserID, function(rows){
+            success(res, rows);
+        });
+    else
+        error(res, '缺少参数');
+});
+
+
+/********************************
  * 短信相关
  ********************************/
 
@@ -282,7 +329,7 @@ router.get('/appUser/setFriendIsBlack', function(req, res, next) {
  * @param phoneNumber
  * @returns {smsID: Number}
  */
-router.get('/SMS/sendCheck', function(req, res, next) {
+router.get('/sms/sendCheck', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length > 0) {
         dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
@@ -327,7 +374,7 @@ router.get('/SMS/sendCheck', function(req, res, next) {
  * 校验手机验证码
  * @param phoneNumber, verificationCode
  */
-router.get('/SMS/checkVerificationCode', function(req, res, next) {
+router.get('/sms/checkVerificationCode', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length > 0
         && data.verificationCode && data.verificationCode.length > 0) {
@@ -358,7 +405,7 @@ router.get('/SMS/checkVerificationCode', function(req, res, next) {
  * @param [appUserID, number, description, (offset, resultCount)]
  * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UseCount降序
  */
-router.get('/words/find', function(req, res, next) {
+router.get('/word/find', function(req, res, next) {
     var data = req.query;
     if (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) && parseInt(data.resultCount))) {
         function resultFunc(rows) {
@@ -403,7 +450,7 @@ router.get('/words/find', function(req, res, next) {
  * @param appUserID, description, pictureFile[, audioFile]
  * @returns {newWordID}
  */
-router.post('/words/new', function(req, res, next) {
+router.post('/word/new', function(req, res, next) {
     var data = req.body;
     var files = req.files;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
@@ -421,7 +468,7 @@ router.post('/words/new', function(req, res, next) {
  * 发送字
  * @param wordID, appUserID, friendsUserID[]
  */
-router.get('/words/send', function(req, res, next) {
+router.get('/word/send', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
         && data.wordID && data.wordID.length && parseInt(data.wordID)
@@ -458,10 +505,26 @@ router.get('/words/send', function(req, res, next) {
  * @param appUserID
  * @returns {[{AppUser:{}, PartnerUser:{}, Message:{}, Word:{}, Activity:{}, Gift:{}}]}
  */
-router.get('/messages/getUnread', function(req, res, next) {
+router.get('/message/getUnread', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
-        dbHelper.messages.findUnread(data.appUserID, function(rows){
+        dbHelper.messages.findUnreadByAppUserID(data.appUserID, function(rows){
+            success(res, rows);
+        });
+    else
+        error(res, '缺少参数');
+});
+
+/**
+ * 获取用户与公众号历史消息列表
+ * @param appUserID, partnerUserID
+ * @returns {[{Message:{}, Word:{}, Activity:{}, Gift:{}}]}
+ */
+router.get('/message/getList', function(req, res, next) {
+    var data = req.query;
+    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)
+        && data.partnerUserID && data.partnerUserID.length > 0 && parseInt(data.partnerUserID))
+        dbHelper.messages.findByAppUserIDAndPartnerUserID(data.appUserID, data.partnerUserID, function(rows){
             success(res, rows);
         });
     else

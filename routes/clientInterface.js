@@ -7,7 +7,6 @@ var settings = require('../settings');
 
 
 function resultJSON(res, isSuccess, content) {
-    return 2;
     var ret = {
         success: isSuccess
     };
@@ -83,6 +82,8 @@ router.get('/appUser/getFriends', function(req, res, next) {
  * @returns {appUserID: Number}
  */
 router.get('/appUser/register', function(req, res, next) {
+    try {
+
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length) {
         var keyValues = {
@@ -114,6 +115,12 @@ router.get('/appUser/register', function(req, res, next) {
     }
     else
         error(res, '缺少参数');
+
+
+    }
+    catch (e) {
+        console.error(e);
+    }
 });
 
 /**

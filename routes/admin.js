@@ -7,6 +7,8 @@ var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
 var PATHHEADER = path.basename(__filename, '.js');
 
+var app = express();
+
 
 function resRender(res, moduleFileName, json) {
 	res.render(PATHHEADER + '/' + moduleFileName, json);
@@ -52,14 +54,16 @@ router.post('/login', function(req, res) {
         error('请输入密码');
         return;
     }
-    if (!data.verificationCode) {
-        error('请输入验证码');
-        return;
-    }
-    var verificationCode = req.session.verificationCode;
-    if (!verificationCode || verificationCode !== data.verificationCode.toUpperCase()) {
-        error('验证码错误');
-        return;
+    if (app.get('env') !== 'test') {
+        if (!data.verificationCode) {
+            error('请输入验证码');
+            return;
+        }
+        var verificationCode = req.session.verificationCode;
+        if (!verificationCode || verificationCode !== data.verificationCode.toUpperCase()) {
+            error('验证码错误');
+            return;
+        }
     }
 
     var password = new Buffer(data.password, 'base64').toString();

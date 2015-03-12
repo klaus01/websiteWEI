@@ -1,3 +1,22 @@
+// 生产环境mysql数据库连接设置
+var mysqlConnectionOptions = {
+    host     : 'localhost',
+    database : 'WEIDB',
+    user     : 'root',
+    password : '111'
+};
+
+// 测试环境mysql数据库连接设置
+if (process.env.NODE_ENV === 'test') {
+    mysqlConnectionOptions = {
+        host     : 'localhost',
+        database : 'WEIDB_TEST',
+        user     : 'root',
+        password : '111'
+    };
+}
+
+
 module.exports = {
     cookie: {
         secret: 'websiteWEI2015',
@@ -5,13 +24,7 @@ module.exports = {
         maxAge: 30 * 60 * 1000,
         sessionMongoDB: 'mongodb://localhost/WEIDB'
     },
-    // mysql数据库连接设置
-    mysqlConnectionOptions: {
-        host     : 'localhost',
-        database : 'WEIDB',
-        user     : 'root',
-        password : '111'
-    },
+    mysqlConnectionOptions: mysqlConnectionOptions,
     // 分页数据页面，每页显示的记录数
     pageRows: 20,
     // 查询待发送短信间隔时间(毫秒)
@@ -20,7 +33,7 @@ module.exports = {
     QueryWaitingAPNSInterval: 2000,
 
     // 客户端App应用名称
-    appName: 'WEI应用',
+    appName: 'WWW 围威喂',
     // 客户端App主页地址
     appHomePageUrl: 'http://weiapp.cf/',
     // 上传文件的临时目录

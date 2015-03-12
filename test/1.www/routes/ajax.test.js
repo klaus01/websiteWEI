@@ -1,9 +1,13 @@
 var should = require('should');
-var agent = require('../begin.test');
+var agent = require('../beginAdmin.test');
 
 function jsonToAgentField(json, agent) {
     for (var p in json)
         agent.field(p, json[p]);
+}
+
+function getIconFilePath() {
+    return __dirname + '/../../icon.jpg';
 }
 
 describe('routes ajax', function(){
@@ -113,7 +117,7 @@ describe('routes ajax', function(){
                 enabled: '1'
             }, obj);
             obj
-                .attach('iconFile', __dirname + '/../icon.jpg')
+                .attach('iconFile', getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":1');
@@ -152,7 +156,7 @@ describe('routes ajax', function(){
                 content: '普通消息广播'
             }, obj);
             obj
-                .attach('pictureFile', __dirname + '/../icon.jpg')
+                .attach('pictureFile', getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":1');
@@ -170,7 +174,7 @@ describe('routes ajax', function(){
                 expireAwardTime: '2020-01-01'
             }, obj);
             obj
-                .attach('pictureFile', __dirname + '/../icon.jpg')
+                .attach('pictureFile', getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":2');
@@ -191,7 +195,7 @@ describe('routes ajax', function(){
                 distanceMeters: 500
             }, obj);
             obj
-                .attach('pictureFile', __dirname + '/../icon.jpg')
+                .attach('pictureFile', getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":3');

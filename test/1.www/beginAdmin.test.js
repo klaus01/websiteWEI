@@ -1,15 +1,15 @@
 process.env.NODE_ENV = 'test';
-process.env.PORT = 4001;
+process.env.PORT = 4000;
 
 var fs = require('fs');
-var settings = require('../settings');
-var dbConn = require('../lib/dbConn');
+var settings = require('../../settings');
+var dbConn = require('../../lib/dbConn');
 
-var app = require('../bin/www');
+var app = require('../../bin/www');
 var request = require('supertest');
 var agent = request.agent(app);
 
-var publicFunction = require('../lib/publicFunction');
+var publicFunction = require('../../lib/publicFunction');
 
 module.exports = agent;
 
@@ -50,10 +50,10 @@ describe('启动www服务', function () {
                 dbConn.query('USE ' + dbName, function(err) {
                     if (err) throw err;
                     console.log('创建表');
-                    var data = fs.readFileSync(__dirname + '/../doc/后台数据库.sql', 'utf-8');
+                    var data = fs.readFileSync(__dirname + '/../../doc/后台数据库.sql', 'utf-8');
                     query(data, function(){
                         console.log('创建视图与默认数据');
-                        var data = fs.readFileSync(__dirname + '/../doc/后台数据库_默认数据.sql', 'utf-8');
+                        var data = fs.readFileSync(__dirname + '/../../doc/后台数据库_默认数据.sql', 'utf-8');
                         query(data, done);
                     });
                 });

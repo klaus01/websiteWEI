@@ -1,5 +1,5 @@
 var should = require('should');
-var agent = require('../begin.test');
+var agent = require('../beginAdmin.test');
 
 describe('routes paging', function(){
 

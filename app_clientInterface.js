@@ -28,6 +28,7 @@ app.use(session({
     secret: settings.cookie.secret,
     saveUninitialized: true,
     resave: true,
+    rolling: true,//每请求一次，过期时间将延长
     store: new mongoStore({
         db: settings.cookie.sessionMongoDB
     }),

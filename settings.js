@@ -1,7 +1,8 @@
 module.exports = {
     cookie: {
         secret: 'websiteWEI2015',
-        maxAge: 60 * 60 * 1000,
+        // session保存时长(毫秒)，每次请求后会重置时长
+        maxAge: 30 * 60 * 1000,
         sessionMongoDB: 'mongodb://localhost/WEIDB'
     },
     // mysql数据库连接设置

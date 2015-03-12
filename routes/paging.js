@@ -40,6 +40,9 @@ router.get('/appUserList', function(req, res) {
     }
 
     switch(searchMode) {
+        case 0:
+            dbHelper.appUsers.findAll(offset, settings.pageRows, resultRows);
+            break;
         case 1://昵称
             dbHelper.appUsers.getCountByNickname(data.content, data.partnerUserID, function(count){
                 rowCount = count;
@@ -150,7 +153,7 @@ router.get('/appUserList', function(req, res) {
             });
             break;
         default:
-            dbHelper.appUsers.findAll(offset, settings.pageRows, resultRows);
+            res.end();
     }
 });
 
@@ -165,6 +168,8 @@ router.get('/partnerUserList', function(req, res) {
                 });
             });
             break;
+        default:
+            res.end();
     }
 });
 
@@ -231,6 +236,8 @@ router.get('/wordList', function(req, res) {
                     resultRows([]);
             });
             break;
+        default:
+            res.end();
     }
 });
 
@@ -264,6 +271,8 @@ router.get('/activityList', function(req, res) {
                     resultRows([]);
             });
             break;
+        default:
+            res.end();
     }
 });
 

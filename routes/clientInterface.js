@@ -48,7 +48,7 @@ router.get('/appUser/get', function(req, res, next) {
         if (rows.length)
             success(res, rows[0]);
         else
-            error(res, 'App用户' + data.appUserID + '不存在');
+            error(res, 'App用户不存在');
     }
 
     var data = req.query;

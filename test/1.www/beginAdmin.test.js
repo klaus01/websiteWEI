@@ -2,17 +2,16 @@ process.env.NODE_ENV = 'test';
 process.env.PORT = 4000;
 
 var fs = require('fs');
+var mysql = require('mysql');
 var settings = require('../../settings');
-var dbConn = require('../../lib/dbConn');
+var options = JSON.parse(JSON.stringify(settings.mysqlConnectionOptions));
+delete options.database;
+var dbConn = mysql.createConnection(options);
 
+console.log('启动www服务');
 var app = require('../../bin/www');
-var request = require('supertest');
-var agent = request.agent(app);
-
-var publicFunction = require('../../lib/publicFunction');
-
+var agent = require('supertest').agent(app);
 module.exports = agent;
-
 
 function query(sql, next) {
     sql = sql.replace(/\/\*[^\*]+\*\//g, '');
@@ -20,15 +19,18 @@ function query(sql, next) {
     function callback(){
         var i = sql.indexOf(';')
         if (i <= 0) {
-            if (queryCount === overCount)
+            if (queryCount === overCount) {
+                process.stdout.write('\n');
                 next && next();
+            }
             return;
         }
+        process.stdout.write('>');
         var s = sql.substr(0, i).trim();
         sql = sql.substr(i + 1);
         ++queryCount;
         dbConn.query(s, function(err){
-            if (err) throw err;
+            if (err) { dbConn.end(); throw err; }
             ++overCount;
             callback();
         });
@@ -36,25 +38,29 @@ function query(sql, next) {
     callback();
 }
 
-describe('启动www服务', function () {
-    it('等待启动', function(){
-        publicFunction.sleep(500);
-    });
-    it('初始化数据库', function (done) {
+
+describe('初始化数据库', function () {
+    it('初始化数据库 完成', function(done){
         this.timeout(20000);
         var dbName = settings.mysqlConnectionOptions.database;
-        dbConn.query('DROP DATABASE ' + dbName, function(err) {
+        dbConn.connect(function(err){
             if (err) throw err;
-            dbConn.query('CREATE DATABASE ' + dbName, function(err) {
-                if (err) throw err;
-                dbConn.query('USE ' + dbName, function(err) {
-                    if (err) throw err;
-                    console.log('创建表');
-                    var data = fs.readFileSync(__dirname + '/../../doc/后台数据库.sql', 'utf-8');
-                    query(data, function(){
-                        console.log('创建视图与默认数据');
-                        var data = fs.readFileSync(__dirname + '/../../doc/后台数据库_默认数据.sql', 'utf-8');
-                        query(data, done);
+            dbConn.query('DROP DATABASE IF EXISTS ' + dbName, function(err) {
+                if (err) { dbConn.end(); throw err; }
+                dbConn.query('CREATE DATABASE ' + dbName, function(err) {
+                    if (err) { dbConn.end(); throw err; }
+                    dbConn.query('USE ' + dbName, function(err) {
+                        if (err) { dbConn.end(); throw err; }
+                        console.log('创建表');
+                        var data = fs.readFileSync(__dirname + '/../../doc/后台数据库.sql', 'utf-8');
+                        query(data, function(){
+                            console.log('创建视图与默认数据');
+                            var data = fs.readFileSync(__dirname + '/../../doc/后台数据库_默认数据.sql', 'utf-8');
+                            query(data, function(){
+                                dbConn.end();
+                                done();
+                            });
+                        });
                     });
                 });
             });

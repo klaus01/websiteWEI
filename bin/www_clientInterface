@@ -24,12 +24,13 @@ server.on('listening', onListening);
 /**
  * mysql数据库连接成功后才启动服务
  */
-dbConn.connect(function(err) {
+dbConn.getConnection(function(err, connection) {
   if (err) {
     console.error('error mysql connecting: ' + err.stack);
     return;
   }
-  console.log('mysql connected as id ' + dbConn.threadId);
+  console.log('mysql connected as id ' + connection.threadId);
+  connection.release();
 
   /**
    * Listen on provided port, on all network interfaces.

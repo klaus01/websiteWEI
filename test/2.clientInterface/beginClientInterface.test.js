@@ -10,7 +10,7 @@ var publicFunction = require('../../lib/publicFunction');
 module.exports = agent;
 
 
-describe('启动www服务', function () {
+describe('启动www_clientInterface服务', function () {
     it('等待启动', function(){
         publicFunction.sleep(500);
     });

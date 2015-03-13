@@ -8,12 +8,7 @@ var mysqlConnectionOptions = {
 
 // 测试环境mysql数据库连接设置
 if (process.env.NODE_ENV === 'test') {
-    mysqlConnectionOptions = {
-        host     : 'localhost',
-        database : 'WEIDB_TEST',
-        user     : 'root',
-        password : '111'
-    };
+    mysqlConnectionOptions.database = 'WEIDB_TEST';
 }
 
 

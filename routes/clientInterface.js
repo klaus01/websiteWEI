@@ -133,7 +133,7 @@ router.post('/appUser/update', function(req, res, next) {
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
         && data.nickname && data.nickname.length
         && data.isMan && data.isMan.length
-        && files.iconFile && files.iconFile.length) {
+        && files.iconFile && files.iconFile.size) {
 
         publicFunction.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
             var setKeyValues = {
@@ -191,13 +191,14 @@ router.get('/appUser/enterHome', function(req, res, next) {
 });
 
 /**
- * 更新登录信息
+ * 更新地理位置信息
  * @param appUserID, longitude, latitude
  */
-router.get('/appUser/login', function(req, res, next) {
+router.get('/appUser/updateLocation', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.longitude && data.latitude) {
+        && data.longitude && parseFloat(data.longitude) != undefined
+        && data.latitude && parseFloat(data.latitude) != undefined) {
         var setKeyValues = {
             LastLoginTime: new Date(),
             LastLoginIP: req.connectionIP,
@@ -238,7 +239,7 @@ router.get('/appUser/addFriend', function(req, res, next) {
                             else
                                 dbHelper.appUsers.addFriend(data.appUserID, friendUserID, function(){
                                     dbHelper.messages.newFriendMessage(data.appUserID, friendUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
-                                        success(res, {message:'已经加为朋友'});
+                                        success(res, {message:'已加为朋友'});
                                     });
                                 });
                         });
@@ -270,7 +271,7 @@ router.get('/appUser/addFriend', function(req, res, next) {
 /**
  * 订阅公众号
  * @param appUserID, partnerUserID
- * @returns {message}
+ * @returns {*}
  */
 router.get('/appUser/addPartnerUser', function(req, res, next) {
     var data = req.query;

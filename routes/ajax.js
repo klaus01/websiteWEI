@@ -144,7 +144,7 @@ router.post('/partnerUser/post', function(req, res) {
         error(res, '缺少名称');
         return;
     }
-    if ((id <= 0) && !files.iconFile) {
+    if ((id <= 0) && (!files.iconFile || !files.iconFile.size)) {
         error(res, '缺少头像');
         return;
     }

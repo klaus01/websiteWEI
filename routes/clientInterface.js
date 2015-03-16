@@ -574,7 +574,7 @@ router.get('/message/getUnread', function(req, res, next) {
  * @param appUserID, partnerUserID
  * @returns {[{Message:{}, Word:{}, Activity:{}, Gift:{}}]}
  */
-router.get('/message/getList', function(req, res, next) {
+router.get('/message/getByAppUserAndPartnerUser', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)
         && data.partnerUserID && data.partnerUserID.length > 0 && parseInt(data.partnerUserID))

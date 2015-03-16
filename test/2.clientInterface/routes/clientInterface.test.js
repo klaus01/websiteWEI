@@ -645,6 +645,39 @@ describe('routes clientInterface', function() {
         });
     });
 
+    describe('消息相关', function() {
+        var BEGINURL = '/message';
+        it('getUnread newAppUser2有3条未出消息，1条加朋友，2条字', function (done) {
+            var query = {
+                appUserID: newAppUser2.appUserID
+            };
+            agent
+                .get(BEGINURL + '/getUnread')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(3);
+                    done(err);
+                });
+        });
+        it('getByAppUserAndPartnerUser newAppUser1与partnerUser有一条字消息', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID,
+                partnerUserID: partnerUser.partnerUserID
+            };
+            agent
+                .get(BEGINURL + '/getByAppUserAndPartnerUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
+                    done(err);
+                });
+        });
+    });
+
     after(function (done) {
         // 有很多接口是先返回结果，再处理的数据库入库，为保证数据能正常入库所以这里延迟结束测试进程
         setTimeout(done, 500);

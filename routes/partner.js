@@ -60,12 +60,16 @@ router.post('/login', function(req, res) {
     var password = new Buffer(data.password, 'base64').toString();
     dbHelper.partnerUsers.findByLoginName(data.username, function(rows) {
         if (rows.length) {
-            if (password === rows[0].LoginPassword) {
-                req.session.partnerUser = rows[0];
-                dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connectionIP);
-                resRedirect(res, '/');
-            } else
-                error('密码错误');
+            if (rows[0].Enabled) {
+                if (password === rows[0].LoginPassword) {
+                    req.session.partnerUser = rows[0];
+                    dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connectionIP);
+                    resRedirect(res, '/');
+                } else
+                    error('密码错误');
+            }
+            else
+                error('账号已被禁用');
         } else
             error('无此用户');
     });

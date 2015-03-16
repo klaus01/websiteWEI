@@ -133,23 +133,26 @@ router.post('/appUser/update', function(req, res, next) {
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
         && data.nickname && data.nickname.length
         && data.isMan && data.isMan.length
-        && files.iconFile && files.iconFile.size) {
+        && files.iconFile && files.iconFile.size)
 
-        publicFunction.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
-            var setKeyValues = {
-                IconFileName: files.iconFile.name,
-                Nickname: data.nickname,
-                IsMan: data.isMan,
-                RegistrationStatus: 2//用户已完善资料
-            };
-            dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
-                if (result.affectedRows)
-                    success(res, null);
-                else
-                    error(res, 'App用户' + data.appUserID + '不存在');
-            });
+        dbHelper.appUsers.findByID(data.appUserID, function (rows) {
+            if (rows.length) {
+                publicFunction.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
+                    var setKeyValues = {
+                        IconFileName: files.iconFile.name,
+                        Nickname: data.nickname,
+                        IsMan: data.isMan
+                    };
+                    if (rows[0].RegistrationStatus < 2)
+                        setKeyValues.RegistrationStatus = 2;//用户已完善资料
+                    dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
+                        success(res, null);
+                    });
+                });
+            }
+            else
+                error(res, 'App用户' + data.appUserID + '不存在');
         });
-    }
     else
         error(res, '缺少参数');
 });
@@ -309,21 +312,21 @@ router.get('/appUser/setFriendIsBlack', function(req, res, next) {
  ********************************/
 
 /**
- * 获取所有可用公众号列表
+ * 获取可订阅公众号列表(未禁用的公众号列表)
  * @returns {[partnerUser]}
  */
-router.get('/partnerUser/get', function(req, res, next) {
+router.get('/partnerUser/getCanSubscribe', function(req, res, next) {
     dbHelper.partnerUsers.findEnabled(function(rows){
         success(res, rows);
     });
 });
 
 /**
- * 获取用户订阅的公众号列表
+ * 获取用户已订阅的公众号列表
  * @param appUserID
  * @returns {[partnerUser]} 按最近消息时间降序排序，增加了UnreadCount和NoAwardCount属性
  */
-router.get('/partnerUser/get', function(req, res, next) {
+router.get('/partnerUser/getSubscribed', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID))
         dbHelper.partnerUsers.findMessagesBySubscriberID(data.appUserID, function(rows){
@@ -361,9 +364,9 @@ router.get('/sms/sendCheck', function(req, res, next) {
             else {
                 // 生成新的短信且发送
 
-                // 验证码在开发环境中始终是666666，生产环境为随机100000-999999
+                // 验证码在开发环境或测试环境中始终是666666，生产环境为随机100000-999999
                 var verificationCode = '';
-                if (app.get('env') === 'development')
+                if (app.get('env') === 'development' || app.get('env') === 'test')
                     verificationCode = '666666';
                 else {
                     var codeNumber = Math.floor(Math.random() * 899999 + 100000);
@@ -395,7 +398,13 @@ router.get('/sms/checkVerificationCode', function(req, res, next) {
         dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
             if (rows.length > 0) {
                 if (rows[0].VerificationCode === data.verificationCode) {
-                    dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
+                    dbHelper.sms.updateVerified(rows[0].SMSID, function () {
+                        dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function (rows) {
+                            if (rows.length <= 0) return;
+                            if (rows[0].RegistrationStatus < 1)
+                                dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
+                        });
+                    });
                     success(res, null);
                 }
                 else

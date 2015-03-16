@@ -2,7 +2,6 @@
  * 后台发送苹果远程通知单元
  */
 
-var dbConn = require('./lib/dbConn');
 var dbHelper = require('./lib/dbHelper');
 var settings = require('./settings');
 
@@ -21,12 +20,4 @@ function timer(){
         setTimeout(timer, settings.QueryWaitingAPNSInterval);
     });
 }
-
-dbConn.connect(function(err){
-    if (err) {
-        console.error('数据库连接失败:' + err.stack);
-        return;
-    }
-    console.log(new Date(), '数据库已成功连接id:' + dbConn.threadId);
-    timer();
-});
+timer();

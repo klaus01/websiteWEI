@@ -37,6 +37,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(publicFunction.addConnectionIPToRequest);
 
+app.use('/', clientInterface.checkLogin);
 app.use('/', clientInterface);
 
 // catch 404 and forward to error handler

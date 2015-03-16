@@ -4,6 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
+var notCheckLoginUrls = [];
 
 
 function resultJSON(res, isSuccess, content) {
@@ -40,7 +41,7 @@ function checkAwardUrlParameter(appUserID, activityID, sign) {
 /**
  * 获取App用户信息
  * @param appUserID or phoneNumber
- * @returns {appUser}
+ * @returns {[appUser]}
  */
 router.get('/appUser/get', function(req, res, next) {
 
@@ -77,10 +78,23 @@ router.get('/appUser/getFriends', function(req, res, next) {
 });
 
 /**
+ * 返回当前session是否已登录
+ * @returns {*}
+ */
+notCheckLoginUrls.push('/appUser/isLogged');
+router.get('/appUser/isLogged', function(req, res, next) {
+    if (req.session.user)
+        success(res, null);
+    else
+        error(res, '未登录或登录已过期');
+});
+
+/**
  * 注册App用户
  * @param phoneNumber, registrationDevice, registrationOS
  * @returns {appUserID: Number}
  */
+notCheckLoginUrls.push('/appUser/register');
 router.get('/appUser/register', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length) {
@@ -336,6 +350,7 @@ router.get('/partnerUser/getSubscribed', function(req, res, next) {
  * @param phoneNumber
  * @returns {smsID: Number}
  */
+notCheckLoginUrls.push('/sms/sendCheck');
 router.get('/sms/sendCheck', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length > 0) {
@@ -381,6 +396,7 @@ router.get('/sms/sendCheck', function(req, res, next) {
  * 校验手机验证码
  * @param phoneNumber, verificationCode
  */
+notCheckLoginUrls.push('/sms/checkVerificationCode');
 router.get('/sms/checkVerificationCode', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length > 0
@@ -390,12 +406,16 @@ router.get('/sms/checkVerificationCode', function(req, res, next) {
                 if (rows[0].VerificationCode === data.verificationCode) {
                     dbHelper.sms.updateVerified(rows[0].SMSID, function () {
                         dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function (rows) {
-                            if (rows.length <= 0) return;
-                            if (rows[0].RegistrationStatus < 1)
-                                dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
+                            if (rows.length) {
+                                req.session.user = rows[0];
+                                success(res, null);
+                                if (rows[0].RegistrationStatus < 1)
+                                    dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});
+                            }
+                            else
+                                error(res, 'App用户' + data.phoneNumber + '不存在');
                         });
                     });
-                    success(res, null);
                 }
                 else
                     error(res, '验证码错误');
@@ -620,3 +640,10 @@ router.get('/activity/award', function(req, res, next) {
 
 
 module.exports = router;
+module.exports.checkLogin = function (req, res, next) {
+    if (notCheckLoginUrls.indexOf(req._parsedUrl.pathname) < 0 && !req.session.user) {
+        error(res, '未登录或登录已过期，请重新登录');
+        return;
+    }
+    next();
+};

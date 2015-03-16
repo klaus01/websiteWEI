@@ -140,6 +140,24 @@ describe('routes ajax', function(){
                     done(err);
                 });
         });
+        it('新增公众号 为禁用状态', function (done) {
+            var obj = agent.post(BEGINURL + '/post');
+            jsonToAgentField({
+                id: 0,
+                name: '肯打鸡',
+                description: '食品',
+                loginName: 'kdj',
+                password: '111',
+                enabled: '0'
+            }, obj);
+            obj
+                .attach('iconFile', getIconFilePath())
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"newID":2');
+                    done(err);
+                });
+        });
     });
 
 

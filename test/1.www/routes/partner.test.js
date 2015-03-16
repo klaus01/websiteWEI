@@ -30,6 +30,15 @@ describe('routes partner', function() {
                 done(err);
             });
     });
+    it('登录 账号已被禁用', function(done){
+        agent
+            .post('/partner/login')
+            .send({username: 'kdj', password: '111'})
+            .expect(200, function (err, res) {
+                res.text.should.containEql('账号已被禁用');
+                done(err);
+            });
+    });
     it('登录 成功 转到/partner', function(done){
         agent
             .post('/partner/login')

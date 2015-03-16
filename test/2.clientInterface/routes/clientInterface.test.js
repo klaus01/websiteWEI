@@ -350,5 +350,94 @@ describe('routes clientInterface', function() {
         });
     });
 
+    describe('公众号相关', function() {
+        var BEGINURL = '/partnerUser';
+        it('getCanSubscribe 返回有一个可用公众号', function (done) {
+            agent
+                .get(BEGINURL + '/getCanSubscribe')
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.length(1);
+                    done(err);
+                });
+        });
+        it('getSubscribed 返回已订阅的一个公众号', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID
+            };
+            agent
+                .get(BEGINURL + '/getCanSubscribe')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.length(1);
+                    done(err);
+                });
+        });
+    });
+
+    describe('短信相关', function() {
+        var BEGINURL = '/sms';
+        it('sendCheck 发送验证短信', function (done) {
+            var query = {
+                phoneNumber: newAppUser2.phoneNumber
+            };
+            agent
+                .get(BEGINURL + '/sendCheck')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.text.should.containEql('"smsID":');
+                    done(err);
+                });
+        });
+        it('checkVerificationCode 短信验证码已过期', function (done) {
+            var query = {
+                phoneNumber: newAppUser1.phoneNumber,
+                verificationCode: '999999'
+            };
+            agent
+                .get(BEGINURL + '/checkVerificationCode')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false');
+                    res.text.should.containEql('验证码已过期');
+                    done(err);
+                });
+        });
+        it('checkVerificationCode 短信验证码错误', function (done) {
+            var query = {
+                phoneNumber: newAppUser2.phoneNumber,
+                verificationCode: '999999'
+            };
+            agent
+                .get(BEGINURL + '/checkVerificationCode')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false');
+                    res.text.should.containEql('验证码错误');
+                    done(err);
+                });
+        });
+        it('checkVerificationCode 短信验证码666666', function (done) {
+            var query = {
+                phoneNumber: newAppUser2.phoneNumber,
+                verificationCode: '666666'
+            };
+            agent
+                .get(BEGINURL + '/checkVerificationCode')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+    });
 
 });

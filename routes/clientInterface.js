@@ -425,7 +425,7 @@ router.get('/sms/checkVerificationCode', function(req, res, next) {
 
 /**
  * 获取字列表
- * @param [appUserID, number, description, (offset, resultCount)]
+ * @param [appUserID, number or description, (offset, resultCount)]
  * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UseCount降序
  */
 router.get('/word/find', function(req, res, next) {
@@ -477,10 +477,10 @@ router.post('/word/new', function(req, res, next) {
     var files = req.files;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
         && files.pictureFile)
-        dbHelper.words.new(data.appUserID, files.pictureFile.name, data.description, files.audioFile ? files.audioFile.Name : null, function(newWordID){
+        dbHelper.words.new(data.appUserID, files.pictureFile.name, data.description, files.audioFile ? files.audioFile.name : null, function(newWordID){
+            success(res, {newWordID: newWordID});
             publicFunction.moveWordPictureFile(newWordID, files.pictureFile);
             if (files.audioFile) publicFunction.moveWordAudioFile(newWordID, files.audioFile);
-            success(res, {newWordID: newWordID});
         });
     else
         error(res, '缺少参数');
@@ -529,7 +529,7 @@ router.get('/word/send', function(req, res, next) {
                             }
                             else
                                 // 不是公众号就查询App用户
-                                dbHelper.appUsers.findByID(friendUserID, function(rows){
+                                dbHelper.appUsers.findByID(friendUserID, function (rows) {
                                     if (rows.length)
                                         dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, rows[0].APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
                                     else

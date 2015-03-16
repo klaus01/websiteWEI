@@ -82,8 +82,6 @@ router.get('/appUser/getFriends', function(req, res, next) {
  * @returns {appUserID: Number}
  */
 router.get('/appUser/register', function(req, res, next) {
-    try {
-
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length) {
         var keyValues = {
@@ -93,34 +91,12 @@ router.get('/appUser/register', function(req, res, next) {
             RegistrationDevice: data.registrationDevice,
             RegistrationOS: data.registrationOS
         };
-        dbHelper.appUsers.new(keyValues, function(newAppUserID){
-            // 检查是否被邀请过，邀请过则建立邀请朋友关系且发送加好友消息
-            dbHelper.inviteFriends.findByPhoneNumber(data.phoneNumber, function(rows){
-                var i = 0;
-                function nextFunc(){
-                    if (i >= rows.length) return;
-                    var appUserID = rows[i++].AppUserID;
-                    dbHelper.appUsers.addFriend(appUserID, newAppUserID, function(){
-                        // TODO 发注册加好友消息，需要先确认逻辑
-                        //dbHelper.messages.newFriendMessage(newAppUserID, appUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
-                        //    success(res, {message:'已经加为朋友'});
-                        //});
-                        nextFunc();
-                    });
-                }
-                nextFunc();
-            });
+        dbHelper.appUsers.new(keyValues, function(newAppUserID) {
             success(res, {appUserID: newAppUserID});
         });
     }
     else
         error(res, '缺少参数');
-
-
-    }
-    catch (e) {
-        console.error(e);
-    }
 });
 
 /**
@@ -143,10 +119,25 @@ router.post('/appUser/update', function(req, res, next) {
                         Nickname: data.nickname,
                         IsMan: data.isMan
                     };
-                    if (rows[0].RegistrationStatus < 2)
-                        setKeyValues.RegistrationStatus = 2;//用户已完善资料
-                    dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
+                    var updateAppUser = rows[0];
+                    // 用户首次设置资料
+                    if (updateAppUser.RegistrationStatus < 2)
+                        setKeyValues.RegistrationStatus = 2;
+                    dbHelper.appUsers.update(setKeyValues, {AppUserID: updateAppUser.AppUserID}, function(result){
                         success(res, null);
+                        // 用户首次设置资料 检查是否被邀请过，邀请过则建立邀请朋友关系且发送加好友消息
+                        if (updateAppUser.RegistrationStatus < 2)
+                            dbHelper.appUsers.findByInviteesPhoneNumber(updateAppUser.PhoneNumber, function(appUsers){
+                                var i = 0;
+                                function nextFunc(){
+                                    if (i >= appUsers.length) return;
+                                    var appUser = appUsers[i++];
+                                    dbHelper.appUsers.addFriend(appUser.AppUserID, updateAppUser.AppUserID, function(){
+                                        dbHelper.messages.newFriendMessage(updateAppUser.AppUserID, appUser.AppUserID, appUser.APNSToken, data.nickname + ' 已加你为好友。', nextFunc);
+                                    });
+                                }
+                                nextFunc();
+                            });
                     });
                 });
             }
@@ -231,7 +222,6 @@ router.get('/appUser/addFriend', function(req, res, next) {
         dbHelper.appUsers.findByID(data.appUserID, function(rows){
             if (rows.length) {
                 var appUserInfo = rows[0];
-                var userName = appUserInfo.PhoneNumber + '(' + appUserInfo.Nickname + ')';
                 dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
                     if (rows.length) {
                         // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
@@ -241,7 +231,7 @@ router.get('/appUser/addFriend', function(req, res, next) {
                                 success(res, {message:'你们已经是朋友了'});
                             else
                                 dbHelper.appUsers.addFriend(data.appUserID, friendUserID, function(){
-                                    dbHelper.messages.newFriendMessage(data.appUserID, friendUserID, rows[0].APNSToken, userName + '已加你好友。', function(){
+                                    dbHelper.messages.newFriendMessage(data.appUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
                                         success(res, {message:'已加为朋友'});
                                     });
                                 });
@@ -252,7 +242,7 @@ router.get('/appUser/addFriend', function(req, res, next) {
                         dbHelper.inviteFriends.find(data.appUserID, data.phoneNumber, function(rows){
                             if (rows.length <= 0)
                                 dbHelper.inviteFriends.new(data.appUserID, data.phoneNumber, function(){
-                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, userName + '邀请你加为' + settings.appName + '好友。[' + settings.appHomePageUrl + ']', function(smsID){
+                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, appUserInfo.PhoneNumber + appUserInfo.Nickname + ' 邀请你加为[' + settings.appName + ']好友。' + settings.appHomePageUrl, function(smsID){
                                         dbHelper.sms.newUnsentSMS(smsID, function(){
                                             success(res, {message:'已邀请'});
                                         });

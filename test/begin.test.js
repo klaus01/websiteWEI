@@ -21,7 +21,6 @@ var agent_www_clientInterface = request.agent(app_www_clientInterface);
 module.exports.www_clientInterface = agent_www_clientInterface;
 
 module.exports.jsonToAgentField = function (json, agent) {
-
     for (var p in json)
         agent.field(p, json[p]);
 };
@@ -29,6 +28,64 @@ module.exports.jsonToAgentField = function (json, agent) {
 module.exports.getIconFilePath = function () {
     return __dirname + '/icon.jpg';
 };
+
+module.exports.data = {
+    partnerUser: {
+        partnerUserID: 0,
+        name: '可口可乐',
+        description: '饮料',
+        loginName: 'kl',
+        password: '111',
+        enabled: '1',
+        iconFile: module.exports.getIconFilePath()
+    },
+    partnerUserDisable: {
+        partnerUserID: 0,
+        name: '肯打鸡',
+        description: '食品',
+        loginName: 'kdj',
+        password: '111',
+        enabled: '0',
+        iconFile: module.exports.getIconFilePath()
+    },
+    newAppUser1: {
+        appUserID: 0,
+        phoneNumber: '13800000001',
+        nickname: '饮',
+        isMan: '1',
+        registrationDevice: 'iPhone 6',
+        registrationOS: '8.1.1',
+        longitude: 10.2,
+        latitude: 10,
+        APNSToken: 'nnnn1'
+    },
+    newAppUser2: {
+        appUserID: 0,
+        phoneNumber: '13800000002',
+        APNSToken: 'nnnn2'
+    },
+    newAppUser3: {
+        appUserID: 0,
+        phoneNumber: '13800000003',
+        nickname: '柯',
+        isMan: '1',
+        registrationDevice: 'iPhone 4S',
+        registrationOS: '8.1.2',
+        APNSToken: 'nnnn3'
+    },
+    wordNotAudio: {
+        id: 0,
+        description: '不知道这是什么字',
+        pictureFile: module.exports.getIconFilePath()
+    },
+    wordHaveAudio: {
+        id: 0,
+        description: '不知道这是什么字',
+        pictureFile: module.exports.getIconFilePath(),
+        audioFile: module.exports.getIconFilePath()
+    }
+};
+
 
 
 function query(sql, next) {

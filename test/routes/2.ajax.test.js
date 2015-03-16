@@ -102,17 +102,18 @@ describe('routes ajax', function(){
             var obj = agent.post(BEGINURL + '/post');
             begin.jsonToAgentField({
                 id: 0,
-                name: '可口可乐',
-                description: '饮料',
-                loginName: 'kl',
-                password: '111',
-                enabled: '1'
+                name: begin.data.partnerUser.name,
+                description: begin.data.partnerUser.description,
+                loginName: begin.data.partnerUser.loginName,
+                password: begin.data.partnerUser.password,
+                enabled: begin.data.partnerUser.enabled
             }, obj);
             obj
-                .attach('iconFile', begin.getIconFilePath())
+                .attach('iconFile', begin.data.partnerUser.iconFile)
                 .expect(200, function (err, res) {
                     console.log(res.text);
-                    res.text.should.containEql('"newID":1');
+                    res.text.should.containEql('"newID":');
+                    begin.data.partnerUser.partnerUserID = res.body.data.newID;
                     done(err);
                 });
         });
@@ -120,11 +121,11 @@ describe('routes ajax', function(){
             agent
                 .post(BEGINURL + '/post')
                 .send({
-                    id: 1,
-                    name: '可口可乐',
-                    description: '饮料',
-                    loginName: 'kl',
-                    enabled: '1'
+                    id: begin.data.partnerUser.partnerUserID,
+                    name: begin.data.partnerUser.name,
+                    description: begin.data.partnerUser.description,
+                    loginName: begin.data.partnerUser.loginName,
+                    enabled: begin.data.partnerUser.enabled
                 })
                 .expect(200, function (err, res) {
                     console.log(res.text);
@@ -136,17 +137,18 @@ describe('routes ajax', function(){
             var obj = agent.post(BEGINURL + '/post');
             begin.jsonToAgentField({
                 id: 0,
-                name: '肯打鸡',
-                description: '食品',
-                loginName: 'kdj',
-                password: '111',
-                enabled: '0'
+                name: begin.data.partnerUserDisable.name,
+                description: begin.data.partnerUserDisable.description,
+                loginName: begin.data.partnerUserDisable.loginName,
+                password: begin.data.partnerUserDisable.password,
+                enabled: begin.data.partnerUserDisable.enabled
             }, obj);
             obj
-                .attach('iconFile', begin.getIconFilePath())
+                .attach('iconFile', begin.data.partnerUserDisable.iconFile)
                 .expect(200, function (err, res) {
                     console.log(res.text);
-                    res.text.should.containEql('"newID":2');
+                    res.text.should.containEql('"newID":');
+                    begin.data.partnerUserDisable.partnerUserID = res.body.data.newID;
                     done(err);
                 });
         });
@@ -161,7 +163,7 @@ describe('routes ajax', function(){
         it('新增普通活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
             begin.jsonToAgentField({
-                partnerUserID: 1,
+                partnerUserID: begin.data.partnerUser.partnerUserID,
                 mode: 0,
                 content: '普通消息广播'
             }, obj);
@@ -176,7 +178,7 @@ describe('routes ajax', function(){
         it('新增回复消息活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
             begin.jsonToAgentField({
-                partnerUserID: 1,
+                partnerUserID: begin.data.partnerUser.partnerUserID,
                 mode: 1,
                 content: '回复消息活动',
                 beginTime: '2010-01-01',
@@ -194,7 +196,7 @@ describe('routes ajax', function(){
         it('新增区域回复活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
             begin.jsonToAgentField({
-                partnerUserID: 1,
+                partnerUserID: begin.data.partnerUser.partnerUserID,
                 mode: 2,
                 content: '区域回复活动',
                 beginTime: '2015-01-01',

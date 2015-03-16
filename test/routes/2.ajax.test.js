@@ -1,14 +1,6 @@
 var should = require('should');
-var agent = require('../beginAdmin.test');
-
-function jsonToAgentField(json, agent) {
-    for (var p in json)
-        agent.field(p, json[p]);
-}
-
-function getIconFilePath() {
-    return __dirname + '/../../icon.jpg';
-}
+var begin = require('../begin.test');
+var agent = begin.www;
 
 describe('routes ajax', function(){
 
@@ -108,7 +100,7 @@ describe('routes ajax', function(){
         var BEGINURL = '/ajax/partnerUser';
         it('新增公众号', function (done) {
             var obj = agent.post(BEGINURL + '/post');
-            jsonToAgentField({
+            begin.jsonToAgentField({
                 id: 0,
                 name: '可口可乐',
                 description: '饮料',
@@ -117,7 +109,7 @@ describe('routes ajax', function(){
                 enabled: '1'
             }, obj);
             obj
-                .attach('iconFile', getIconFilePath())
+                .attach('iconFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":1');
@@ -142,7 +134,7 @@ describe('routes ajax', function(){
         });
         it('新增公众号 为禁用状态', function (done) {
             var obj = agent.post(BEGINURL + '/post');
-            jsonToAgentField({
+            begin.jsonToAgentField({
                 id: 0,
                 name: '肯打鸡',
                 description: '食品',
@@ -151,7 +143,7 @@ describe('routes ajax', function(){
                 enabled: '0'
             }, obj);
             obj
-                .attach('iconFile', getIconFilePath())
+                .attach('iconFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":2');
@@ -168,13 +160,13 @@ describe('routes ajax', function(){
         var BEGINURL = '/ajax/activity';
         it('新增普通活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
-            jsonToAgentField({
+            begin.jsonToAgentField({
                 partnerUserID: 1,
                 mode: 0,
                 content: '普通消息广播'
             }, obj);
             obj
-                .attach('pictureFile', getIconFilePath())
+                .attach('pictureFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":1');
@@ -183,7 +175,7 @@ describe('routes ajax', function(){
         });
         it('新增回复消息活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
-            jsonToAgentField({
+            begin.jsonToAgentField({
                 partnerUserID: 1,
                 mode: 1,
                 content: '回复消息活动',
@@ -192,7 +184,7 @@ describe('routes ajax', function(){
                 expireAwardTime: '2020-01-01'
             }, obj);
             obj
-                .attach('pictureFile', getIconFilePath())
+                .attach('pictureFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":2');
@@ -201,7 +193,7 @@ describe('routes ajax', function(){
         });
         it('新增区域回复活动', function (done) {
             var obj = agent.post(BEGINURL + '/post');
-            jsonToAgentField({
+            begin.jsonToAgentField({
                 partnerUserID: 1,
                 mode: 2,
                 content: '区域回复活动',
@@ -213,7 +205,7 @@ describe('routes ajax', function(){
                 distanceMeters: 500
             }, obj);
             obj
-                .attach('pictureFile', getIconFilePath())
+                .attach('pictureFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"newID":3');

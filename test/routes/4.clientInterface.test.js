@@ -1,14 +1,6 @@
 var should = require('should');
-var agent = require('../beginClientInterface.test');
-
-function jsonToAgentField(json, agent) {
-    for (var p in json)
-        agent.field(p, json[p]);
-}
-
-function getIconFilePath() {
-    return __dirname + '/../../icon.jpg';
-}
+var begin = require('../begin.test');
+var agent = begin.www_clientInterface;
 
 describe('routes clientInterface', function() {
 
@@ -37,13 +29,13 @@ describe('routes clientInterface', function() {
     var wordNotAudio = {
         id: 0,
         description: '不知道这是什么字',
-        pictureFile: getIconFilePath()
+        pictureFile: begin.getIconFilePath()
     };
     var wordHaveAudio = {
         id: 0,
         description: '不知道这是什么字',
-        pictureFile: getIconFilePath(),
-        audioFile: getIconFilePath()
+        pictureFile: begin.getIconFilePath(),
+        audioFile: begin.getIconFilePath()
     };
 
     describe('App用户相关', function() {
@@ -133,9 +125,9 @@ describe('routes clientInterface', function() {
                 isMan: 0
             };
             var obj = agent.post(BEGINURL + '/update');
-            jsonToAgentField(query, obj);
+            begin.jsonToAgentField(query, obj);
             obj
-                .attach('iconFile', getIconFilePath())
+                .attach('iconFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('App用户' + query.appUserID + '不存在');
@@ -149,9 +141,9 @@ describe('routes clientInterface', function() {
                 isMan: newAppUser1.isMan
             };
             var obj = agent.post(BEGINURL + '/update');
-            jsonToAgentField(query, obj);
+            begin.jsonToAgentField(query, obj);
             obj
-                .attach('iconFile', getIconFilePath())
+                .attach('iconFile', begin.getIconFilePath())
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
@@ -585,7 +577,7 @@ describe('routes clientInterface', function() {
                 description: wordNotAudio.description
             };
             var obj = agent.post(BEGINURL + '/new');
-            jsonToAgentField(query, obj);
+            begin.jsonToAgentField(query, obj);
             obj
                 .attach('pictureFile', wordNotAudio.pictureFile)
                 .expect(200, function (err, res) {
@@ -601,7 +593,7 @@ describe('routes clientInterface', function() {
                 description: wordHaveAudio.description
             };
             var obj = agent.post(BEGINURL + '/new');
-            jsonToAgentField(query, obj);
+            begin.jsonToAgentField(query, obj);
             obj
                 .attach('pictureFile', wordHaveAudio.pictureFile)
                 .attach('audioFile', wordHaveAudio.audioFile)

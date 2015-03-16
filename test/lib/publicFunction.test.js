@@ -1,6 +1,6 @@
 var should = require('should');
 var path = require('path');
-var publicFunction = require('../../../lib/publicFunction');
+var publicFunction = require('../../lib/publicFunction');
 
 describe('public function', function(){
     describe('#Data.toStandardString()', function(){

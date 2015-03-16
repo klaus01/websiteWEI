@@ -1,5 +1,5 @@
 var should = require('should');
-var agent = require('../beginAdmin.test');
+var agent = require('../begin.test').www;
 
 describe('routes partner', function() {
 

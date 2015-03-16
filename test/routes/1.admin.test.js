@@ -1,7 +1,7 @@
 // https://github.com/alsotang/node-lessons/tree/master/lesson8
 // https://github.com/cnodejs/nodeclub/blob/master/test/controllers/topic.test.js
 var should = require('should');
-var agent = require('../beginAdmin.test');
+var agent = require('../begin.test').www;
 
 describe('routes admin', function(){
 

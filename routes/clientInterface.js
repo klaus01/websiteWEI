@@ -575,6 +575,21 @@ router.get('/message/getByAppUserAndPartnerUser', function(req, res, next) {
         error(res, '缺少参数');
 });
 
+/**
+ * 设置消息为已读
+ * @param messageID
+ * @returns {*}
+ */
+router.get('/message/setRead', function(req, res, next) {
+    var data = req.query;
+    if (data.messageID && data.messageID.length > 0 && parseInt(data.messageID))
+        dbHelper.messages.updateIsRead(data.messageID, 1, function(){
+            success(res, null);
+        });
+    else
+        error(res, '缺少参数');
+});
+
 
 /********************************
  * 活动相关

@@ -34,6 +34,17 @@ describe('routes clientInterface', function() {
         appUserID: 0,
         phoneNumber: '13800000003'
     };
+    var wordNotAudio = {
+        id: 0,
+        description: '不知道这是什么字',
+        pictureFile: getIconFilePath()
+    };
+    var wordHaveAudio = {
+        id: 0,
+        description: '不知道这是什么字',
+        pictureFile: getIconFilePath(),
+        audioFile: getIconFilePath()
+    };
 
     describe('App用户相关', function() {
         var BEGINURL = '/appUser';
@@ -188,6 +199,42 @@ describe('routes clientInterface', function() {
                         .expect(200, function (err, res) {
                             console.log(res.text);
                             res.text.should.containEql('"APNSToken":"' + query.APNSToken + '"');
+                            done(err);
+                        });
+                });
+        });
+
+        it('enterHome 用户不存在', function (done) {
+            var query = {
+                appUserID: 99999,
+                APNSToken: 'xxxx'
+            };
+            agent
+                .get(BEGINURL + '/enterHome')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('App用户' + query.appUserID + '不存在');
+                    done(err);
+                });
+        });
+        it('enterHome newAppUser1', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID
+            };
+            agent
+                .get(BEGINURL + '/enterHome')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    // 检查修改后的数据
+                    agent
+                        .get(BEGINURL + '/get')
+                        .query(query)
+                        .expect(200, function (err, res) {
+                            console.log(res.text);
+                            res.text.should.containEql('"RegistrationStatus":3');
                             done(err);
                         });
                 });
@@ -440,4 +487,166 @@ describe('routes clientInterface', function() {
         });
     });
 
+    describe('字相关', function() {
+        var BEGINURL = '/word';
+        it('find 缺少参数', function (done) {
+            var query = {
+                offset: '0'
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false').and.containEql('缺少参数');
+                    done(err);
+                });
+        });
+        it('find 所有', function (done) {
+            agent
+                .get(BEGINURL + '/find')
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('find 按字编号', function (done) {
+            var query = {
+                number: ''
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('find 按字描述', function (done) {
+            var query = {
+                description: ''
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('find 按用户', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('find 按用户 按字编号', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID,
+                number: ''
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('find 按用户 按字描述', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID,
+                description: ''
+            };
+            agent
+                .get(BEGINURL + '/find')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+
+        it('new 创建字 不带音频文件', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID,
+                description: wordNotAudio.description
+            };
+            var obj = agent.post(BEGINURL + '/new');
+            jsonToAgentField(query, obj);
+            obj
+                .attach('pictureFile', wordNotAudio.pictureFile)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true').and.containEql('"newWordID":');
+                    wordNotAudio.id = res.body.data.newWordID;
+                    done(err);
+                });
+        });
+        it('new 创建字 带音频文件', function (done) {
+            var query = {
+                appUserID: newAppUser1.appUserID,
+                description: wordHaveAudio.description
+            };
+            var obj = agent.post(BEGINURL + '/new');
+            jsonToAgentField(query, obj);
+            obj
+                .attach('pictureFile', wordHaveAudio.pictureFile)
+                .attach('audioFile', wordHaveAudio.audioFile)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true').and.containEql('"newWordID":');
+                    wordHaveAudio.id = res.body.data.newWordID;
+                    done(err);
+                });
+        });
+
+        it('send 发送字 发给一个用户', function (done) {
+            var query = {
+                wordID: wordNotAudio.id,
+                appUserID: newAppUser1.appUserID,
+                friendsUserID: [newAppUser2.appUserID]
+            };
+            agent
+                .get(BEGINURL + '/send')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('send 发送字 发给一个用户和一个公众号用户', function (done) {
+            var query = {
+                wordID: wordHaveAudio.id,
+                appUserID: newAppUser1.appUserID,
+                friendsUserID: [newAppUser2.appUserID, partnerUser.partnerUserID]
+            };
+            agent
+                .get(BEGINURL + '/send')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+    });
+
+    after(function (done) {
+        // 有很多接口是先返回结果，再处理的数据库入库，为保证数据能正常入库所以这里延迟结束测试进程
+        setTimeout(done, 500);
+    });
 });

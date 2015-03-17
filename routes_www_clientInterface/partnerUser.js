@@ -4,7 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
-var PATHHEADER = '/' + path.basename(__filename, '.js');
+var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
 
 
@@ -20,17 +20,12 @@ router.get('/getCanSubscribe', function(req, res, next) {
 
 /**
  * 获取用户已订阅的公众号列表
- * @param appUserID
  * @returns {[partnerUser]} 按最近消息时间降序排序，增加了UnreadCount和NoAwardCount属性
  */
 router.get('/getSubscribed', function(req, res, next) {
-    var data = req.query;
-    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID))
-        dbHelper.partnerUsers.findMessagesBySubscriberID(data.appUserID, function(rows){
-            publicFunction.success(res, rows);
-        });
-    else
-        publicFunction.error(res, '缺少参数');
+    dbHelper.partnerUsers.findMessagesBySubscriberID(req.appUserID, function(rows){
+        publicFunction.success(res, rows);
+    });
 });
 
 

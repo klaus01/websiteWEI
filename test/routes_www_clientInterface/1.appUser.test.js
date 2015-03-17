@@ -4,6 +4,15 @@ var agent = begin.www_clientInterface;
 
 describe('App用户相关', function() {
     var BEGINURL = '/appUser';
+    it('isLogged 未登录', function (done) {
+        agent
+            .get(BEGINURL + '/isLogged')
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('未登录');
+                done(err);
+            });
+    });
     it('注册App用户 有设备信息参数', function (done) {
         agent
             .get(BEGINURL + '/register')
@@ -88,7 +97,7 @@ describe('App用户相关', function() {
             nickname: 'x',
             isMan: 0
         };
-        var obj = agent.post(BEGINURL + '/update');
+        var obj = agent.post(BEGINURL + '/update?appUserID=' + query.appUserID);
         begin.jsonToAgentField(query, obj);
         obj
             .attach('iconFile', begin.getIconFilePath())
@@ -104,7 +113,7 @@ describe('App用户相关', function() {
             nickname: begin.data.newAppUser1.nickname,
             isMan: begin.data.newAppUser1.isMan
         };
-        var obj = agent.post(BEGINURL + '/update');
+        var obj = agent.post(BEGINURL + '/update?appUserID=' + query.appUserID);
         begin.jsonToAgentField(query, obj);
         obj
             .attach('iconFile', begin.getIconFilePath())
@@ -123,20 +132,6 @@ describe('App用户相关', function() {
             });
     });
 
-    it('updateAPNSToken 用户不存在', function (done) {
-        var query = {
-            appUserID: 99999,
-            APNSToken: 'xxxx'
-        };
-        agent
-            .get(BEGINURL + '/updateAPNSToken')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('App用户' + query.appUserID + '不存在');
-                done(err);
-            });
-    });
     it('updateAPNSToken begin.data.newAppUser1', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
@@ -182,20 +177,6 @@ describe('App用户相关', function() {
             });
     });
 
-    it('enterHome 用户不存在', function (done) {
-        var query = {
-            appUserID: 99999,
-            APNSToken: 'xxxx'
-        };
-        agent
-            .get(BEGINURL + '/enterHome')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('App用户' + query.appUserID + '不存在');
-                done(err);
-            });
-    });
     it('enterHome begin.data.newAppUser1', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID
@@ -218,21 +199,6 @@ describe('App用户相关', function() {
             });
     });
 
-    it('updateLocation 用户不存在', function (done) {
-        var query = {
-            appUserID: 99999,
-            longitude: 0,
-            latitude: 0
-        };
-        agent
-            .get(BEGINURL + '/updateLocation')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('App用户' + query.appUserID + '不存在');
-                done(err);
-            });
-    });
     it('updateLocation begin.data.newAppUser1', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,

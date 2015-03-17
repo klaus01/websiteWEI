@@ -4,7 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
-var PATHHEADER = '/' + path.basename(__filename, '.js');
+var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
 
 
@@ -54,15 +54,14 @@ router.get('/find', function(req, res, next) {
 
 /**
  * 创建字
- * @param appUserID, description, pictureFile[, audioFile]
+ * @param description, pictureFile[, audioFile]
  * @returns {newWordID}
  */
 router.post('/new', function(req, res, next) {
     var data = req.body;
     var files = req.files;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && files.pictureFile)
-        dbHelper.words.new(data.appUserID, files.pictureFile.name, data.description, files.audioFile ? files.audioFile.name : null, function(newWordID){
+    if (files.pictureFile)
+        dbHelper.words.new(req.appUserID, files.pictureFile.name, data.description, files.audioFile ? files.audioFile.name : null, function(newWordID){
             publicFunction.success(res, {newWordID: newWordID});
             publicFunction.moveWordPictureFile(newWordID, files.pictureFile);
             if (files.audioFile) publicFunction.moveWordAudioFile(newWordID, files.audioFile);
@@ -73,14 +72,13 @@ router.post('/new', function(req, res, next) {
 
 /**
  * 发送字
- * @param wordID, appUserID, friendsUserID[]
+ * @param wordID, friendsUserID[]
  */
 router.get('/send', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.wordID && data.wordID.length && parseInt(data.wordID)
+    if (data.wordID && data.wordID.length && parseInt(data.wordID)
         && data.friendsUserID && data.friendsUserID.length)
-        dbHelper.appUsers.findByID(data.appUserID, function(rows){
+        dbHelper.appUsers.findByID(req.appUserID, function(rows){
             if (rows.length) {
                 var user = rows[0];
                 var i = 0;
@@ -92,8 +90,8 @@ router.get('/send', function(req, res, next) {
                         dbHelper.partnerUsers.findByID(friendUserID, function(rows) {
                             if (rows.length) {
                                 // 是则判断查询有没有可参加的活动且是否中奖
-                                dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
-                                    dbHelper.activities.findActivitiesExtUnexpiredByAppUserID(data.appUserID, function (rows) {
+                                dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
+                                    dbHelper.activities.findActivitiesExtUnexpiredByAppUserID(req.appUserID, function (rows) {
                                         for (var i = 0; i < rows.length; i++) {
                                             var activityExt = rows[i];
                                             var gift = false;
@@ -106,8 +104,8 @@ router.get('/send', function(req, res, next) {
                                             if (gift) {
                                                 var awardQRCodeInfo = 'appUserID=' + appUserID
                                                     + '&activityID=' + activityID
-                                                    + '&sign=' + publicFunction.getAwardSign(data.appUserID, activityExt.PartnerActivityID);
-                                                dbHelper.messages.newGiftMessage(friendUserID, data.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, '您中奖了，快来领取礼品');
+                                                    + '&sign=' + publicFunction.getAwardSign(req.appUserID, activityExt.PartnerActivityID);
+                                                dbHelper.messages.newGiftMessage(friendUserID, req.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, '您中奖了，快来领取礼品');
                                             }
                                         }
                                     });
@@ -118,7 +116,7 @@ router.get('/send', function(req, res, next) {
                             // 不是公众号就查询App用户
                                 dbHelper.appUsers.findByID(friendUserID, function (rows) {
                                     if (rows.length)
-                                        dbHelper.messages.newWordMessage(data.appUserID, friendUserID, data.wordID, rows[0].APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+                                        dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, rows[0].APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
                                     else
                                         nextFunc();
                                 });
@@ -130,7 +128,7 @@ router.get('/send', function(req, res, next) {
                 publicFunction.success(res, null);
             }
             else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
+                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
         });
     else
         publicFunction.error(res, '缺少参数');

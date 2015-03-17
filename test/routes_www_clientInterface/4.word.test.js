@@ -98,10 +98,9 @@ describe('字相关', function() {
 
     it('new 创建字 不带音频文件', function (done) {
         var query = {
-            appUserID: begin.data.newAppUser1.appUserID,
             description: begin.data.wordNotAudio.description
         };
-        var obj = agent.post(BEGINURL + '/new');
+        var obj = agent.post(BEGINURL + '/new?appUserID=' + begin.data.newAppUser1.appUserID);
         begin.jsonToAgentField(query, obj);
         obj
             .attach('pictureFile', begin.data.wordNotAudio.pictureFile)
@@ -114,10 +113,9 @@ describe('字相关', function() {
     });
     it('new 创建字 带音频文件', function (done) {
         var query = {
-            appUserID: begin.data.newAppUser1.appUserID,
             description: begin.data.wordHaveAudio.description
         };
-        var obj = agent.post(BEGINURL + '/new');
+        var obj = agent.post(BEGINURL + '/new?appUserID=' + begin.data.newAppUser1.appUserID);
         begin.jsonToAgentField(query, obj);
         obj
             .attach('pictureFile', begin.data.wordHaveAudio.pictureFile)

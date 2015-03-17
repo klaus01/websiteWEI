@@ -43,12 +43,40 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(publicFunction.addConnectionIPToRequest);
 
-app.use(activityRoutes.PATHHEADER, activityRoutes);
-app.use(appUserRoutes.PATHHEADER, appUserRoutes);
-app.use(messageRoutes.PATHHEADER, messageRoutes);
-app.use(partnerUserRoutes.PATHHEADER, partnerUserRoutes);
-app.use(smsRoutes.PATHHEADER, smsRoutes);
-app.use(wordRoutes.PATHHEADER, wordRoutes);
+// 验证是否已经登录
+var map = {};
+map[activityRoutes.PATHHEADER] = activityRoutes.notCheckLoginUrls;
+map[appUserRoutes.PATHHEADER] = appUserRoutes.notCheckLoginUrls;
+map[messageRoutes.PATHHEADER] = messageRoutes.notCheckLoginUrls;
+map[partnerUserRoutes.PATHHEADER] = partnerUserRoutes.notCheckLoginUrls;
+map[smsRoutes.PATHHEADER] = smsRoutes.notCheckLoginUrls;
+map[wordRoutes.PATHHEADER] = wordRoutes.notCheckLoginUrls;
+app.use('/', function (req, res, next) {
+    if (app.get('env') === 'test') {
+        req.appUserID = parseInt(req.query.appUserID);
+        next();
+    }
+    else {
+        req.appUserID = req.session.appUserID;
+        var pathnames = req._parsedUrl.pathname.split(path.sep);
+        if (pathnames.length < 3)
+            next();
+        else {
+            var notCheckLoginUrls = map[pathnames[1]];
+            if (req.session.appUserID || (notCheckLoginUrls && notCheckLoginUrls.indexOf('/' + pathnames[2]) >= 0))
+                next();
+            else
+                publicFunction.error(res, '未登录或登录已过期，请重新登录');
+        }
+    }
+});
+
+app.use('/' + activityRoutes.PATHHEADER, activityRoutes);
+app.use('/' + appUserRoutes.PATHHEADER, appUserRoutes);
+app.use('/' + messageRoutes.PATHHEADER, messageRoutes);
+app.use('/' + partnerUserRoutes.PATHHEADER, partnerUserRoutes);
+app.use('/' + smsRoutes.PATHHEADER, smsRoutes);
+app.use('/' + wordRoutes.PATHHEADER, wordRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

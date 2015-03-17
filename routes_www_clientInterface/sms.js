@@ -4,7 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
-var PATHHEADER = '/' + path.basename(__filename, '.js');
+var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
 
 var app = express();
@@ -72,7 +72,7 @@ router.get('/checkVerificationCode', function(req, res, next) {
                     dbHelper.sms.updateVerified(rows[0].SMSID, function () {
                         dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function (rows) {
                             if (rows.length) {
-                                req.session.user = rows[0];
+                                req.session.appUserID = rows[0].AppUserID;
                                 publicFunction.success(res, null);
                                 if (rows[0].RegistrationStatus < 1)
                                     dbHelper.appUsers.update({RegistrationStatus: 1}, {PhoneNumber: data.phoneNumber});

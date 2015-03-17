@@ -21,13 +21,13 @@ describe('消息相关', function() {
                 done(err);
             });
     });
-    it('getByAppUserAndPartnerUser newAppUser1与partnerUser有一条字消息', function (done) {
+    it('getByPartnerUser newAppUser1与partnerUser有一条字消息', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
             partnerUserID: begin.data.partnerUser.partnerUserID
         };
         agent
-            .get(BEGINURL + '/getByAppUserAndPartnerUser')
+            .get(BEGINURL + '/getByPartnerUser')
             .query(query)
             .expect(200, function (err, res) {
                 console.log(res.text);

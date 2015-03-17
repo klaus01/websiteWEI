@@ -4,7 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
-var PATHHEADER = '/' + path.basename(__filename, '.js');
+var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
 
 
@@ -13,7 +13,8 @@ var notCheckLoginUrls = [];
  * @param appUserID, activityID, sign
  * @returns {message}
  */
-router.get('/activity/award', function(req, res, next) {
+notCheckLoginUrls.push('/award');
+router.get('/award', function(req, res, next) {
     var data = req.query;
     if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
         && data.activityID && data.activityID.length && parseInt(data.activityID)

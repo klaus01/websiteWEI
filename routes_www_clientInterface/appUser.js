@@ -4,7 +4,7 @@ var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
-var PATHHEADER = '/' + path.basename(__filename, '.js');
+var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
 
 
@@ -33,18 +33,12 @@ router.get('/get', function(req, res, next) {
 
 /**
  * 获取朋友信息列表
- * @param appUserID
  * @returns {[{SourceUserID, LastTime, UneadCount, AppUser:{}, PartnerUser:{}}]}
  */
 router.get('/getFriends', function(req, res, next) {
-    var data = req.query;
-    if (data.appUserID && data.appUserID.length > 0 && parseInt(data.appUserID)) {
-        dbHelper.appUsers.findFriendsByAppUserID(data.appUserID, function(rows){
-            publicFunction.success(res, rows);
-        });
-    }
-    else
-        publicFunction.error(res, '缺少参数');
+    dbHelper.appUsers.findFriendsByAppUserID(req.appUserID, function(rows){
+        publicFunction.success(res, rows);
+    });
 });
 
 /**
@@ -53,7 +47,7 @@ router.get('/getFriends', function(req, res, next) {
  */
 notCheckLoginUrls.push('/isLogged');
 router.get('/isLogged', function(req, res, next) {
-    if (req.session.user)
+    if (req.appUserID)
         publicFunction.success(res, null);
     else
         publicFunction.error(res, '未登录或登录已过期');
@@ -85,19 +79,18 @@ router.get('/register', function(req, res, next) {
 
 /**
  * 修改App用户资料
- * @param appUserID, iconFile, nickname, isMan
+ * @param iconFile, nickname, isMan
  */
 router.post('/update', function(req, res, next) {
     var data = req.body;
     var files = req.files;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.nickname && data.nickname.length
+    if (data.nickname && data.nickname.length
         && data.isMan && data.isMan.length
         && files.iconFile && files.iconFile.size)
 
-        dbHelper.appUsers.findByID(data.appUserID, function (rows) {
+        dbHelper.appUsers.findByID(req.appUserID, function (rows) {
             if (rows.length) {
-                publicFunction.moveAppUserIconFile(parseInt(data.appUserID), files.iconFile, function(){
+                publicFunction.moveAppUserIconFile(parseInt(req.appUserID), files.iconFile, function(){
                     var setKeyValues = {
                         IconFileName: files.iconFile.name,
                         Nickname: data.nickname,
@@ -126,7 +119,7 @@ router.post('/update', function(req, res, next) {
                 });
             }
             else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
+                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
         });
     else
         publicFunction.error(res, '缺少参数');
@@ -134,48 +127,34 @@ router.post('/update', function(req, res, next) {
 
 /**
  * 更新苹果远程通知令牌
- * @param appUserID, APNSToken
+ * @param APNSToken
  */
 router.get('/updateAPNSToken', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.APNSToken && data.APNSToken.length) {
-        dbHelper.appUsers.update({APNSToken: data.APNSToken}, {AppUserID: data.appUserID}, function(result){
-            if (result.affectedRows)
-                publicFunction.success(res, null);
-            else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
+    if (data.APNSToken && data.APNSToken.length)
+        dbHelper.appUsers.update({APNSToken: data.APNSToken}, {AppUserID: req.appUserID}, function(result){
+            publicFunction.success(res, null);
         });
-    }
     else
         publicFunction.error(res, '缺少参数');
 });
 
 /**
  * 更新用户状态为 已进入应用主页
- * @param appUserID
  */
 router.get('/enterHome', function(req, res, next) {
-    var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID))
-        dbHelper.appUsers.update({RegistrationStatus: 3}, {AppUserID: data.appUserID}, function(result){
-            if (result.affectedRows)
-                publicFunction.success(res, null);
-            else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
-        });
-    else
-        publicFunction.error(res, '缺少参数');
+    dbHelper.appUsers.update({RegistrationStatus: 3}, {AppUserID: req.appUserID}, function(result){
+        publicFunction.success(res, null);
+    });
 });
 
 /**
  * 更新地理位置信息
- * @param appUserID, longitude, latitude
+ * @param longitude, latitude
  */
 router.get('/updateLocation', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.longitude && parseFloat(data.longitude) != undefined
+    if (data.longitude && parseFloat(data.longitude) != undefined
         && data.latitude && parseFloat(data.latitude) != undefined) {
         var setKeyValues = {
             LastLoginTime: new Date(),
@@ -183,11 +162,8 @@ router.get('/updateLocation', function(req, res, next) {
             LastLoginLongitude: data.longitude,
             LastLoginLatitude: data.latitude
         };
-        dbHelper.appUsers.update(setKeyValues, {AppUserID: data.appUserID}, function(result){
-            if (result.affectedRows)
-                publicFunction.success(res, null);
-            else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
+        dbHelper.appUsers.update(setKeyValues, {AppUserID: req.appUserID}, function(result){
+            publicFunction.success(res, null);
         });
     }
     else
@@ -196,26 +172,25 @@ router.get('/updateLocation', function(req, res, next) {
 
 /**
  * 邀请朋友
- * @param appUserID, phoneNumber
+ * @param phoneNumber
  * @returns {message}
  */
 router.get('/addFriend', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.phoneNumber && data.phoneNumber.length) {
-        dbHelper.appUsers.findByID(data.appUserID, function(rows){
+    if (data.phoneNumber && data.phoneNumber.length) {
+        dbHelper.appUsers.findByID(req.appUserID, function(rows){
             if (rows.length) {
                 var appUserInfo = rows[0];
                 dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
                     if (rows.length) {
                         // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
                         var friendUserID = rows[0].AppUserID;
-                        dbHelper.appUsers.isFriend(data.appUserID, friendUserID, function(isFriend){
+                        dbHelper.appUsers.isFriend(req.appUserID, friendUserID, function(isFriend){
                             if (isFriend)
                                 publicFunction.success(res, {message:'你们已经是朋友了'});
                             else
-                                dbHelper.appUsers.addFriend(data.appUserID, friendUserID, function(){
-                                    dbHelper.messages.newFriendMessage(data.appUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
+                                dbHelper.appUsers.addFriend(req.appUserID, friendUserID, function(){
+                                    dbHelper.messages.newFriendMessage(req.appUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
                                         publicFunction.success(res, {message:'已加为朋友'});
                                     });
                                 });
@@ -223,9 +198,9 @@ router.get('/addFriend', function(req, res, next) {
                     }
                     else
                     // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
-                        dbHelper.inviteFriends.find(data.appUserID, data.phoneNumber, function(rows){
+                        dbHelper.inviteFriends.find(req.appUserID, data.phoneNumber, function(rows){
                             if (rows.length <= 0)
-                                dbHelper.inviteFriends.new(data.appUserID, data.phoneNumber, function(){
+                                dbHelper.inviteFriends.new(req.appUserID, data.phoneNumber, function(){
                                     dbHelper.sms.newInviteFriendSMS(data.phoneNumber, appUserInfo.PhoneNumber + appUserInfo.Nickname + ' 邀请你加为[' + settings.appName + ']好友。' + settings.appHomePageUrl, function(smsID){
                                         dbHelper.sms.newUnsentSMS(smsID, function(){
                                             publicFunction.success(res, {message:'已邀请'});
@@ -238,7 +213,7 @@ router.get('/addFriend', function(req, res, next) {
                 });
             }
             else
-                publicFunction.error(res, 'App用户' + data.appUserID + '不存在');
+                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
         });
     }
     else
@@ -247,14 +222,13 @@ router.get('/addFriend', function(req, res, next) {
 
 /**
  * 订阅公众号
- * @param appUserID, partnerUserID
+ * @param partnerUserID
  * @returns {*}
  */
 router.get('/addPartnerUser', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.partnerUserID && data.partnerUserID.length && parseInt(data.partnerUserID))
-        dbHelper.appUsers.addPartner(data.appUserID, data.partnerUserID, function(result){
+    if (data.partnerUserID && data.partnerUserID.length && parseInt(data.partnerUserID))
+        dbHelper.appUsers.addPartner(req.appUserID, data.partnerUserID, function(result){
             publicFunction.success(res, null);
         });
     else
@@ -263,18 +237,17 @@ router.get('/addPartnerUser', function(req, res, next) {
 
 /**
  * 设置朋友是否在黑名单中
- * @param appUserID, friendUserID, isBlack:0不是，1是
+ * @param friendUserID, isBlack:0不是，1是
  */
 router.get('/setFriendIsBlack', function(req, res, next) {
     var data = req.query;
-    if (data.appUserID && data.appUserID.length && parseInt(data.appUserID)
-        && data.friendUserID && data.friendUserID.length && parseInt(data.friendUserID)
+    if (data.friendUserID && data.friendUserID.length && parseInt(data.friendUserID)
         && data.isBlack && parseInt(data.isBlack))
-        dbHelper.appUsers.setFriendIsBlack(data.appUserID, data.friendUserID, data.isBlack, function(result){
+        dbHelper.appUsers.setFriendIsBlack(req.appUserID, data.friendUserID, data.isBlack, function(result){
             if (result.affectedRows)
                 publicFunction.success(res, null);
             else
-                publicFunction.error(res, '用户' + data.appUserID + '与用户' + data.friendUserID + '不是朋友');
+                publicFunction.error(res, '不是朋友');
         });
     else
         publicFunction.error(res, '缺少参数');

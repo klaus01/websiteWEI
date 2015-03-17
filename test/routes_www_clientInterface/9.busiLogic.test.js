@@ -19,9 +19,8 @@ describe('业务逻辑测试', function() {
                 });
         });
         it('newAppUser3完善资料', function (done) {
-            var obj = begin.www_clientInterface.post('/appUser/update');
+            var obj = begin.www_clientInterface.post('/appUser/update?appUserID=' + begin.data.newAppUser3.appUserID);
             begin.jsonToAgentField({
-                appUserID: begin.data.newAppUser3.appUserID,
                 nickname: begin.data.newAppUser3.nickname,
                 isMan: begin.data.newAppUser3.isMan
             }, obj);

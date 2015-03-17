@@ -64,10 +64,10 @@
 <script type="text/javascript">
     var PARTNERUSERID = <%= user.PartnerUserID %>;
     var $editActivity = $('#editActivity');
-    var $msg = $editActivity.find('#message');
+    var $editActivity_msg = $editActivity.find('#message');
 
     $editActivity.on('show.bs.modal', function (event) {
-        $msg.hide();
+        $editActivity_msg.hide();
         var modal = $(this);
         modal.find('.modal-body #mode').val('0').change();
         modal.find('.modal-body #pictureFile').val('');
@@ -86,7 +86,7 @@
     });
 
     $editActivity.find('form').on('submit', function(){
-        $msg.hide();
+        $editActivity_msg.hide();
         var $btn = $editActivity.find('button[type="submit"]');
         $btn.attr('data-loading-text', '正在提交...');
         $btn.button('loading');
@@ -118,8 +118,8 @@
                 if (result.success)
                     window.location.reload();
                 else {
-                    $msg.text(result.message);
-                    $msg.show();
+                    $editActivity_msg.text(result.message);
+                    $editActivity_msg.show();
                 }
             }
         });

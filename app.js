@@ -8,11 +8,11 @@ var ejs = require('ejs');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
-var indexRoutes = require('./routes/index');
-var adminRoutes = require('./routes/admin');
-var partnerRoutes = require('./routes/partner');
-var pagingRoutes = require('./routes/paging');
-var ajaxRoutes = require('./routes/ajax');
+var indexRoutes = require('./routes_www/index');
+var adminRoutes = require('./routes_www/admin');
+var partnerRoutes = require('./routes_www/partner');
+var pagingRoutes = require('./routes_www/paging');
+var ajaxRoutes = require('./routes_www/ajax');
 var settings = require('./settings');
 var publicFunction = require('./lib/publicFunction');
 

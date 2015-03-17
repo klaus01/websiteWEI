@@ -8,7 +8,13 @@ var ejs = require('ejs');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
-var clientInterface = require('./routes/clientInterface');
+var activityRoutes = require('./routes_www_clientInterface/activity');
+var appUserRoutes = require('./routes_www_clientInterface/appUser');
+var messageRoutes = require('./routes_www_clientInterface/message');
+var partnerUserRoutes = require('./routes_www_clientInterface/partnerUser');
+var smsRoutes = require('./routes_www_clientInterface/sms');
+var wordRoutes = require('./routes_www_clientInterface/word');
+
 var settings = require('./settings');
 var publicFunction = require('./lib/publicFunction');
 
@@ -37,8 +43,12 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(publicFunction.addConnectionIPToRequest);
 
-app.use('/', clientInterface.checkLogin);
-app.use('/', clientInterface);
+app.use(activityRoutes.PATHHEADER, activityRoutes);
+app.use(appUserRoutes.PATHHEADER, appUserRoutes);
+app.use(messageRoutes.PATHHEADER, messageRoutes);
+app.use(partnerUserRoutes.PATHHEADER, partnerUserRoutes);
+app.use(smsRoutes.PATHHEADER, smsRoutes);
+app.use(wordRoutes.PATHHEADER, wordRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

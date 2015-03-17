@@ -64,8 +64,10 @@
 <script type="text/javascript">
     var PARTNERUSERID = <%= user.PartnerUserID %>;
     var $editActivity = $('#editActivity');
+    var $msg = $editActivity.find('#message');
 
     $editActivity.on('show.bs.modal', function (event) {
+        $msg.hide();
         var modal = $(this);
         modal.find('.modal-body #mode').val('0').change();
         modal.find('.modal-body #pictureFile').val('');
@@ -84,7 +86,6 @@
     });
 
     $editActivity.find('form').on('submit', function(){
-        var $msg = $editActivity.find('#message');
         $msg.hide();
         var $btn = $editActivity.find('button[type="submit"]');
         $btn.attr('data-loading-text', '正在提交...');

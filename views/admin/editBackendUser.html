@@ -29,11 +29,13 @@
 </div>
 <script type="text/javascript">
     var $editBackendUser = $('#editBackendUser');
+    var $msg = $editBackendUser.find('#message');
 
     $editBackendUser.on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var userid = button.data('userid');
         var modal = $(this);
+        $msg.hide();
         modal.find('.modal-title').text((userid ? '编辑' : '新增'));
         if (userid == undefined) {
             modal.find('.modal-body #id').val('0');
@@ -69,7 +71,6 @@
     });
 
     $editBackendUser.find('form').on('submit', function(){
-        var $msg = $editBackendUser.find('#message');
         $msg.hide();
         var $btn = $editBackendUser.find('button[type="submit"]');
         $btn.attr('data-loading-text', '正在提交...');

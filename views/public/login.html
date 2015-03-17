@@ -16,8 +16,9 @@
             <input type="text" class="form-control" id="username" name="username" >
         </div>
         <div class="form-group">
-            <label for="password">密码</label>
-            <input type="password" class="form-control" id="password" name="password" >
+            <label for="spassword">密码</label>
+            <input type="password" class="form-control" id="spassword" name="spassword" >
+            <input type="hidden" id="password" name="password" >
         </div>
         <div class="form-group">
             <label for="verificationCode">验证码</label>
@@ -32,8 +33,7 @@
 </div>
 <script>
     $('form').on('submit', function(){
-        var input = $('#password');
-        input.val($.base64.encode(input.val()));
+        $('#password').val($.base64.encode($('#spassword').val()));
     });
     $('#imgVerificationCode').on('click', function(){
         this.src='/verificationCode?' + new Date().getTime();

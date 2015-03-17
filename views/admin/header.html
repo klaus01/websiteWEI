@@ -11,6 +11,8 @@
     <script src="/js/public.js"></script>
 </head>
 <body>
+<% locals.editPasswordPostUrl = '/ajax/backendUser/updatePassword' %>
+<% include ../public/editPassword.html %>
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -19,6 +21,9 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="./logout">退出</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#" data-toggle="modal" data-target="#editPassword">修改密码</a></li>
             </ul>
             <p class="navbar-text navbar-right"><%= user.Name %></p>
         </div>

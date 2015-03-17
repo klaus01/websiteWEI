@@ -70,7 +70,7 @@ describe('routes ajax', function(){
                     done(err);
                 });
         });
-        it('修改用户', function(done){
+        it('修改用户3', function(done){
             agent
                 .post(BEGINURL + '/post')
                 .send({id: 3, name: 'admin11', loginname: 'admin11', password: '111'})

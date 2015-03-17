@@ -36,12 +36,13 @@ router.get('/sendCheck', function(req, res, next) {
 
                 // 验证码在开发环境或测试环境中始终是666666，生产环境为随机100000-999999
                 var verificationCode = '';
-                if (app.get('env') === 'development' || app.get('env') === 'test')
-                    verificationCode = '666666';
-                else {
+                if (app.get('evn') === 'production') {
                     var codeNumber = Math.floor(Math.random() * 899999 + 100000);
                     verificationCode = codeNumber.toString();
                 }
+                else
+                    verificationCode = '666666';
+                // TODO 判断手机号，返回简体或繁体内容
                 var smsContent = '验证码为' + verificationCode + '【' + settings.appName + '】';
                 // 验证码半小时后过期
                 var expirationTime = new Date();
@@ -67,6 +68,7 @@ router.get('/checkVerificationCode', function(req, res, next) {
     if (data.phoneNumber && data.phoneNumber.length > 0
         && data.verificationCode && data.verificationCode.length > 0) {
         dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
+            // TODO 判断手机号，返回简体或繁体内容
             if (rows.length > 0) {
                 if (rows[0].VerificationCode === data.verificationCode) {
                     dbHelper.sms.updateVerified(rows[0].SMSID, function () {

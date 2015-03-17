@@ -47,7 +47,7 @@ router.get('/getFriends', function(req, res, next) {
  */
 notCheckLoginUrls.push('/isLogged');
 router.get('/isLogged', function(req, res, next) {
-    if (req.appUserID)
+    if (req.session.appUserID)
         publicFunction.success(res, null);
     else
         publicFunction.error(res, '未登录或登录已过期');
@@ -55,7 +55,7 @@ router.get('/isLogged', function(req, res, next) {
 
 /**
  * 注册App用户
- * @param phoneNumber, registrationDevice, registrationOS
+ * @param phoneNumber, [registrationDevice, registrationOS]
  * @returns {appUserID: Number}
  */
 notCheckLoginUrls.push('/register');
@@ -110,6 +110,7 @@ router.post('/update', function(req, res, next) {
                                     if (i >= appUsers.length) return;
                                     var appUser = appUsers[i++];
                                     dbHelper.appUsers.addFriend(appUser.AppUserID, updateAppUser.AppUserID, function(){
+                                        // TODO 判断手机号，返回简体或繁体字内容
                                         dbHelper.messages.newFriendMessage(updateAppUser.AppUserID, appUser.AppUserID, appUser.APNSToken, data.nickname + ' 已加你为好友。', nextFunc);
                                     });
                                 }
@@ -181,16 +182,17 @@ router.get('/addFriend', function(req, res, next) {
         dbHelper.appUsers.findByID(req.appUserID, function(rows){
             if (rows.length) {
                 var appUserInfo = rows[0];
+                // TODO 判断手机号，返回简体或繁体内容
                 dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
                     if (rows.length) {
                         // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
                         var friendUserID = rows[0].AppUserID;
-                        dbHelper.appUsers.isFriend(req.appUserID, friendUserID, function(isFriend){
+                        dbHelper.appUsers.isFriend(appUserInfo.AppUserID, friendUserID, function(isFriend){
                             if (isFriend)
                                 publicFunction.success(res, {message:'你们已经是朋友了'});
                             else
-                                dbHelper.appUsers.addFriend(req.appUserID, friendUserID, function(){
-                                    dbHelper.messages.newFriendMessage(req.appUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
+                                dbHelper.appUsers.addFriend(appUserInfo.AppUserID, friendUserID, function(){
+                                    dbHelper.messages.newFriendMessage(appUserInfo.AppUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
                                         publicFunction.success(res, {message:'已加为朋友'});
                                     });
                                 });
@@ -198,9 +200,9 @@ router.get('/addFriend', function(req, res, next) {
                     }
                     else
                     // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
-                        dbHelper.inviteFriends.find(req.appUserID, data.phoneNumber, function(rows){
+                        dbHelper.inviteFriends.find(appUserInfo.AppUserID, data.phoneNumber, function(rows){
                             if (rows.length <= 0)
-                                dbHelper.inviteFriends.new(req.appUserID, data.phoneNumber, function(){
+                                dbHelper.inviteFriends.new(appUserInfo.AppUserID, data.phoneNumber, function(){
                                     dbHelper.sms.newInviteFriendSMS(data.phoneNumber, appUserInfo.PhoneNumber + appUserInfo.Nickname + ' 邀请你加为[' + settings.appName + ']好友。' + settings.appHomePageUrl, function(smsID){
                                         dbHelper.sms.newUnsentSMS(smsID, function(){
                                             publicFunction.success(res, {message:'已邀请'});

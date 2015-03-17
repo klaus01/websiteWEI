@@ -22,7 +22,7 @@ router.get('/award', function(req, res, next) {
         if (publicFunction.checkAwardSign(data.appUserID, data.activityID, data.sign))
             dbHelper.activities.award(data.appUserID, data.activityID, function(result){
                 if (result.affectedRows)
-                    publicFunction.success(res, '领奖登录成功');
+                    publicFunction.success(res, '领奖登记成功');
                 else
                     publicFunction.error(res, '该用户未参加此活动，或已经领取过奖品');
             });

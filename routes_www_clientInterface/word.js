@@ -88,6 +88,7 @@ router.get('/send', function(req, res, next) {
                     if (friendUserID)
                     // 判断是不是发给公众号的
                         dbHelper.partnerUsers.findByID(friendUserID, function(rows) {
+                            // TODO 判断手机号，返回简体或繁体内容
                             if (rows.length) {
                                 // 是则判断查询有没有可参加的活动且是否中奖
                                 dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){

@@ -50,6 +50,20 @@ describe('业务逻辑测试', function() {
         });
     });
 
+
+    describe('前面已经校验过手机验证码了', function() {
+        it('isLogged 应该返回已经登录', function (done) {
+            begin.www_clientInterface
+                .get('/appUser/isLogged')
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+    });
+
+
     after(function (done) {
         // 有很多接口是先返回结果，再处理的数据库入库，为保证数据能正常入库所以这里延迟结束测试进程
         setTimeout(done, 500);

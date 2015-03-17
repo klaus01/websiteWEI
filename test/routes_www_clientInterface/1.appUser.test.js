@@ -9,7 +9,7 @@ describe('App用户相关', function() {
             .get(BEGINURL + '/isLogged')
             .expect(200, function (err, res) {
                 console.log(res.text);
-                res.text.should.containEql('未登录');
+                res.text.should.containEql('"success":false').and.containEql('未登录');
                 done(err);
             });
     });

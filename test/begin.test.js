@@ -92,7 +92,7 @@ function query(sql, next) {
     sql = sql.replace(/\/\*[^\*]+\*\//g, '');
     var queryCount = 0, overCount = 0;
     function callback(){
-        var i = sql.indexOf(';')
+        var i = sql.indexOf(';');
         if (i <= 0) {
             if (queryCount === overCount) {
                 process.stdout.write('\n');

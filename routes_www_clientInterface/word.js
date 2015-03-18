@@ -75,10 +75,11 @@ router.post('/new', function(req, res, next) {
  * @param wordID, friendsUserID[]
  */
 router.get('/send', function(req, res, next) {
+    var appUserID = req.appUserID;
     var data = req.query;
     if (data.wordID && data.wordID.length && parseInt(data.wordID)
         && data.friendsUserID && data.friendsUserID.length)
-        dbHelper.appUsers.findByID(req.appUserID, function(rows){
+        dbHelper.appUsers.findByID(appUserID, function(rows){
             if (rows.length) {
                 var user = rows[0];
                 var i = 0;
@@ -90,8 +91,8 @@ router.get('/send', function(req, res, next) {
                         dbHelper.partnerUsers.findByID(friendUserID, function(rows) {
                             if (rows.length) {
                                 // 是则判断查询有没有可参加的活动且是否中奖
-                                dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
-                                    dbHelper.activities.findActivitiesExtUnexpiredByAppUserID(req.appUserID, function (rows) {
+                                dbHelper.messages.newWordMessage(appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
+                                    dbHelper.activities.findActivitiesExtUnexpiredByAppUserID(appUserID, function (rows) {
                                         for (var i = 0; i < rows.length; i++) {
                                             var activityExt = rows[i];
                                             var gift = false;
@@ -104,8 +105,8 @@ router.get('/send', function(req, res, next) {
                                             if (gift) {
                                                 var awardQRCodeInfo = 'appUserID=' + appUserID
                                                     + '&activityID=' + activityID
-                                                    + '&sign=' + publicFunction.getAwardSign(req.appUserID, activityExt.PartnerActivityID);
-                                                dbHelper.messages.newGiftMessage(friendUserID, req.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品');
+                                                    + '&sign=' + publicFunction.getAwardSign(appUserID, activityExt.PartnerActivityID);
+                                                dbHelper.messages.newGiftMessage(friendUserID, appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品');
                                             }
                                         }
                                     });
@@ -113,18 +114,24 @@ router.get('/send', function(req, res, next) {
                                 });
                             }
                             else
-                                // 不是公众号就查询App用户
-                                dbHelper.appUsers.findByID(friendUserID, function (rows) {
-                                    if (rows.length) {
-                                        var msg = user.Nickname;
-                                        if (rows[0].AreaType === 0)
-                                            msg += ' 给你发来一个字。';
-                                        else
-                                            msg += ' 給你發來一個字。';
-                                        dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, rows[0].APNSToken, msg, nextFunc);
-                                    }
-                                    else
+                                // 不是公众号就向APP用户发消息
+                                dbHelper.appUsers.getFriendIsBlack(friendUserID, appUserID, function (isBlack) {
+                                    // 看friendUserID是否拉黑appUserID，如果拉黑了就跳过
+                                    if (isBlack)
                                         nextFunc();
+                                    else
+                                        dbHelper.appUsers.findByID(friendUserID, function (rows) {
+                                            if (rows.length) {
+                                                var msg = user.Nickname;
+                                                if (rows[0].AreaType === 0)
+                                                    msg += ' 给你发来一个字。';
+                                                else
+                                                    msg += ' 給你發來一個字。';
+                                                dbHelper.messages.newWordMessage(appUserID, friendUserID, data.wordID, rows[0].APNSToken, msg, nextFunc);
+                                            }
+                                            else
+                                                nextFunc();
+                                        });
                                 });
                         });
                     else
@@ -134,7 +141,7 @@ router.get('/send', function(req, res, next) {
                 publicFunction.success(res, null);
             }
             else
-                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
+                publicFunction.error(res, 'App用户' + appUserID + '不存在');
         });
     else
         publicFunction.error(res, '缺少参数');

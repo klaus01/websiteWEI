@@ -344,7 +344,12 @@ router.post('/activity/post', function(req, res) {
                 function next(){
                     if (i >= rows.length) return;
                     var user = rows[i++];
-                    dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, next);
+                    dbHelper.appUsers.getFriendIsBlack(user.AppUserID, data.partnerUserID, function (isBlack) {
+                        if (isBlack)
+                            next();
+                        else
+                            dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, next);
+                    });
                 }
                 next();
                 publicFunction.success(res, {newID: activityID});

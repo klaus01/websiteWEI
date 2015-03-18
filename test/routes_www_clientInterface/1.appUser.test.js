@@ -13,6 +13,18 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
+    it('注册App用户 手机号格式错误', function (done) {
+        agent
+            .get(BEGINURL + '/register')
+            .query({
+                phoneNumber: 1388
+            })
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('手机号格式错误');
+                done(err);
+            });
+    });
     it('注册App用户 有设备信息参数', function (done) {
         agent
             .get(BEGINURL + '/register')
@@ -223,10 +235,24 @@ describe('App用户相关', function() {
             });
     });
 
-    it('addFriend 用户不存在', function (done) {
+    it('addFriend 手机号格式错误', function (done) {
         var query = {
             appUserID: 99999,
             phoneNumber: 0
+        };
+        agent
+            .get(BEGINURL + '/addFriend')
+            .query(query)
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('手机号格式错误');
+                done(err);
+            });
+    });
+    it('addFriend 用户不存在', function (done) {
+        var query = {
+            appUserID: 99999,
+            phoneNumber: 13888888888
         };
         agent
             .get(BEGINURL + '/addFriend')

@@ -62,17 +62,22 @@ notCheckLoginUrls.push('/register');
 router.get('/register', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length) {
-        var keyValues = {
-            PhoneNumber: data.phoneNumber,
-            LoginPassword: '',
-            AreaType: publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber),
-            RegistrationStatus: 0,
-            RegistrationDevice: data.registrationDevice,
-            RegistrationOS: data.registrationOS
-        };
-        dbHelper.appUsers.new(keyValues, function(newAppUserID) {
-            publicFunction.success(res, {appUserID: newAppUserID});
-        });
+        var areaType = publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber);
+        if (areaType >= 0) {
+            var keyValues = {
+                PhoneNumber: data.phoneNumber,
+                LoginPassword: '',
+                AreaType: areaType,
+                RegistrationStatus: 0,
+                RegistrationDevice: data.registrationDevice,
+                RegistrationOS: data.registrationOS
+            };
+            dbHelper.appUsers.new(keyValues, function (newAppUserID) {
+                publicFunction.success(res, {appUserID: newAppUserID});
+            });
+        }
+        else
+            publicFunction.error(res, '手机号格式错误');
     }
     else
         publicFunction.error(res, '缺少参数');
@@ -179,49 +184,53 @@ router.get('/updateLocation', function(req, res, next) {
 router.get('/addFriend', function(req, res, next) {
     var data = req.query;
     if (data.phoneNumber && data.phoneNumber.length) {
-        dbHelper.appUsers.findByID(req.appUserID, function(rows){
-            if (rows.length) {
-                var appUserInfo = rows[0];
-                dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
-                    if (rows.length) {
-                        // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
-                        var friendUserID = rows[0].AppUserID;
-                        dbHelper.appUsers.isFriend(appUserInfo.AppUserID, friendUserID, function(isFriend){
-                            if (isFriend)
-                                publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你们已经是朋友了' : '你們已經是朋友了'});
-                            else
-                                dbHelper.appUsers.addFriend(appUserInfo.AppUserID, friendUserID, function(){
-                                    dbHelper.messages.newFriendMessage(appUserInfo.AppUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + (appUserInfo.AreaType === 0 ? ' 已加你为好友。' : ' 已加你為好友'), function(){
-                                        publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已加为朋友' : '已加為朋友'});
-                                    });
-                                });
-                        });
-                    }
-                    else
-                        // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
-                        dbHelper.inviteFriends.find(appUserInfo.AppUserID, data.phoneNumber, function(rows){
-                            if (rows.length <= 0)
-                                dbHelper.inviteFriends.new(appUserInfo.AppUserID, data.phoneNumber, function(){
-                                    var msg = appUserInfo.PhoneNumber + appUserInfo.Nickname;
-                                    if (appUserInfo.AreaType === 0)
-                                        msg += ' 邀请你加为';
-                                    else
-                                        msg += ' 邀請你加為';
-                                    msg += '[' + settings.appName + ']好友。' + settings.appHomePageUrl;
-                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, msg, function(smsID){
-                                        dbHelper.sms.newUnsentSMS(smsID, function(){
-                                            publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已邀请' : '已邀請'});
+        var areaType = publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber);
+        if (areaType >= 0)
+            dbHelper.appUsers.findByID(req.appUserID, function(rows){
+                if (rows.length) {
+                    var appUserInfo = rows[0];
+                    dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
+                        if (rows.length) {
+                            // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
+                            var friendUserID = rows[0].AppUserID;
+                            dbHelper.appUsers.isFriend(appUserInfo.AppUserID, friendUserID, function(isFriend){
+                                if (isFriend)
+                                    publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你们已经是朋友了' : '你們已經是朋友了'});
+                                else
+                                    dbHelper.appUsers.addFriend(appUserInfo.AppUserID, friendUserID, function(){
+                                        dbHelper.messages.newFriendMessage(appUserInfo.AppUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + (appUserInfo.AreaType === 0 ? ' 已加你为好友。' : ' 已加你為好友'), function(){
+                                            publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已加为朋友' : '已加為朋友'});
                                         });
                                     });
-                                });
-                            else
-                                publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你已经邀请过此用户' : '你已經邀請過此用戶'});
-                        });
-                });
-            }
-            else
-                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
-        });
+                            });
+                        }
+                        else
+                            // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
+                            dbHelper.inviteFriends.find(appUserInfo.AppUserID, data.phoneNumber, function(rows){
+                                if (rows.length <= 0)
+                                    dbHelper.inviteFriends.new(appUserInfo.AppUserID, data.phoneNumber, function(){
+                                        var msg = appUserInfo.PhoneNumber + appUserInfo.Nickname;
+                                        if (appUserInfo.AreaType === 0)
+                                            msg += ' 邀请你加为';
+                                        else
+                                            msg += ' 邀請你加為';
+                                        msg += '[' + settings.appName + ']好友。' + settings.appHomePageUrl;
+                                        dbHelper.sms.newInviteFriendSMS(data.phoneNumber, msg, function(smsID){
+                                            dbHelper.sms.newUnsentSMS(smsID, function(){
+                                                publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已邀请' : '已邀請'});
+                                            });
+                                        });
+                                    });
+                                else
+                                    publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你已经邀请过此用户' : '你已經邀請過此用戶'});
+                            });
+                    });
+                }
+                else
+                    publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
+            });
+        else
+            publicFunction.error(res, '手机号格式错误');
     }
     else
         publicFunction.error(res, '缺少参数');

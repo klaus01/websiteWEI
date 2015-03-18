@@ -61,6 +61,7 @@ VALUES('管理员', NOW(), 1, 'admin', '111');
 /* 以下数据需要在mysql命令行中运行
 
 --存储过程
+
 DELIMITER //
 CREATE PROCEDURE P_UpdateWordUseCount(aUpdateFieldName VARCHAR(100), aAreaType INT, aUseBeginTime DATETIME, aUseEndTime DATETIME)
 BEGIN

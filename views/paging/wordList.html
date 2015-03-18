@@ -3,7 +3,7 @@
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
-        <tr><th>字图片</th><td>读音</td><th>编号</th><th>使用次数</th><th>解释</th><th><%= userCaption %></th></tr>
+        <tr><th>字图片</th><td>读音</td><th>编号</th><th>大陆_之前365天使用次数</th><th>香港_之前365天使用次数</th><th>解释</th><th><%= userCaption %></th></tr>
         </thead>
         <tbody>
         <%
@@ -14,7 +14,8 @@
             <td><a href="<%= row.PictureUrl ? row.PictureUrl : '#' %>" target="_blank"><img src="<%= row.PictureUrl ? row.PictureUrl : '' %>" class="word-pic-sm"></a></td>
             <td><a href="<%= row.AudioUrl ? row.AudioUrl : '#' %>" target="_blank">播放</a></td>
             <td><%= row.Number %></td>
-            <td><%= row.UseCount %></td>
+            <td><%= row.UseCount_Before365D_CN %></td>
+            <td><%= row.UseCount_Before365D_HK %></td>
             <td><%= row.Description %></td>
             <td><a href="/admin/appUserInfo/<%= row.AppUserID %>"><img src="<%= row.IconUrl %>" class="user-icon-sm"><%= row.Nickname %></a></td>
         </tr>

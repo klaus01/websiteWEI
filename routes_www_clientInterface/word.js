@@ -86,9 +86,8 @@ router.get('/send', function(req, res, next) {
                     if (i >= data.friendsUserID.length) return;
                     var friendUserID = parseInt(data.friendsUserID[i++]);
                     if (friendUserID)
-                    // 判断是不是发给公众号的
+                        // 判断是不是发给公众号的
                         dbHelper.partnerUsers.findByID(friendUserID, function(rows) {
-                            // TODO 判断手机号，返回简体或繁体内容
                             if (rows.length) {
                                 // 是则判断查询有没有可参加的活动且是否中奖
                                 dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, null, user.Nickname + ' 给你发来一个字。', function(){
@@ -100,13 +99,13 @@ router.get('/send', function(req, res, next) {
                                                 // TODO 指定范围活动中奖的判断逻辑
                                             }
                                             else
-                                            // 指定时间范围内回复字消息，中奖
+                                                // 指定时间范围内回复字消息，中奖
                                                 gift = true;
                                             if (gift) {
                                                 var awardQRCodeInfo = 'appUserID=' + appUserID
                                                     + '&activityID=' + activityID
                                                     + '&sign=' + publicFunction.getAwardSign(req.appUserID, activityExt.PartnerActivityID);
-                                                dbHelper.messages.newGiftMessage(friendUserID, req.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, '您中奖了，快来领取礼品');
+                                                dbHelper.messages.newGiftMessage(friendUserID, req.appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品');
                                             }
                                         }
                                     });
@@ -114,10 +113,16 @@ router.get('/send', function(req, res, next) {
                                 });
                             }
                             else
-                            // 不是公众号就查询App用户
+                                // 不是公众号就查询App用户
                                 dbHelper.appUsers.findByID(friendUserID, function (rows) {
-                                    if (rows.length)
-                                        dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, rows[0].APNSToken, user.Nickname + ' 给你发来一个字。', nextFunc);
+                                    if (rows.length) {
+                                        var msg = user.Nickname;
+                                        if (rows[0].AreaType === 0)
+                                            msg += ' 给你发来一个字。';
+                                        else
+                                            msg += ' 給你發來一個字。';
+                                        dbHelper.messages.newWordMessage(req.appUserID, friendUserID, data.wordID, rows[0].APNSToken, msg, nextFunc);
+                                    }
                                     else
                                         nextFunc();
                                 });

@@ -65,6 +65,7 @@ router.get('/register', function(req, res, next) {
         var keyValues = {
             PhoneNumber: data.phoneNumber,
             LoginPassword: '',
+            AreaType: publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber),
             RegistrationStatus: 0,
             RegistrationDevice: data.registrationDevice,
             RegistrationOS: data.registrationOS
@@ -110,8 +111,7 @@ router.post('/update', function(req, res, next) {
                                     if (i >= appUsers.length) return;
                                     var appUser = appUsers[i++];
                                     dbHelper.appUsers.addFriend(appUser.AppUserID, updateAppUser.AppUserID, function(){
-                                        // TODO 判断手机号，返回简体或繁体字内容
-                                        dbHelper.messages.newFriendMessage(updateAppUser.AppUserID, appUser.AppUserID, appUser.APNSToken, data.nickname + ' 已加你为好友。', nextFunc);
+                                        dbHelper.messages.newFriendMessage(updateAppUser.AppUserID, appUser.AppUserID, appUser.APNSToken, data.nickname + (appUser.AreaType === 0 ? ' 已加你为好友。' : ' 已加你為好友。'), nextFunc);
                                     });
                                 }
                                 nextFunc();
@@ -182,35 +182,40 @@ router.get('/addFriend', function(req, res, next) {
         dbHelper.appUsers.findByID(req.appUserID, function(rows){
             if (rows.length) {
                 var appUserInfo = rows[0];
-                // TODO 判断手机号，返回简体或繁体内容
                 dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function(rows){
                     if (rows.length) {
                         // 被邀手机号已经是WEI用户，则双方加为朋友，且向该手机号发送WEI消息(xxx已加你为朋友)
                         var friendUserID = rows[0].AppUserID;
                         dbHelper.appUsers.isFriend(appUserInfo.AppUserID, friendUserID, function(isFriend){
                             if (isFriend)
-                                publicFunction.success(res, {message:'你们已经是朋友了'});
+                                publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你们已经是朋友了' : '你們已經是朋友了'});
                             else
                                 dbHelper.appUsers.addFriend(appUserInfo.AppUserID, friendUserID, function(){
-                                    dbHelper.messages.newFriendMessage(appUserInfo.AppUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + ' 已加你好友。', function(){
-                                        publicFunction.success(res, {message:'已加为朋友'});
+                                    dbHelper.messages.newFriendMessage(appUserInfo.AppUserID, friendUserID, rows[0].APNSToken, appUserInfo.Nickname + (appUserInfo.AreaType === 0 ? ' 已加你为好友。' : ' 已加你為好友'), function(){
+                                        publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已加为朋友' : '已加為朋友'});
                                     });
                                 });
                         });
                     }
                     else
-                    // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
+                        // 被邀手机号不是WEI用户，添加邀请关系待该手机号注册时直接建立朋友关系，再向该手机号发送邀请短信(xxx 邀请你加为 WEI好友。[URL]URL是WEI的Home Web Page)
                         dbHelper.inviteFriends.find(appUserInfo.AppUserID, data.phoneNumber, function(rows){
                             if (rows.length <= 0)
                                 dbHelper.inviteFriends.new(appUserInfo.AppUserID, data.phoneNumber, function(){
-                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, appUserInfo.PhoneNumber + appUserInfo.Nickname + ' 邀请你加为[' + settings.appName + ']好友。' + settings.appHomePageUrl, function(smsID){
+                                    var msg = appUserInfo.PhoneNumber + appUserInfo.Nickname;
+                                    if (appUserInfo.AreaType === 0)
+                                        msg += ' 邀请你加为';
+                                    else
+                                        msg += ' 邀請你加為';
+                                    msg += '[' + settings.appName + ']好友。' + settings.appHomePageUrl;
+                                    dbHelper.sms.newInviteFriendSMS(data.phoneNumber, msg, function(smsID){
                                         dbHelper.sms.newUnsentSMS(smsID, function(){
-                                            publicFunction.success(res, {message:'已邀请'});
+                                            publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '已邀请' : '已邀請'});
                                         });
                                     });
                                 });
                             else
-                                publicFunction.success(res, {message:'你已经邀请过此用户'});
+                                publicFunction.success(res, {message: appUserInfo.AreaType === 0 ? '你已经邀请过此用户' : '你已經邀請過此用戶'});
                         });
                 });
             }

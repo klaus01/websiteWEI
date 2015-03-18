@@ -42,8 +42,7 @@ router.get('/sendCheck', function(req, res, next) {
                 }
                 else
                     verificationCode = '666666';
-                // TODO 判断手机号，返回简体或繁体内容
-                var smsContent = '验证码为' + verificationCode + '【' + settings.appName + '】';
+                var smsContent = (publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber) === 0 ? '验证码是' : '驗證碼是') + verificationCode + '【' + settings.appName + '】';
                 // 验证码半小时后过期
                 var expirationTime = new Date();
                 expirationTime.setTime(expirationTime.getTime() + 30 * 60 * 1000);
@@ -68,7 +67,7 @@ router.get('/checkVerificationCode', function(req, res, next) {
     if (data.phoneNumber && data.phoneNumber.length > 0
         && data.verificationCode && data.verificationCode.length > 0) {
         dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
-            // TODO 判断手机号，返回简体或繁体内容
+            var areaType = publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber);
             if (rows.length > 0) {
                 if (rows[0].VerificationCode === data.verificationCode) {
                     dbHelper.sms.updateVerified(rows[0].SMSID, function () {
@@ -85,10 +84,10 @@ router.get('/checkVerificationCode', function(req, res, next) {
                     });
                 }
                 else
-                    publicFunction.error(res, '验证码错误');
+                    publicFunction.error(res, areaType === 0 ? '验证码错误' : '驗證碼錯誤');
             }
             else
-                publicFunction.error(res, '验证码已过期，请重新获取验证码');
+                publicFunction.error(res, areaType === 0 ? '验证码已过期，请重新获取验证码' : '驗證碼已過期，請重新獲取驗證碼');
         });
     }
     else

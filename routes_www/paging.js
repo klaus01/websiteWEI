@@ -221,7 +221,7 @@ router.get('/wordList', function(req, res) {
                 rowCount = count;
                 userCaption = '创建者';
                 if (count > 0)
-                    dbHelper.words.findByNumber(data.content, offset, settings.pageRows, resultRows);
+                    dbHelper.words.findByNumber(data.content, 'UseCount_Before365D_CN', offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });
@@ -231,7 +231,7 @@ router.get('/wordList', function(req, res) {
                 rowCount = count;
                 userCaption = '创建者';
                 if (count > 0)
-                    dbHelper.words.findByDescription(data.content, offset, settings.pageRows, resultRows);
+                    dbHelper.words.findByDescription(data.content, 'UseCount_Before365D_CN', offset, settings.pageRows, resultRows);
                 else
                     resultRows([]);
             });

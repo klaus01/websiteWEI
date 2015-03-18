@@ -10,12 +10,58 @@ var notCheckLoginUrls = [];
 
 /**
  * 获取字列表
- * @param [appUserID, number or description, (offset, resultCount)]
- * @returns {[word]} 有appUserID时按Number升序，没有appUserID时按UseCount降序
+ * @param orderByType: 0按UseCount_Before1D排序，1按UseCount_Before30D排序，2按UseCount_Before365D排序
+ * @param [number or description]
+ * @param [offset, resultCount]
+ * @returns {[word]} 按UseCount降序
  */
-router.get('/find', function(req, res, next) {
+router.get('/findAll', function(req, res, next) {
     var data = req.query;
-    if (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) && parseInt(data.resultCount))) {
+    if (data.orderByType && data.orderByType.length && parseInt(data.orderByType) != undefined
+        && (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) != undefined && parseInt(data.resultCount))))
+        dbHelper.appUsers.findByID(req.appUserID, function (rows) {
+            if (rows.length) {
+
+                function resultFunc(rows) {
+                    publicFunction.success(res, rows);
+                }
+
+                var orderByFieldName = 'UseCount_Before';
+                switch (data.orderByType) {
+                    case '0': orderByFieldName += '1'; break;
+                    case '1': orderByFieldName += '30'; break;
+                    default : orderByFieldName += '365';
+                }
+                orderByFieldName += 'D_' + (rows[0].AreaType === 0 ? 'CN' : 'HK');
+                var findNumber = data.number;
+                var findDescription = data.description;
+                var offset = data.offset;
+                var resultCount = data.resultCount;
+
+                if (findNumber)
+                    dbHelper.words.findByNumber(findNumber, orderByFieldName, offset, resultCount, resultFunc);
+                else if (findDescription)
+                    dbHelper.words.findByDescription(findDescription, orderByFieldName, offset, resultCount, resultFunc);
+                else
+                    dbHelper.words.find(orderByFieldName, offset, resultCount, resultFunc);
+            }
+            else
+                publicFunction.error(res, 'App用户' + req.appUserID + '不存在');
+        });
+    else
+        publicFunction.error(res, '缺少参数');
+});
+
+/**
+ * 获取用户可看到的字列表
+ * @param [number or description]
+ * @param [offset, resultCount]
+ * @returns {[word]} 按Number升序 返回系统字、appUserID发送的字 和 appUserID接收到的字
+ */
+router.get('/findByAppUser', function(req, res, next) {
+    var data = req.query;
+    if (!data.offset || (data.offset && data.resultCount && parseInt(data.offset) != undefined && parseInt(data.resultCount))) {
+
         function resultFunc(rows) {
             publicFunction.success(res, rows);
         }
@@ -25,28 +71,12 @@ router.get('/find', function(req, res, next) {
         var offset = data.offset;
         var resultCount = data.resultCount;
 
-        if (data.appUserID) {
-            // 返回系统字、appUserID发送的字 和 appUserID接收到的字
-            if (data.appUserID.length && parseInt(data.appUserID)) {
-                if (findNumber)
-                    dbHelper.words.findByAppUserIDAndNumber(data.appUserID, findNumber, offset, resultCount, resultFunc);
-                else if (findDescription)
-                    dbHelper.words.findByAppUserIDAndDescription(data.appUserID, findDescription, offset, resultCount, resultFunc);
-                else
-                    dbHelper.words.findByAppUserID(data.appUserID, offset, resultCount, resultFunc);
-            }
-            else
-                publicFunction.error(res, '缺少参数');
-        }
-        else {
-            // 返回所有字
-            if (findNumber)
-                dbHelper.words.findByNumber(findNumber, offset, resultCount, resultFunc);
-            else if (findDescription)
-                dbHelper.words.findByDescription(findDescription, offset, resultCount, resultFunc);
-            else
-                dbHelper.words.find(offset, resultCount, resultFunc);
-        }
+        if (findNumber)
+            dbHelper.words.findByAppUserIDAndNumber(req.appUserID, findNumber, offset, resultCount, resultFunc);
+        else if (findDescription)
+            dbHelper.words.findByAppUserIDAndDescription(req.appUserID, findDescription, offset, resultCount, resultFunc);
+        else
+            dbHelper.words.findByAppUserID(req.appUserID, offset, resultCount, resultFunc);
     }
     else
         publicFunction.error(res, '缺少参数');

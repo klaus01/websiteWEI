@@ -6,94 +6,161 @@ var agent = begin.www_clientInterface;
 
 describe('字相关', function() {
     var BEGINURL = '/word';
-    it('find 缺少参数', function (done) {
-        var query = {
-            offset: '0'
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":false').and.containEql('缺少参数');
-                done(err);
-            });
+
+    describe('findAll', function() {
+        it('缺少参数1', function (done) {
+            agent
+                .get(BEGINURL + '/findAll')
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false').and.containEql('缺少参数');
+                    done(err);
+                });
+        });
+        it('缺少参数2', function (done) {
+            var query = {
+                orderByType: 0,
+                offset: 0
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false').and.containEql('缺少参数');
+                    done(err);
+                });
+        });
+        it('获取所有 按1天使用量', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 0
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('获取所有 按30天使用量', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 1
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('获取所有 按365天使用量', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 2
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('获取所有 按 编号 和 1天使用量', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 0,
+                number: '1000'
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('获取所有 按 描述 和 1天使用量', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 0,
+                description: '1000'
+            };
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
     });
-    it('find 所有', function (done) {
-        agent
-            .get(BEGINURL + '/find')
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('find 按字编号', function (done) {
-        var query = {
-            number: ''
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('find 按字描述', function (done) {
-        var query = {
-            description: ''
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('find 按用户', function (done) {
-        var query = {
-            appUserID: begin.data.newAppUser1.appUserID
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('find 按用户 按字编号', function (done) {
-        var query = {
-            appUserID: begin.data.newAppUser1.appUserID,
-            number: ''
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('find 按用户 按字描述', function (done) {
-        var query = {
-            appUserID: begin.data.newAppUser1.appUserID,
-            description: ''
-        };
-        agent
-            .get(BEGINURL + '/find')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
+
+    describe('findByAppUser', function() {
+        it('缺少参数', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                offset: '0'
+            };
+            agent
+                .get(BEGINURL + '/findByAppUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":false').and.containEql('缺少参数');
+                    done(err);
+                });
+        });
+        it('按用户 报有', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID
+            };
+            agent
+                .get(BEGINURL + '/findByAppUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('按用户 按字编号', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                number: ''
+            };
+            agent
+                .get(BEGINURL + '/findByAppUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('按用户 按字描述', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                description: ''
+            };
+            agent
+                .get(BEGINURL + '/findByAppUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
     });
 
     it('new 创建字 不带音频文件', function (done) {

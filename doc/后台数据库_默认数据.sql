@@ -50,6 +50,7 @@ SELECT *,
     END AS ModeDescription
 FROM PartnerActivities;
 
+
 /*
   数据
 */
@@ -57,31 +58,65 @@ FROM PartnerActivities;
 INSERT INTO BackendUsers(Name, CreateTime, IsManager, LoginName, LoginPassword)
 VALUES('管理员', NOW(), 1, 'admin', '111');
 
-/*
-  以下为测试用数据
--- App用户
-INSERT INTO Users(Type) VALUES(1);
-INSERT INTO AppUsers SET AppUserID=LAST_INSERT_ID(), PhoneNumber='18188888888', LoginPassword='111', RegistrationStatus=0, RegistrationTime=NOW();
+/* 以下数据需要在mysql命令行中运行
 
-INSERT INTO Users(Type) VALUES(1);
-INSERT INTO AppUsers(AppUserID, Nickname, PhoneNumber, LoginPassword, IsMan, RegistrationStatus, RegistrationTime)
-VALUES(LAST_INSERT_ID(), '柯', '13880440200', '111', 1, 0, NOW());
+--存储过程
+DELIMITER //
+CREATE PROCEDURE P_UpdateWordUseCount(aUpdateFieldName VARCHAR(100), aAreaType INT, aUseBeginTime DATETIME, aUseEndTime DATETIME)
+BEGIN
+SET @sql = CONCAT('
+UPDATE Words, (
+SELECT w.ID AS WordID, COUNT(m.ID) AS UseCount 
+FROM Words AS w
+    INNER JOIN WordMessages AS wm ON w.ID=wm.WordID
+    INNER JOIN (SELECT ID, SourceUserID FROM Messages WHERE CreateTime BETWEEN ? AND ?) AS m ON wm.MessageID=m.ID
+    INNER JOIN (SELECT AppUserID FROM AppUsers WHERE AreaType=?) AS u ON m.SourceUserID=u.AppUserID
+GROUP BY w.ID
+) AS d
+SET ',
+aUpdateFieldName,
+'=d.UseCount WHERE ID=d.WordID');
+PREPARE stmt1 FROM @sql;
 
-INSERT INTO Users(Type) VALUES(1);
-INSERT INTO AppUsers(AppUserID, Nickname, PhoneNumber, LoginPassword, IsMan, RegistrationStatus, RegistrationTime)
-VALUES(LAST_INSERT_ID(), '磊', '18181994671', '111', 0, 1, NOW());
--- 朋友关系
-INSERT INTO Friends SET AppUserID=2,FriendUserID=3,IsBlack=0,CreateTime=NOW();
-INSERT INTO Friends SET AppUserID=3,FriendUserID=2,IsBlack=0,CreateTime=NOW();
--- 公众号
--- 短信列表
-INSERT INTO SMSLogs
-VALUES (null, 1, '13880440200', '验证码：xxxx', NOW(), null),
-    (null, 1, '13888888888', '验证码：xxxx', NOW(), NOW()),
-    (null, 2, '13800000000', '朋友XXXX邀请您你一起使用WEI应用', NOW(), NOW());
+SET @p1 = aAreaType;
+SET @p2 = aUseBeginTime;
+SET @p3 = aUseEndTime;
+EXECUTE stmt1 USING @p1, @p2, @p3;
 
-INSERT INTO SMSLogs_Check
-VALUES (1, '13880440200', 'xxxx', DATE_ADD(NOW(), INTERVAL 1 MINUTE), 0),
-    (2, '13888888888', 'xxxx', DATE_ADD(NOW(), INTERVAL 1 MINUTE), 1);
+DEALLOCATE PREPARE stmt1;
+END//
+DELIMITER ;
+
+-- 作业
+
+CREATE EVENT E_UpdateWord_UseCount_Before1D_CN
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 10 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before1D_CN', 0, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 SECOND);
+
+CREATE EVENT E_UpdateWord_UseCount_Before30D_CN
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 11 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before30D_CN', 0, CURDATE() - INTERVAL 30 DAY, CURDATE() - INTERVAL 1 SECOND);
+
+CREATE EVENT E_UpdateWord_UseCount_Before365D_CN
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 12 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before365D_CN', 0, CURDATE() - INTERVAL 365 DAY, CURDATE() - INTERVAL 1 SECOND);
+
+CREATE EVENT E_UpdateWord_UseCount_Before1D_HK
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 13 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before1D_HK', 1, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 SECOND);
+
+CREATE EVENT E_UpdateWord_UseCount_Before30D_HK
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 14 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before30D_HK', 1, CURDATE() - INTERVAL 30 DAY, CURDATE() - INTERVAL 1 SECOND);
+
+CREATE EVENT E_UpdateWord_UseCount_Before365D_HK
+ON SCHEDULE EVERY 1 DAY
+STARTS CURDATE() + INTERVAL 15 SECOND
+DO CALL P_UpdateWordUseCount('UseCount_Before365D_HK', 1, CURDATE() - INTERVAL 365 DAY, CURDATE() - INTERVAL 1 SECOND);
 
 */

@@ -54,7 +54,7 @@ module.exports.data = {
         nickname: '饮',
         isMan: '1',
         registrationDevice: 'iPhone 6',
-        registrationOS: '8.1.1',
+        registrationOS: '8.2',
         longitude: 10.2,
         latitude: 10,
         APNSToken: 'nnnn1'
@@ -62,6 +62,8 @@ module.exports.data = {
     newAppUser2: {
         appUserID: 0,
         phoneNumber: '13800000002',
+        registrationDevice: 'iPhone 5S',
+        registrationOS: '8.1.1',
         APNSToken: 'nnnn2'
     },
     newAppUser3: {

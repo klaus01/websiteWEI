@@ -6,6 +6,7 @@ var publicFunction = require('../lib/publicFunction');
 var settings = require('../settings');
 var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
+var app = express();
 
 
 /**
@@ -33,10 +34,10 @@ router.get('/get', function(req, res, next) {
 
 /**
  * 获取朋友信息列表
- * @returns {[{SourceUserID, LastTime, UneadCount, AppUser:{}, PartnerUser:{}}]}
+ * @returns {[{SourceUserID, LastTime, UnreadCount, AppUser:{}, PartnerUser:{}}]}
  */
 router.get('/getFriends', function(req, res, next) {
-    dbHelper.appUsers.findFriendsByAppUserID(req.appUserID, function(rows){
+    dbHelper.appUsers.findAPPFriendsByAppUserID(req.appUserID, function(rows){
         publicFunction.success(res, rows);
     });
 });
@@ -54,26 +55,85 @@ router.get('/isLogged', function(req, res, next) {
 });
 
 /**
- * 注册App用户
- * @param phoneNumber, [registrationDevice, registrationOS]
- * @returns {appUserID: Number}
+ * 注册并发送短信验证码
+ * @param phoneNumber, device, deviceOS
+ * @returns {smsID: Number}
+ *
+ * 先判断手机号格式是否正确
+ * 再判断手机是否已经注册
+ *    未注册则注册
+ * 再先注册后的手机号发送验证码
  */
-notCheckLoginUrls.push('/register');
-router.get('/register', function(req, res, next) {
+notCheckLoginUrls.push('/registerAndSendCheck');
+router.get('/registerAndSendCheck', function(req, res, next) {
     var data = req.query;
-    if (data.phoneNumber && data.phoneNumber.length) {
+    if (data.phoneNumber && data.phoneNumber.length
+        && data.device && data.device.length
+        && data.deviceOS && data.deviceOS.length) {
         var areaType = publicFunction.getAreaTypeByPhoneNumber(data.phoneNumber);
         if (areaType >= 0) {
-            var keyValues = {
-                PhoneNumber: data.phoneNumber,
-                LoginPassword: '',
-                AreaType: areaType,
-                RegistrationStatus: 0,
-                RegistrationDevice: data.registrationDevice,
-                RegistrationOS: data.registrationOS
-            };
-            dbHelper.appUsers.new(keyValues, function (newAppUserID) {
-                publicFunction.success(res, {appUserID: newAppUserID});
+            var resultAppUserID = null,
+                resultSMSID = null;
+            function resultFunc() {
+                if (resultAppUserID != null && resultSMSID != null)
+                    publicFunction.success(res, {
+                        appUserID: resultAppUserID,
+                        smsID: resultSMSID
+                    });
+            }
+
+            dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function (rows) {
+                if (rows.length <= 0) {
+                    var keyValues = {
+                        PhoneNumber: data.phoneNumber,
+                        LoginPassword: '',
+                        AreaType: areaType,
+                        RegistrationStatus: 0,
+                        RegistrationDevice: data.device,
+                        RegistrationOS: data.deviceOS
+                    };
+                    dbHelper.appUsers.new(keyValues, function (newAppUserID) {
+                        resultAppUserID = newAppUserID;
+                        resultFunc();
+                    });
+                }
+                else {
+                    resultAppUserID = rows[0].AppUserID;
+                    resultFunc();
+                }
+            });
+
+            dbHelper.sms.findUnexpiredAndUnverifiedCheckSMSByPhoneNumber(data.phoneNumber, function(rows){
+
+                function newUnsentSMS(smsID){
+                    dbHelper.sms.newUnsentSMS(smsID, function(){
+                        resultSMSID = smsID;
+                        resultFunc();
+                    });
+                }
+
+                if (rows.length > 0)
+                // 存在未过期未验证的短信，则不再生成新的短信，直接重发
+                    newUnsentSMS(rows[0].SMSID);
+                else {
+                    // 生成新的短信且发送
+
+                    // 验证码在开发环境或测试环境中始终是666666，生产环境为随机100000-999999
+                    var verificationCode = '';
+                    if (app.get('evn') === 'production') {
+                        var codeNumber = Math.floor(Math.random() * 899999 + 100000);
+                        verificationCode = codeNumber.toString();
+                    }
+                    else
+                        verificationCode = '666666';
+                    var smsContent = (areaType === 0 ? '验证码是' : '驗證碼是') + verificationCode + '【' + settings.appName + '】';
+                    // 验证码半小时后过期
+                    var expirationTime = new Date();
+                    expirationTime.setTime(expirationTime.getTime() + 30 * 60 * 1000);
+                    dbHelper.sms.newCheckSMS(data.phoneNumber, smsContent, verificationCode, expirationTime, function(smsID){
+                        newUnsentSMS(smsID);
+                    });
+                }
             });
         }
         else

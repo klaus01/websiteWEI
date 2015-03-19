@@ -7,9 +7,11 @@ describe('业务逻辑测试', function() {
     describe('受邀用户注册完善资料后，邀请者会收到消息', function() {
         it('newAppUser3注册', function (done) {
             begin.www_clientInterface
-                .get('/appUser/register')
+                .get('/appUser/registerAndSendCheck')
                 .query({
-                    phoneNumber: begin.data.newAppUser3.phoneNumber
+                    phoneNumber: begin.data.newAppUser3.phoneNumber,
+                    device: begin.data.newAppUser3.registrationDevice,
+                    deviceOS: begin.data.newAppUser3.registrationOS
                 })
                 .expect(200, function (err, res) {
                     console.log(res.text);

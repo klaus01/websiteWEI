@@ -5,32 +5,17 @@ var agent = begin.www_clientInterface;
 
 describe('短信相关', function() {
     var BEGINURL = '/sms';
-    it('sendCheck 发送验证短信', function (done) {
-        var query = {
-            phoneNumber: begin.data.newAppUser2.phoneNumber
-        };
-        agent
-            .get(BEGINURL + '/sendCheck')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                res.text.should.containEql('"smsID":');
-                done(err);
-            });
-    });
     it('checkVerificationCode 短信验证码已过期', function (done) {
         var query = {
-            phoneNumber: begin.data.newAppUser1.phoneNumber,
-            verificationCode: '999999'
+            phoneNumber: '99999999',
+            verificationCode: '666666'
         };
         agent
             .get(BEGINURL + '/checkVerificationCode')
             .query(query)
             .expect(200, function (err, res) {
                 console.log(res.text);
-                res.text.should.containEql('"success":false');
-                res.text.should.containEql('验证码已过期');
+                res.text.should.containEql('"success":false').and.containEql('驗證碼已過期');
                 done(err);
             });
     });
@@ -44,8 +29,8 @@ describe('短信相关', function() {
             .query(query)
             .expect(200, function (err, res) {
                 console.log(res.text);
-                res.text.should.containEql('"success":false');
-                res.text.should.containEql('验证码错误');
+                res.text.should.containEql('"success":false').and.containEql('验证码错误');
+                res.text.should;
                 done(err);
             });
     });

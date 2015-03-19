@@ -13,11 +13,25 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
-    it('注册App用户 手机号格式错误', function (done) {
+    it('注册App用户且发送验证码 缺少参数', function (done) {
         agent
-            .get(BEGINURL + '/register')
+            .get(BEGINURL + '/registerAndSendCheck')
             .query({
                 phoneNumber: 1388
+            })
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('缺少参数');
+                done(err);
+            });
+    });
+    it('注册App用户且发送验证码 手机号格式错误', function (done) {
+        agent
+            .get(BEGINURL + '/registerAndSendCheck')
+            .query({
+                phoneNumber: 1388,
+                device: '1',
+                deviceOS: '1'
             })
             .expect(200, function (err, res) {
                 console.log(res.text);
@@ -25,30 +39,38 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
-    it('注册App用户 有设备信息参数', function (done) {
+    it('注册App用户且发送验证码  newAppUser1', function (done) {
         agent
-            .get(BEGINURL + '/register')
+            .get(BEGINURL + '/registerAndSendCheck')
             .query({
                 phoneNumber: begin.data.newAppUser1.phoneNumber,
-                registrationDevice: begin.data.newAppUser1.registrationDevice,
-                registrationOS: begin.data.newAppUser1.registrationOS
+                device: begin.data.newAppUser1.registrationDevice,
+                deviceOS: begin.data.newAppUser1.registrationOS
             })
             .expect(200, function (err, res) {
                 console.log(res.text);
-                res.text.should.containEql('"appUserID"');
+                res.text.should.containEql('"success":true');
+                res.body.data.should.have.properties('appUserID', 'smsID');
+                res.body.data.appUserID.should.be.above(0);
+                res.body.data.smsID.should.be.above(0);
                 begin.data.newAppUser1.appUserID = res.body.data.appUserID;
                 done(err);
             });
     });
-    it('注册App用户 无设备信息参数', function (done) {
+    it('注册App用户且发送验证码  newAppUser2', function (done) {
         agent
-            .get(BEGINURL + '/register')
+            .get(BEGINURL + '/registerAndSendCheck')
             .query({
-                phoneNumber: begin.data.newAppUser2.phoneNumber
+                phoneNumber: begin.data.newAppUser2.phoneNumber,
+                device: begin.data.newAppUser2.registrationDevice,
+                deviceOS: begin.data.newAppUser2.registrationOS
             })
             .expect(200, function (err, res) {
                 console.log(res.text);
-                res.text.should.containEql('"appUserID"');
+                res.text.should.containEql('"success":true');
+                res.body.data.should.have.properties('appUserID', 'smsID');
+                res.body.data.appUserID.should.be.above(0);
+                res.body.data.smsID.should.be.above(0);
                 begin.data.newAppUser2.appUserID = res.body.data.appUserID;
                 done(err);
             });
@@ -331,6 +353,23 @@ describe('App用户相关', function() {
             .expect(200, function (err, res) {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
+                done(err);
+            });
+    });
+
+    it('getFriends 获取朋友及消息情况', function (done) {
+        var query = {
+            appUserID: begin.data.newAppUser1.appUserID
+        };
+        agent
+            .get(BEGINURL + '/getFriends')
+            .query(query)
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('"success":true');
+                res.body.data.should.have.lengthOf(2);
+                res.body.data[0].should.have.property('Message');
+                res.body.data[0].Message.should.have.properties('LastTime', 'UnreadCount');
                 done(err);
             });
     });

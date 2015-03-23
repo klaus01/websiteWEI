@@ -20,7 +20,7 @@ router.get('/getCanSubscribe', function(req, res, next) {
 
 /**
  * 获取用户已订阅的公众号列表
- * @returns {[partnerUser]} 按最近消息时间降序排序，增加了UnreadCount和NoAwardCount属性
+ * @returns {[PartnerUser: {}, MessageOverview: {LastTime, UnreadCount, NoAwardCount}]} 按最近消息时间降序排序
  */
 router.get('/getSubscribed', function(req, res, next) {
     dbHelper.partnerUsers.findMessagesBySubscriberID(req.appUserID, function(rows){

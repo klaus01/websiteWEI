@@ -57,6 +57,24 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
+    it('注册App用户且发送验证码  newAppUser1第二次', function (done) {
+        agent
+            .get(BEGINURL + '/registerAndSendCheck')
+            .query({
+                phoneNumber: begin.data.newAppUser1.phoneNumber,
+                device: begin.data.newAppUser1.registrationDevice,
+                deviceOS: begin.data.newAppUser1.registrationOS
+            })
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('"success":true');
+                res.body.data.should.have.properties('appUserID', 'smsID');
+                res.body.data.appUserID.should.be.above(0);
+                res.body.data.smsID.should.be.above(0);
+                begin.data.newAppUser1.appUserID = res.body.data.appUserID;
+                done(err);
+            });
+    });
     it('注册App用户且发送验证码  newAppUser2', function (done) {
         agent
             .get(BEGINURL + '/registerAndSendCheck')

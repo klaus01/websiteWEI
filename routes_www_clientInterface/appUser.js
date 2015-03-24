@@ -112,9 +112,20 @@ router.get('/registerAndSendCheck', function(req, res, next) {
                     });
                 }
 
-                if (rows.length > 0)
-                // 存在未过期未验证的短信，则不再生成新的短信，直接重发
-                    newUnsentSMS(rows[0].SMSID);
+                if (rows.length > 0) {
+                    var oldSMSID = rows[0].SMSID
+                    // 存在未过期未验证的短信，则不再生成新的短信
+                    dbHelper.sms.isUnsent(oldSMSID, function (isUnsent) {
+                        if (isUnsent) {
+                            // 如果未过期的短信还未发送，则不处理
+                            resultSMSID = oldSMSID;
+                            resultFunc();
+                        }
+                        else
+                        // 如果已经发送过了，则再发送
+                            newUnsentSMS(oldSMSID);
+                    });
+                }
                 else {
                     // 生成新的短信且发送
 

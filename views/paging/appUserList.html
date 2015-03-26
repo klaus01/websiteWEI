@@ -11,7 +11,7 @@
             var row = rows[i];
         %>
             <tr>
-                <td><a href="<%= row.IconFileName ? row.IconFileName : '' %>" target="_blank"><img src="<%= row.IconFileName ? row.IconFileName : '' %>" class="user-icon-sm"></a></td>
+                <td><a href="<%= row.IconUrl ? row.IconUrl : '' %>" target="_blank"><img src="<%= row.IconUrl ? row.IconUrl : '' %>" class="user-icon-sm"></a></td>
                 <td><%= row.Nickname ? row.Nickname : '' %></td>
                 <td><%= row.PhoneNumber %></td>
                 <td><%= row.IsManDescription %></td>

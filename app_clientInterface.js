@@ -30,7 +30,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({dest: settings.tempUploadDir}));
 app.use(cookieParser());
+
+
+function getSessionID_test(req) {
+    return "test"
+}
+function getSessionID(req) {
+    if (req.query.sessionID && req.query.sessionID.length)
+        return req.query.sessionID;
+    else if (req.body.sessionID && req.body.sessionID.length)
+        return req.body.sessionID;
+    else
+        return null;
+}
 app.use(session({
+    genid: app.get('env') === 'test' ? getSessionID_test : getSessionID,
     secret: settings.cookie.secret,
     saveUninitialized: true,
     resave: true,
@@ -40,6 +54,7 @@ app.use(session({
     }),
     cookie: { maxAge: settings.cookie.maxAge }
 }));
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(publicFunction.addConnectionIPToRequest);
 
@@ -51,12 +66,14 @@ map[messageRoutes.PATHHEADER] = messageRoutes.notCheckLoginUrls;
 map[partnerUserRoutes.PATHHEADER] = partnerUserRoutes.notCheckLoginUrls;
 map[smsRoutes.PATHHEADER] = smsRoutes.notCheckLoginUrls;
 map[wordRoutes.PATHHEADER] = wordRoutes.notCheckLoginUrls;
-app.use('/', function (req, res, next) {
-    if (app.get('env') === 'test') {
+if (app.get('env') === 'test') {
+    app.use('/', function (req, res, next) {
         req.appUserID = parseInt(req.query.appUserID);
         next();
-    }
-    else {
+    });
+}
+else {
+    app.use('/', function (req, res, next) {
         req.appUserID = req.session.appUserID;
         var pathnames = req._parsedUrl.pathname.split(path.sep);
         if (pathnames.length < 3)
@@ -68,8 +85,8 @@ app.use('/', function (req, res, next) {
             else
                 publicFunction.error(res, '未登录或登录已过期，请重新登录');
         }
-    }
-});
+    });
+}
 
 app.use('/' + activityRoutes.PATHHEADER, activityRoutes);
 app.use('/' + appUserRoutes.PATHHEADER, appUserRoutes);

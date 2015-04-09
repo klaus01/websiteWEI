@@ -6,11 +6,7 @@ var dbHelper = require('./lib/dbHelper');
 var settings = require('./settings');
 var apn = require('apn');
 
-var apnConnection = new apn.connection({
-    cert: './doc/apns_cart/weiapp.apnspush.sandbox.cer.pem',
-    key: './doc/apns_cart/weiapp.apnspush.sandbox.key.pem',
-    passphrase: 'ChanShingFai'
-});
+var apnConnection = new apn.connection(settings.apnsOptions);
 
 apnConnection.on("connected", function() {
     console.log("apn 连接成功");
@@ -28,7 +24,7 @@ apnConnection.on("transmissionError", function(errCode, notification, device) {
 });
 
 apnConnection.on("completed", function () {
-    console.log("apn completed");
+    console.log("apn 队列已发送完成");
 });
 
 apnConnection.on("timeout", function () {
@@ -43,6 +39,11 @@ apnConnection.on("error", console.error);
 apnConnection.on("socketError", console.error);
 
 
+//var note = new apn.notification();
+//note.sound = "ping.aiff";
+//note.setAlertText("test3");
+//note.badge = 5;
+//apnConnection.pushNotification(note, "65c8d6ed0a5223926b03a76329305cc7d2b6dc2cc67106e27dcf27b42245a510");
 
 function timer(){
     console.log(new Date(), '开始查询待发通知列表');

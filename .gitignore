@@ -4,3 +4,4 @@ node_modules/*
 uploads/*
 public/images/*
 public/audio/*
+.DS_Store

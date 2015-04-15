@@ -162,7 +162,7 @@ CREATE TABLE `AppUsers` (
 
 `LastLoginLatitude` real NULL COMMENT '最近登录地理纬度',
 
-`APNSToken` varchar(50) NULL COMMENT '苹果设备远程通知令牌',
+`APNSToken` varchar(64) NULL COMMENT '苹果设备远程通知令牌',
 
 PRIMARY KEY (`AppUserID`) ,
 
@@ -300,7 +300,7 @@ CREATE TABLE `APNSWaitingList` (
 
 `ID` int UNSIGNED NOT NULL AUTO_INCREMENT,
 
-`Token` varchar(50) NOT NULL,
+`Token` varchar(64) NOT NULL,
 
 `Content` varchar(200) NOT NULL,
 

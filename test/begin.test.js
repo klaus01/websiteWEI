@@ -57,14 +57,14 @@ module.exports.data = {
         registrationOS: '8.2',
         longitude: 10.2,
         latitude: 10,
-        APNSToken: 'nnnn1'
+        APNSToken: '15c8d6ed0a5223926b03a76329305cc7d2b6dc2cc67106e27dcf27b42245a511'
     },
     newAppUser2: {
         appUserID: 0,
         phoneNumber: '13800000002',
         registrationDevice: 'iPhone 5S',
         registrationOS: '8.1.1',
-        APNSToken: 'nnnn2'
+        APNSToken: '25c8d6ed0a5223926b03a76329305cc7d2b6dc2cc67106e27dcf27b42245a512'
     },
     newAppUser3: {
         appUserID: 0,
@@ -73,7 +73,7 @@ module.exports.data = {
         isMan: '1',
         registrationDevice: 'iPhone 4S',
         registrationOS: '8.1.2',
-        APNSToken: 'nnnn3'
+        APNSToken: '35c8d6ed0a5223926b03a76329305cc7d2b6dc2cc67106e27dcf27b42245a513'
     },
     wordNotAudio: {
         id: 0,

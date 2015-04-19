@@ -386,8 +386,7 @@ describe('App用户相关', function() {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
                 res.body.data.should.have.lengthOf(2);
-                res.body.data[0].should.have.property('Message');
-                res.body.data[0].Message.should.have.properties('LastTime', 'UnreadCount');
+                res.body.data[0].should.have.properties('IsBlack', 'LastTime', 'UnreadCount');
                 done(err);
             });
     });

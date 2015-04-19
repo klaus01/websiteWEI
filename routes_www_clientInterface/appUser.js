@@ -34,7 +34,7 @@ router.get('/get', function(req, res, next) {
 
 /**
  * 获取朋友信息列表
- * @returns {[{LastTime, UnreadCount, AppUser:{}, PartnerUser:{}}]}
+ * @returns {[{IsBlack, LastTime, UnreadCount, AppUser:{}, PartnerUser:{}}]}
  */
 router.get('/getFriends', function(req, res, next) {
     dbHelper.appUsers.findAPPFriendsByAppUserID(req.appUserID, function(rows){

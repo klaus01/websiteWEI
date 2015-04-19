@@ -328,7 +328,7 @@ router.get('/addPartnerUser', function(req, res, next) {
 router.get('/setFriendIsBlack', function(req, res, next) {
     var data = req.query;
     if (data.friendUserID && data.friendUserID.length && parseInt(data.friendUserID)
-        && data.isBlack && parseInt(data.isBlack))
+        && data.isBlack && parseInt(data.isBlack) != undefined)
         dbHelper.appUsers.setFriendIsBlack(req.appUserID, data.friendUserID, data.isBlack, function(result){
             if (result.affectedRows)
                 publicFunction.success(res, null);

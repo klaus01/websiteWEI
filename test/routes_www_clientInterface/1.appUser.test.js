@@ -421,4 +421,19 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
+    it('setFriendIsBlack newAppUser1取消拉黑newAppUser2', function (done) {
+        var query = {
+            appUserID: begin.data.newAppUser1.appUserID,
+            friendUserID: begin.data.newAppUser2.appUserID,
+            isBlack: 0
+        };
+        agent
+            .get(BEGINURL + '/setFriendIsBlack')
+            .query(query)
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('"success":true');
+                done(err);
+            });
+    });
 });

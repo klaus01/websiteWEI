@@ -35,8 +35,8 @@ router.get('/findAll', function(req, res, next) {
                 orderByFieldName += 'D_' + (rows[0].AreaType === 0 ? 'CN' : 'HK');
                 var findNumber = data.number;
                 var findDescription = data.description;
-                var offset = data.offset;
-                var resultCount = data.resultCount;
+                var offset = parseInt(data.offset);
+                var resultCount = parseInt(data.resultCount);
 
                 if (findNumber)
                     dbHelper.words.findByNumber(findNumber, orderByFieldName, offset, resultCount, resultFunc);
@@ -68,8 +68,8 @@ router.get('/findByAppUser', function(req, res, next) {
 
         var findNumber = data.number;
         var findDescription = data.description;
-        var offset = data.offset;
-        var resultCount = data.resultCount;
+        var offset = parseInt(data.offset);
+        var resultCount = parseInt(data.resultCount);
 
         if (findNumber)
             dbHelper.words.findByAppUserIDAndNumber(req.appUserID, findNumber, offset, resultCount, resultFunc);

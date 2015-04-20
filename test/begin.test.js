@@ -82,7 +82,7 @@ module.exports.data = {
     },
     wordHaveAudio: {
         id: 0,
-        description: '不知道这是什么字',
+        description: '带音频的字',
         pictureFile: module.exports.getIconFilePath(),
         audioFile: module.exports.getIconFilePath()
     }

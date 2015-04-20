@@ -39,35 +39,41 @@ describe('字相关', function() {
             });
     });
 
-    it('send 发送字 发给一个用户', function (done) {
-        var query = {
-            wordID: begin.data.wordNotAudio.id,
-            appUserID: begin.data.newAppUser1.appUserID,
-            friendsUserID: [begin.data.newAppUser2.appUserID]
-        };
-        agent
-            .get(BEGINURL + '/send')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
-    });
-    it('send 发送字 发给一个用户和一个公众号用户', function (done) {
-        var query = {
-            wordID: begin.data.wordHaveAudio.id,
-            appUserID: begin.data.newAppUser1.appUserID,
-            friendsUserID: [begin.data.newAppUser2.appUserID, begin.data.partnerUser.partnerUserID]
-        };
-        agent
-            .get(BEGINURL + '/send')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('"success":true');
-                done(err);
-            });
+    describe('send 发送字', function() {
+        it('send 发送字 发给一个用户', function (done) {
+            var query = {
+                wordID: begin.data.wordNotAudio.id,
+                appUserID: begin.data.newAppUser1.appUserID,
+                friendsUserID: [begin.data.newAppUser2.appUserID]
+            };
+            agent
+                .get(BEGINURL + '/send')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        it('send 发送字 发给一个用户和一个公众号用户', function (done) {
+            var query = {
+                wordID: begin.data.wordHaveAudio.id,
+                appUserID: begin.data.newAppUser1.appUserID,
+                friendsUserID: [begin.data.newAppUser2.appUserID, begin.data.partnerUser.partnerUserID]
+            };
+            agent
+                .get(BEGINURL + '/send')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    done(err);
+                });
+        });
+        after(function (done) {
+            // 有很多接口是先返回结果，再处理的数据库入库，为保证数据能正常入库所以这里延迟结束测试进程
+            setTimeout(done, 500);
+        });
     });
 
     describe('findAll', function() {
@@ -105,6 +111,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
@@ -113,6 +120,24 @@ describe('字相关', function() {
                 appUserID: begin.data.newAppUser1.appUserID,
                 orderByType: 0,
                 offset: 0,
+                resultCount: 1
+            };
+            console.log(query);
+            agent
+                .get(BEGINURL + '/findAll')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
+                    done(err);
+                });
+        });
+        it('获取所有 按1天使用量 第2页', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser1.appUserID,
+                orderByType: 0,
+                offset: 1,
                 resultCount: 10
             };
             agent
@@ -121,6 +146,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
                     done(err);
                 });
         });
@@ -188,7 +214,7 @@ describe('字相关', function() {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
                 orderByType: 0,
-                number: '1000'
+                number: '0001'
             };
             agent
                 .get(BEGINURL + '/findAll')
@@ -196,6 +222,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
                     done(err);
                 });
         });
@@ -213,6 +240,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
@@ -220,7 +248,7 @@ describe('字相关', function() {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
                 orderByType: 0,
-                description: '1000'
+                description: '不知道'
             };
             agent
                 .get(BEGINURL + '/findAll')
@@ -228,6 +256,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
                     done(err);
                 });
         });
@@ -245,6 +274,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(0);
                     done(err);
                 });
         });
@@ -277,6 +307,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
@@ -290,6 +321,21 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
+                    done(err);
+                });
+        });
+        it('按用户 没字的', function (done) {
+            var query = {
+                appUserID: begin.data.newAppUser3.appUserID
+            };
+            agent
+                .get(BEGINURL + '/findByAppUser')
+                .query(query)
+                .expect(200, function (err, res) {
+                    console.log(res.text);
+                    res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(0);
                     done(err);
                 });
         });
@@ -311,7 +357,7 @@ describe('字相关', function() {
         it('按用户 按字编号', function (done) {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
-                number: ''
+                number: '0001'
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -319,6 +365,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
                     done(err);
                 });
         });
@@ -335,13 +382,14 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
         it('按用户 按字描述', function (done) {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
-                description: ''
+                description: '带音频'
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -349,6 +397,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(1);
                     done(err);
                 });
         });
@@ -365,13 +414,10 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
     });
 
-    after(function (done) {
-        // 有很多接口是先返回结果，再处理的数据库入库，为保证数据能正常入库所以这里延迟结束测试进程
-        setTimeout(done, 500);
-    });
 });

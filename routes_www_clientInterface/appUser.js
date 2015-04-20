@@ -323,17 +323,14 @@ router.get('/addPartnerUser', function(req, res, next) {
 
 /**
  * 设置朋友是否在黑名单中
- * @param friendUserID, isBlack:0不是，1是
+ * @param friendUserIDs, isBlack:0不是，1是
  */
-router.get('/setFriendIsBlack', function(req, res, next) {
+router.get('/setFriendsIsBlack', function(req, res, next) {
     var data = req.query;
-    if (data.friendUserID && data.friendUserID.length && parseInt(data.friendUserID)
+    if (data.friendUserIDs && Array.isArray(data.friendUserIDs) && data.friendUserIDs.length
         && data.isBlack && parseInt(data.isBlack) != undefined)
-        dbHelper.appUsers.setFriendIsBlack(req.appUserID, data.friendUserID, data.isBlack, function(result){
-            if (result.affectedRows)
-                publicFunction.success(res, null);
-            else
-                publicFunction.error(res, '不是朋友');
+        dbHelper.appUsers.setFriendsIsBlack(req.appUserID, data.friendUserIDs, data.isBlack, function(result){
+            publicFunction.success(res, null);
         });
     else
         publicFunction.error(res, '缺少参数');

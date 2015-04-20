@@ -391,29 +391,14 @@ describe('App用户相关', function() {
             });
     });
 
-    it('setFriendIsBlack newAppUser1拉黑999，不是朋友关系', function (done) {
+    it('setFriendsIsBlack newAppUser1拉黑多人 999,888,777', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
-            friendUserID: 999,
+            friendUserIDs: [999, 888, 777],
             isBlack: 1
         };
         agent
-            .get(BEGINURL + '/setFriendIsBlack')
-            .query(query)
-            .expect(200, function (err, res) {
-                console.log(res.text);
-                res.text.should.containEql('不是朋友');
-                done(err);
-            });
-    });
-    it('setFriendIsBlack newAppUser1拉黑newAppUser2', function (done) {
-        var query = {
-            appUserID: begin.data.newAppUser1.appUserID,
-            friendUserID: begin.data.newAppUser2.appUserID,
-            isBlack: 1
-        };
-        agent
-            .get(BEGINURL + '/setFriendIsBlack')
+            .get(BEGINURL + '/setFriendsIsBlack')
             .query(query)
             .expect(200, function (err, res) {
                 console.log(res.text);
@@ -421,14 +406,29 @@ describe('App用户相关', function() {
                 done(err);
             });
     });
-    it('setFriendIsBlack newAppUser1取消拉黑newAppUser2', function (done) {
+    it('setFriendsIsBlack newAppUser1拉黑newAppUser2', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
-            friendUserID: begin.data.newAppUser2.appUserID,
+            friendUserIDs: [begin.data.newAppUser2.appUserID],
+            isBlack: 1
+        };
+        agent
+            .get(BEGINURL + '/setFriendsIsBlack')
+            .query(query)
+            .expect(200, function (err, res) {
+                console.log(res.text);
+                res.text.should.containEql('"success":true');
+                done(err);
+            });
+    });
+    it('setFriendsIsBlack newAppUser1取消拉黑newAppUser2', function (done) {
+        var query = {
+            appUserID: begin.data.newAppUser1.appUserID,
+            friendUserIDs: [begin.data.newAppUser2.appUserID],
             isBlack: 0
         };
         agent
-            .get(BEGINURL + '/setFriendIsBlack')
+            .get(BEGINURL + '/setFriendsIsBlack')
             .query(query)
             .expect(200, function (err, res) {
                 console.log(res.text);

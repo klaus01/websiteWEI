@@ -111,7 +111,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(2);
+                    res.body.data.should.have.lengthOf(5);
                     done(err);
                 });
         });
@@ -146,7 +146,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(1);
+                    res.body.data.should.have.lengthOf(4);
                     done(err);
                 });
         });
@@ -222,7 +222,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(1);
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
@@ -284,7 +284,7 @@ describe('字相关', function() {
         it('缺少参数', function (done) {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
-                offset: '0'
+                offset: 0
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -298,8 +298,8 @@ describe('字相关', function() {
         it('带分页', function (done) {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
-                offset: '0',
-                resultCount: '10'
+                offset: 0,
+                resultCount: 3
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -307,7 +307,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(2);
+                    res.body.data.should.have.lengthOf(3);
                     done(err);
                 });
         });
@@ -321,11 +321,11 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(2);
+                    res.body.data.should.have.lengthOf(5);
                     done(err);
                 });
         });
-        it('按用户 没字的', function (done) {
+        it('按用户 用户没字，三个系统字', function (done) {
             var query = {
                 appUserID: begin.data.newAppUser3.appUserID
             };
@@ -335,7 +335,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(0);
+                    res.body.data.should.have.lengthOf(3);
                     done(err);
                 });
         });
@@ -365,7 +365,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(1);
+                    res.body.data.should.have.lengthOf(2);
                     done(err);
                 });
         });
@@ -373,8 +373,8 @@ describe('字相关', function() {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
                 number: '',
-                offset: '0',
-                resultCount: '10'
+                offset: 0,
+                resultCount: 10
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -382,7 +382,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(2);
+                    res.body.data.should.have.lengthOf(5);
                     done(err);
                 });
         });
@@ -405,8 +405,8 @@ describe('字相关', function() {
             var query = {
                 appUserID: begin.data.newAppUser1.appUserID,
                 description: '',
-                offset: '0',
-                resultCount: '10'
+                offset: 0,
+                resultCount: 10
             };
             agent
                 .get(BEGINURL + '/findByAppUser')
@@ -414,7 +414,7 @@ describe('字相关', function() {
                 .expect(200, function (err, res) {
                     console.log(res.text);
                     res.text.should.containEql('"success":true');
-                    res.body.data.should.have.lengthOf(2);
+                    res.body.data.should.have.lengthOf(5);
                     done(err);
                 });
         });

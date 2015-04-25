@@ -58,6 +58,11 @@ FROM PartnerActivities;
 INSERT INTO BackendUsers(Name, CreateTime, IsManager, LoginName, LoginPassword)
 VALUES('管理员', NOW(), 1, 'admin', '111');
 
+INSERT INTO Words(Number, PictureFileName, Description, AudioFileName, UseCount_Before1D_CN, UseCount_Before30D_CN, UseCount_Before365D_CN, UseCount_Before1D_HK, UseCount_Before30D_HK, UseCount_Before365D_HK)
+VALUES ('00000001', 'word_system_1.png', '这是一个字，猜猜', 'word_system_1.arm', 0, 0, 0, 0, 0, 0),
+    ('00000002', 'word_system_2.png', '这个字不好认哦', 'word_system_2.arm', 0, 0, 0, 0, 0, 0),
+    ('00000003', 'word_system_3.png', '这字没音频，更难猜', null, 0, 0, 0, 0, 0, 0);
+
 /* 以下数据需要在mysql命令行中运行
 
 --存储过程

@@ -57,7 +57,7 @@ describe('字相关', function() {
         });
         it('send 发送字 发给一个用户和一个公众号用户', function (done) {
             var query = {
-                wordID: begin.data.wordHaveAudio.id,
+                wordID: begin.data.wordNotAudio.id,
                 appUserID: begin.data.newAppUser1.appUserID,
                 friendsUserID: [begin.data.newAppUser2.appUserID, begin.data.partnerUser.partnerUserID]
             };

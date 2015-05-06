@@ -19,7 +19,18 @@
                 <td><%= row.RegistrationTime.toStandardString() %></td>
                 <td><%= row.LastLoginTime ? row.LastLoginTime.toStandardString() : '' %></td>
                 <td><%= row.LastLoginIP ? row.LastLoginIP : '' %></td>
-                <td><%= row.LastLoginLongitude && row.LastLoginLatitude ? row.LastLoginLongitude + '|' + row.LastLoginLatitude : '' %></td>
+                <td>
+                    <% if (row.LastLoginLongitude && row.LastLoginLatitude) { %>
+                    <script type="text/javascript">
+                        function writeAddr(data) {
+                            if (data.success) {
+                                document.writeln(data.data.formatted_address);
+                            }
+                        }
+                    </script>
+                    <script src="/gpsToAddr?x=<%= row.LastLoginLongitude %>&y=<%= row.LastLoginLatitude %>&callback=writeAddr"></script>
+                    <% } %>
+                </td>
                 <td class="text-right"><a class="btn btn-default btn-xs" target="_blank" href="/admin/appUserInfo/<%= row.AppUserID %>">详情</a></td>
             </tr>
         <% } %>

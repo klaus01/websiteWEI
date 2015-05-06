@@ -28,28 +28,27 @@
                         <input type="url" class="form-control" id="url" name="url">
                     </div>
                     <div class="form-group">
-                        <label for="beginTime">活动开始时间</label>
-                        <input type="datetime-local" class="form-control" id="beginTime" name="beginTime">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="beginTime">活动 开始时间</label>
+                                <input type="datetime-local" class="form-control" id="beginTime" name="beginTime">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="endTime">结束时间</label>
+                                <input type="datetime-local" class="form-control" id="endTime" name="endTime">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="expireAwardTime">领奖终止时间</label>
+                                <input type="datetime-local" class="form-control" id="expireAwardTime" name="expireAwardTime">
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="endTime">活动结束时间</label>
-                        <input type="datetime-local" class="form-control" id="endTime" name="endTime">
-                    </div>
-                    <div class="form-group">
-                        <label for="expireAwardTime">终止领奖时间</label>
-                        <input type="datetime-local" class="form-control" id="expireAwardTime" name="expireAwardTime">
-                    </div>
-                    <div class="form-group">
-                        <label for="longitude">经度</label>
-                        <input type="number" class="form-control" id="longitude" name="longitude" >
-                    </div>
-                    <div class="form-group">
-                        <label for="longitude">围度</label>
-                        <input type="number" class="form-control" id="latitude" name="latitude" >
-                    </div>
-                    <div class="form-group">
-                        <label for="distanceMeters">范围(米)</label>
+                        <label for="distanceMeters">位置 及 范围(米)</label>
                         <input type="number" class="form-control" id="distanceMeters" name="distanceMeters" >
+                        <input type="hidden" id="latitude" name="latitude" >
+                        <input type="hidden" id="longitude" name="longitude" >
+                        <div id="baidumap" style="width: 100%;height: 400px;"></div>
                     </div>
                     <div class="form-group">
                         <label for="distanceMeters">接收用户：所有订阅用户</label>
@@ -61,7 +60,36 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZyY69hHlmZGBZLdr5kzxbBes"></script>
 <script type="text/javascript">
+    // 地图相关
+    var map = new BMap.Map("baidumap");
+    var point = new BMap.Point(116.331398,39.897445);
+    map.centerAndZoom(point,12);
+
+    var mapMarker = new BMap.Marker(point);
+    map.addOverlay(mapMarker);
+
+    var mapCircle = new BMap.Circle(point, 0);
+    mapCircle.setFillColor("#4E98DD");
+    mapCircle.setStrokeColor("#3D6CAC");
+    map.addOverlay(mapCircle);
+
+    map.addEventListener("click", function(e){
+        var pt = e.point;
+        mapMarker.setPosition(pt);
+        mapCircle.setCenter(pt);
+    });
+    var myCity = new BMap.LocalCity();
+    myCity.get(function(result) {
+        map.setCenter(result.name);
+    });
+
+    $editActivity.find('#distanceMeters').on('keyup mouseup', function (event) {
+        mapCircle.setRadius($(this).val());
+    });
+
+    // 本页业务
     var PARTNERUSERID = <%= user.PartnerUserID %>;
     var $editActivity = $('#editActivity');
     var $editActivity_msg = $editActivity.find('#message');
@@ -79,6 +107,7 @@
         modal.find('.modal-body #longitude').val('');
         modal.find('.modal-body #latitude').val('');
         modal.find('.modal-body #distanceMeters').val('');
+
     });
 
     $editActivity.on('shown.bs.modal', function (event) {
@@ -127,34 +156,16 @@
     });
 
     $editActivity.find('#mode').on('change', function (event) {
-        var beginTime = false;
-        var endTime = false;
-        var expireAwardTime = false;
-        var longitude = false;
-        var latitude = false;
-        var distanceMeters = false;
-        switch($editActivity.find('#mode').val()) {
-            case '1':
-                beginTime = true;
-                endTime = true;
-                expireAwardTime = true;
-                break;
-            case '2':
-                beginTime = true;
-                endTime = true;
-                longitude = true;
-                latitude = true;
-                distanceMeters = true;
-                break;
-        }
         function setDisplay(objID, isShow) {
-            $editActivity.find('#' + objID).parent().css('display', isShow ? 'block' : 'none');
+            var p = $editActivity.find('#' + objID).parent();
+            while (p[0].className !== 'form-group') {
+                p = p.parent();
+            }
+            p.css('display', isShow ? 'block' : 'none');
         }
-        setDisplay('beginTime', beginTime);
-        setDisplay('endTime', endTime);
-        setDisplay('expireAwardTime', expireAwardTime);
-        setDisplay('longitude', longitude);
-        setDisplay('latitude', latitude);
-        setDisplay('distanceMeters', distanceMeters);
+        var modeStr = $editActivity.find('#mode').val();
+        setDisplay('beginTime', modeStr === '1' || modeStr === '2');
+        setDisplay('distanceMeters', modeStr === '2');
     });
+
 </script>

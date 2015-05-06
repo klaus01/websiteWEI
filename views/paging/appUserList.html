@@ -22,13 +22,13 @@
                 <td>
                     <% if (row.LastLoginLongitude && row.LastLoginLatitude) { %>
                     <script type="text/javascript">
-                        function writeAddr(data) {
+                        function writeAddr<%= row.AppUserID %>(data) {
                             if (data.success) {
                                 document.writeln(data.data.formatted_address);
                             }
                         }
                     </script>
-                    <script src="/gpsToAddr?x=<%= row.LastLoginLongitude %>&y=<%= row.LastLoginLatitude %>&callback=writeAddr"></script>
+                    <script src="/gpsToAddr?x=<%= row.LastLoginLongitude %>&y=<%= row.LastLoginLatitude %>&callback=writeAddr<%= row.AppUserID %>"></script>
                     <% } %>
                 </td>
                 <td class="text-right"><a class="btn btn-default btn-xs" target="_blank" href="/admin/appUserInfo/<%= row.AppUserID %>">详情</a></td>

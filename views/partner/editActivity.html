@@ -62,33 +62,6 @@
 </div>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZyY69hHlmZGBZLdr5kzxbBes"></script>
 <script type="text/javascript">
-    // 地图相关
-    var map = new BMap.Map("baidumap");
-    var point = new BMap.Point(116.331398,39.897445);
-    map.centerAndZoom(point,12);
-
-    var mapMarker = new BMap.Marker(point);
-    map.addOverlay(mapMarker);
-
-    var mapCircle = new BMap.Circle(point, 0);
-    mapCircle.setFillColor("#4E98DD");
-    mapCircle.setStrokeColor("#3D6CAC");
-    map.addOverlay(mapCircle);
-
-    map.addEventListener("click", function(e){
-        var pt = e.point;
-        mapMarker.setPosition(pt);
-        mapCircle.setCenter(pt);
-    });
-    var myCity = new BMap.LocalCity();
-    myCity.get(function(result) {
-        map.setCenter(result.name);
-    });
-
-    $editActivity.find('#distanceMeters').on('keyup mouseup', function (event) {
-        mapCircle.setRadius($(this).val());
-    });
-
     // 本页业务
     var PARTNERUSERID = <%= user.PartnerUserID %>;
     var $editActivity = $('#editActivity');
@@ -168,4 +141,53 @@
         setDisplay('distanceMeters', modeStr === '2');
     });
 
+    // 地图相关
+    function setPointByBaiduPoint(x, y) {
+        $.ajax({
+            type: 'GET',
+            url: '/baiduToGps',
+            dataType: 'json',
+            data: { x: x, y: y },
+            success: function(result) {
+                if (result.success) {
+                    $editActivity.find('#longitude').val(result.data.x);
+                    $editActivity.find('#latitude').val(result.data.y);
+                }
+            }
+        });
+    }
+    var map = new BMap.Map("baidumap");
+    var point = new BMap.Point(116.331398, 39.897445);
+    map.centerAndZoom(point,12);
+
+    var myCity = new BMap.LocalCity();
+    myCity.get(function(result) {
+        map.setCenter(result.name);
+    });
+
+    var mapMarker = null;
+    var mapCircle = null;
+    map.addEventListener("click", function(e){
+        var pt = e.point;
+        if (mapCircle == null) {
+            mapCircle = new BMap.Circle(pt, 0);
+            mapCircle.setFillColor("#4E98DD");
+            mapCircle.setStrokeColor("#3D6CAC");
+            mapCircle.setRadius($editActivity.find('#distanceMeters').val());
+            map.addOverlay(mapCircle);
+
+            mapMarker = new BMap.Marker(pt);
+            map.addOverlay(mapMarker)
+        }
+        else {
+            mapMarker.setPosition(pt);
+            mapCircle.setCenter(pt);
+        }
+        setPointByBaiduPoint(pt.lng, pt.lat);
+    });
+
+    $editActivity.find('#distanceMeters').on('keyup mouseup', function (event) {
+        if (mapCircle)
+            mapCircle.setRadius($(this).val());
+    });
 </script>

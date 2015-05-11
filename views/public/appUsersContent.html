@@ -1,3 +1,4 @@
+<% include selectLonLat.html %>
 <h1 class="page-header"><%= title %></h1>
 <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
     <ul class="nav nav-tabs" role="tablist">
@@ -83,6 +84,39 @@
             <iframe frameborder="0" scrolling="no"></iframe>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="lonlatRange" aria-labelledby="lonlatRange-tab">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="lonlatRange-XY">经纬坐标</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="lonlatRange-XY" style="width:300px" disabled>
+                        <input type="hidden" id="lonlatRange-lon">
+                        <input type="hidden" id="lonlatRange-lat">
+                        <span class="input-group-btn">
+                            <script type="text/javascript">
+                                function lonlatSelectChange(pt) {
+                                    console.log(pt);
+                                    $('#lonlatRange-XY').val(pt.lon + ',' + pt.lat);
+                                    $('#lonlatRange-lon').val(pt.lon);
+                                    $('#lonlatRange-lat').val(pt.lat);
+                                }
+                                function setButtonProp(buttonThis) {
+                                    var btn = $(buttonThis);
+                                    btn.attr('data-lon', $('#lonlatRange-lon').val());
+                                    btn.attr('data-lat', $('#lonlatRange-lat').val());
+                                    btn.attr('data-raidus', $('#lonlatRange-raidus').val());
+                                }
+                            </script>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#selectLonLat" data-onselect="lonlatSelectChange" onmousedown="setButtonProp(this)">选择坐标</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lonlatRange-raidus">范围(米)</label>
+                    <input type="text" class="form-control" id="lonlatRange-raidus" value="10000">
+                </div>
+                <button type="submit" class="btn btn-primary" data-loading-text="查询中...">查询</button>
+            </form>
+            <iframe frameborder="0" scrolling="no"></iframe>
         </div>
     </div>
 </div>
@@ -150,5 +184,15 @@
         $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
         return false;
     });
-    // TODO 按经纬度范围查询
+    $('#lonlatRange form').on('submit', function(){
+        var parameters = {
+            mode: 7,
+            lon: $(this).find('#lonlatRange-lon').val(),
+            lat: $(this).find('#lonlatRange-lat').val(),
+            raidus: $(this).find('#lonlatRange-raidus').val(),
+            partnerUserID: PARTNERUSERID
+        };
+        $(this).parent().find('iframe').attr('src', SEARCHURL + urlParameterByJSON(parameters));
+        return false;
+    });
 </script>

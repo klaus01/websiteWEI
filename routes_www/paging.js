@@ -28,7 +28,7 @@ router.get('/appUserList', function(req, res) {
 
     var rowCount = 0;
     function resultRows(rows) {
-        // 将URL中的pageNumber参数对掉，并返回给页面使用
+        // 将URL中的pageNumber参数去掉，并返回给页面使用
         var pageUrl = deleteUrlPageNumberQuery(req.originalUrl) + '&';
 
         resRender(res, req._parsedUrl.pathname, {
@@ -98,6 +98,15 @@ router.get('/appUserList', function(req, res) {
             });
             break;
         case 7://坐标范围
+            if (data.lon == undefined || data.lat == undefined
+                || data.lon.length <= 0 || data.lat.length <= 0) {
+                res.end('缺少经纬度坐标参数');
+                return
+            }
+            if (data.raidus == undefined || data.raidus.length <= 0) {
+                res.end('缺少范围参数');
+                return
+            }
             var lonlatRange = lonlatHelper.getAround(data.lon, data.lat, data.raidus);
             dbHelper.appUsers.getCountByLonLatRange(lonlatRange.minLon, lonlatRange.maxLon, lonlatRange.minLat, lonlatRange.maxLat, data.partnerUserID, function(count){
                 rowCount = count;

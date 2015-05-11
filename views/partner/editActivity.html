@@ -187,7 +187,6 @@
     });
 
     $editActivity.find('#distanceMeters').on('keyup mouseup', function (event) {
-        if (mapCircle)
-            mapCircle.setRadius($(this).val());
+        mapCircle && mapCircle.setRadius($(this).val());
     });
 </script>

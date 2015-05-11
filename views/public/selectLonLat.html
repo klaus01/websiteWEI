@@ -1,0 +1,94 @@
+<div class="modal fade" id="selectLonLat" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">选择经纬度</h4>
+            </div>
+            <div class="modal-body">
+                <div id="baidumap" style="width: 100%;height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZyY69hHlmZGBZLdr5kzxbBes"></script>
+<script type="text/javascript">
+    // 地图相关
+    var lonlatChangeCallback = null;
+    function setPointByBaiduPoint(x, y) {
+        $.ajax({
+            type: 'GET',
+            url: '/baiduToGps',
+            dataType: 'json',
+            data: { x: x, y: y },
+            success: function(result) {
+                if (result.success && lonlatChangeCallback) {
+                    lonlatChangeCallback({lon: result.data.x, lat: result.data.y});
+                }
+            }
+        });
+    }
+    var map = new BMap.Map("baidumap");
+    var point = new BMap.Point(116.331398, 39.897445);
+    map.centerAndZoom(point,12);
+
+    var myCity = new BMap.LocalCity();
+    myCity.get(function(result) {
+        map.setCenter(result.name);
+    });
+
+    var mapCircle = new BMap.Circle(point, 0);
+    mapCircle.setFillColor("#4E98DD");
+    mapCircle.setStrokeColor("#3D6CAC");
+    mapCircle.setRadius(0);
+    map.addOverlay(mapCircle);
+    var mapMarker = new BMap.Marker(point);
+    map.addOverlay(mapMarker);
+
+    map.addEventListener("click", function(e){
+        var pt = e.point;
+        mapMarker.setPosition(pt);
+        mapCircle.setCenter(pt);
+        setPointByBaiduPoint(pt.lng, pt.lat);
+    });
+
+    // 业务相关
+    var $selectLonLat = $('#selectLonLat');
+    $selectLonLat.on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+
+        var lon = button.data('lon');
+        var lat = button.data('lat');
+        if (lon && lat) {
+            $.ajax({
+                type: 'GET',
+                url: '/gpsToBaidu',
+                dataType: 'json',
+                data: {x: lon, y: lat},
+                success: function(result) {
+                    if (!result.success)
+                        return;
+                    var pt = new BMap.Point(result.data.x, result.data.y);
+                    mapMarker.setPosition(pt);
+                    mapCircle.setCenter(pt);
+                    map.setCenter(pt);
+                }
+            });
+        }
+
+        var raidus = button.data('raidus');
+        if (raidus) {
+            mapCircle.setRadius(parseInt(raidus));
+        }
+
+        var changeCallback = button.data('onselect');
+        if (changeCallback) {
+            var fn = window[changeCallback];
+            if (typeof fn === 'function') {
+                lonlatChangeCallback = fn;
+            }
+        }
+
+    });
+
+</script>

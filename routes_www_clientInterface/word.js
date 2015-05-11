@@ -3,6 +3,7 @@ var path = require('path');
 var router = express.Router();
 var dbHelper = require('../lib/dbHelper');
 var publicFunction = require('../lib/publicFunction');
+var LonLat = require('../lib/LonLat');
 var settings = require('../settings');
 var PATHHEADER = path.basename(__filename, '.js');
 var notCheckLoginUrls = [];
@@ -127,14 +128,18 @@ router.get('/send', function(req, res, next) {
                                             var activityExt = rows[i];
                                             var gift = false;
                                             if (activityExt.DistanceMeters) {
-                                                // TODO 指定范围活动中奖的判断逻辑
+                                                var obj = LonLat.getAround(activityExt.Longitude, activityExt.Latitude, activityExt.DistanceMeters);
+                                                if (user.LastLoginLongitude != null && obj.minLon <= user.LastLoginLongitude && user.LastLoginLongitude <= obj.maxLon
+                                                    && user.LastLoginLatitude != null && obj.minLat <= user.LastLoginLatitude && user.LastLoginLatitude <= obj.maxLat) {
+                                                    gift = true;
+                                                }
                                             }
                                             else
                                                 // 指定时间范围内回复字消息，中奖
                                                 gift = true;
                                             if (gift) {
                                                 var awardQRCodeInfo = 'appUserID=' + appUserID
-                                                    + '&activityID=' + activityID
+                                                    + '&activityID=' + activityExt.PartnerActivityID
                                                     + '&sign=' + publicFunction.getAwardSign(appUserID, activityExt.PartnerActivityID);
                                                 dbHelper.messages.newGiftMessage(friendUserID, appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品');
                                             }

@@ -158,9 +158,9 @@ CREATE TABLE `AppUsers` (
 
 `LastLoginIP` varchar(20) NULL COMMENT '最近登录IP',
 
-`LastLoginLongitude` real NULL COMMENT '最近登录地理经度',
+`LastLoginLongitude` double NULL COMMENT '最近登录地理经度',
 
-`LastLoginLatitude` real NULL COMMENT '最近登录地理纬度',
+`LastLoginLatitude` double NULL COMMENT '最近登录地理纬度',
 
 `APNSToken` varchar(64) NULL COMMENT '苹果设备远程通知令牌',
 
@@ -355,9 +355,9 @@ CREATE TABLE `ActivitiesExt` (
 
 `ExpireAwardTime` datetime NOT NULL COMMENT '终止领奖时间',
 
-`Longitude` float NULL COMMENT '活动指定经度',
+`Longitude` double NULL COMMENT '活动指定经度',
 
-`Latitude` float NULL COMMENT '活动指定纬度',
+`Latitude` double NULL COMMENT '活动指定纬度',
 
 `DistanceMeters` int UNSIGNED NULL COMMENT '活动指定经纬度距离 米',
 

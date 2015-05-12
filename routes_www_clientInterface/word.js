@@ -128,6 +128,7 @@ router.get('/send', function(req, res, next) {
                                             var activityExt = rows[i];
                                             var gift = false;
                                             if (activityExt.DistanceMeters) {
+                                                // 指定时间指定范围内回复字消息
                                                 var obj = LonLat.getAround(activityExt.Longitude, activityExt.Latitude, activityExt.DistanceMeters);
                                                 if (user.LastLoginLongitude != null && obj.minLon <= user.LastLoginLongitude && user.LastLoginLongitude <= obj.maxLon
                                                     && user.LastLoginLatitude != null && obj.minLat <= user.LastLoginLatitude && user.LastLoginLatitude <= obj.maxLat) {
@@ -138,10 +139,14 @@ router.get('/send', function(req, res, next) {
                                                 // 指定时间范围内回复字消息，中奖
                                                 gift = true;
                                             if (gift) {
-                                                var awardQRCodeInfo = 'appUserID=' + appUserID
-                                                    + '&activityID=' + activityExt.PartnerActivityID
-                                                    + '&sign=' + publicFunction.getAwardSign(appUserID, activityExt.PartnerActivityID);
-                                                dbHelper.messages.newGiftMessage(friendUserID, appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品');
+                                                dbHelper.activities.hasGift(appUserID, activityExt.PartnerActivityID, function(hasGift){
+                                                    if (hasGift) return;
+                                                    var awardQRCodeInfo = 'appUserID=' + appUserID
+                                                        + '&activityID=' + activityExt.PartnerActivityID
+                                                        + '&sign=' + publicFunction.getAwardSign(appUserID, activityExt.PartnerActivityID);
+                                                    var messageContent = user.AreaType === 0 ? '您中奖了，快来领取奖品' : '您中獎了，快來領取獎品';
+                                                    dbHelper.messages.newGiftMessage(friendUserID, appUserID, activityExt.PartnerActivityID, awardQRCodeInfo, user.APNSToken, messageContent);
+                                                });
                                             }
                                         }
                                     });

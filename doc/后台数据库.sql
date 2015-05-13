@@ -302,6 +302,8 @@ CREATE TABLE `APNSWaitingList` (
 
 `Token` varchar(64) NOT NULL,
 
+`Type` tinyint NOT NULL,
+
 `Content` varchar(200) NOT NULL,
 
 PRIMARY KEY (`ID`) 

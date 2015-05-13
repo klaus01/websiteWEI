@@ -13,11 +13,11 @@ apnConnection.on("connected", function() {
 });
 
 apnConnection.on("transmitted", function(notification, device) {
-    console.log("apn 发送通知给:" + device.token.toString("hex"));
+    console.log("apn 发送通知成功:" + device.token.toString("hex"), notification.payload);
 });
 
 apnConnection.on("transmissionError", function(errCode, notification, device) {
-    console.error("apn 发送通知出错 ErrorCode:" + errCode + " 设备:", device, notification);
+    console.error("apn 发送通知失败 ErrorCode:" + errCode + " 设备:" + device.token.toString("hex"), notification);
     if (errCode === 8) {
         console.log("A error code of 8 indicates that the device token is invalid. This could be for a number of reasons - are you using the correct environment? i.e. Production vs. Sandbox");
     }
@@ -55,12 +55,12 @@ function timer(){
             var note = new apn.notification();
             note.setAlertText(row.Content);
             note.badge = 1;
-            apnConnection.pushNotification(note, row.Token);
+            note.payload = {messageType: row.Type};
 
-            console.log(new Date(), row.ID, '发送', '成功', row.Token, row.Content);
-            dbHelper.messages.updateAPNSAsSent(row.ID, function(){
-                console.log(new Date(), row.ID, '标记为已发送', '成功');
-            });
+            apnConnection.pushNotification(note, row.Token);
+            dbHelper.messages.updateAPNSAsSent(row.ID);
+
+            console.log(new Date(), row.ID, '成功加入推送队列', row.Token, row.Content);
         }
         setTimeout(timer, settings.QueryWaitingAPNSInterval);
     });

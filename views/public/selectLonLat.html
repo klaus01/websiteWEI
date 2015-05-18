@@ -30,7 +30,9 @@
     }
     var map = new BMap.Map("baidumap");
     var point = new BMap.Point(116.331398, 39.897445);
-    map.centerAndZoom(point,12);
+    map.centerAndZoom(point, 12);
+    map.enableScrollWheelZoom();
+    map.addControl(new BMap.NavigationControl());
 
     var myCity = new BMap.LocalCity();
     myCity.get(function(result) {

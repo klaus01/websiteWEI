@@ -82,14 +82,14 @@ GROUP BY w.ID
 SET ',
 aUpdateFieldName,
 '=d.UseCount WHERE ID=d.WordID');
+
 PREPARE stmt1 FROM @sql;
-
-SET @p1 = aAreaType;
-SET @p2 = aUseBeginTime;
-SET @p3 = aUseEndTime;
-EXECUTE stmt1 USING @p1, @p2, @p3;
-
+SET @pBeginTime = aUseBeginTime;
+SET @pEndTime = aUseEndTime;
+SET @pAreaType = aAreaType;
+EXECUTE stmt1 USING @pBeginTime, @pEndTime, @pAreaType;
 DEALLOCATE PREPARE stmt1;
+
 END//
 DELIMITER ;
 

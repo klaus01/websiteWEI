@@ -57,16 +57,19 @@ router.post('/login', function(req, res) {
         }
     }
 
-    var password = new Buffer(data.password, 'base64').toString();
+    var postPassword = new Buffer(data.password, 'base64').toString();
     dbHelper.partnerUsers.findByLoginName(data.username, function(rows) {
         if (rows.length) {
-            if (rows[0].Enabled) {
-                if (password === rows[0].LoginPassword) {
-                    req.session.partnerUser = rows[0];
-                    dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connectionIP);
-                    resRedirect(res, '/');
-                } else
-                    error('密码错误');
+            var partnerUser = rows[0];
+            if (partnerUser.Enabled) {
+                dbHelper.partnerUsers.findPasswordByID(partnerUser.PartnerUserID, function(password) {
+                    if (password && postPassword === password) {
+                        req.session.partnerUser = partnerUser;
+                        dbHelper.partnerUsers.updateLoginInfo(req.session.partnerUser.PartnerUserID, req.connectionIP);
+                        resRedirect(res, '/');
+                    } else
+                        error('密码错误');
+                });
             }
             else
                 error('账号已被禁用');

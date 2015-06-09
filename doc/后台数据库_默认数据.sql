@@ -3,7 +3,9 @@
 */
 
 CREATE VIEW VAppUsers AS
-SELECT *,
+SELECT AppUserID, PhoneNumber, AreaType, RegistrationStatus, RegistrationTime,
+    Nickname, IconFileName, IsMan, RegistrationDevice, RegistrationOS, LastLoginTime,
+    LastLoginIP, LastLoginLongitude, LastLoginLatitude, APNSToken,
     CASE IsMan
         WHEN 0 THEN '女'
         WHEN 1 THEN '男'
@@ -34,7 +36,8 @@ SELECT a.*,
 FROM SMSLogs AS a LEFT JOIN SMSLogs_Check AS b ON a.ID=b.SMSID;
 
 CREATE VIEW VPartnerUsers AS
-SELECT *,
+SELECT PartnerUserID, Name, IconFileName, Description, LoginName, Enabled,
+    CreateTime, LastLoginTime, LastLoginIP, AppUserID,
     CASE Enabled
         WHEN 1 THEN '启用'
         ELSE '禁用'

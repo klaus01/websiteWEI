@@ -238,11 +238,11 @@ router.post('/partnerUser/updatePassword', function(req, res) {
         return;
     }
 
-    dbHelper.partnerUsers.findByID(partnerUserID, function(rows) {
-        if (rows.length) {
+    dbHelper.partnerUsers.findPasswordByID(partnerUserID, function(password) {
+        if (password) {
             var oldPassword = new Buffer(data.oldpassword, 'base64').toString();
             var newPassword = new Buffer(data.newpassword, 'base64').toString();
-            if (oldPassword === rows[0].LoginPassword)
+            if (oldPassword === password)
                 dbHelper.partnerUsers.updatePassword(partnerUserID, newPassword, function () {
                     publicFunction.success(res, '修改成功');
                 });

@@ -1,3 +1,5 @@
+/* global it */
+/* global describe */
 var should = require('should');
 var begin = require('../begin.test');
 var agent = begin.www_clientInterface;
@@ -409,7 +411,7 @@ describe('App用户相关', function() {
     it('setFriendsIsBlack newAppUser1拉黑newAppUser2', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
-            friendUserIDs: [begin.data.newAppUser2.appUserID],
+            friendUserIDs: [begin.data.newAppUser2.appUserID, 0],
             isBlack: 1
         };
         agent
@@ -424,7 +426,7 @@ describe('App用户相关', function() {
     it('setFriendsIsBlack newAppUser1取消拉黑newAppUser2', function (done) {
         var query = {
             appUserID: begin.data.newAppUser1.appUserID,
-            friendUserIDs: [begin.data.newAppUser2.appUserID],
+            friendUserIDs: [begin.data.newAppUser2.appUserID, 0],
             isBlack: 0
         };
         agent

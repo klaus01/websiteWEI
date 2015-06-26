@@ -1,3 +1,5 @@
+/* global it */
+/* global describe */
 var should = require('should');
 var begin = require('../begin.test');
 var agent = begin.www_clientInterface;

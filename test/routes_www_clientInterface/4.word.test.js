@@ -1,3 +1,6 @@
+/* global it */
+/* global describe */
+/* global after */
 var should = require('should');
 var begin = require('../begin.test');
 var agent = begin.www_clientInterface;
@@ -39,7 +42,7 @@ describe('字相关', function() {
             });
     });
 
-    describe('send 发送字', function() {
+    describe('send word', function() {
         it('send 发送字 发给一个用户', function (done) {
             var query = {
                 wordID: begin.data.wordNotAudio.id,

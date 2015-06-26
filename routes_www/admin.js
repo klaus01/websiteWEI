@@ -1,3 +1,5 @@
+/* global Buffer */
+/* global __filename */
 var express = require('express');
 var path = require('path');
 var url = require('url');
@@ -94,7 +96,7 @@ router.get('/backendUsers', function(req, res) {
                 isBackendUsersPage: true,
                 rows: rows
             });
-        })
+        });
     });
 });
 

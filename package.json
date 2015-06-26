@@ -1,6 +1,6 @@
 {
   "name": "websiteWEI",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -8,22 +8,24 @@
     "test-cov": "node node_modules/istanbul-harmony/lib/cli.js cover ./node_modules/mocha/bin/_mocha  -- --recursive test/ --bail"
   },
   "dependencies": {
-    "body-parser": "~1.10.2",
-    "cookie-parser": "~1.3.3",
-    "debug": "~2.1.1",
-    "ejs": "~2.2.3",
-    "express": "~4.11.1",
-    "morgan": "~1.5.1",
-    "express-session": "~1.10.1",
-    "connect-mongo": "~0.7.0",
-    "mysql": "~2.5.0",
-    "ccap": "~0.5.0",
-    "multer": "~0.1.5",
-    "apn": "~1.7.0",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "debug": "*",
+    "ejs": "*",
+    "express": "*",
+    "morgan": "*",
+    "express-session": "*",
+    "connect-mongo": "*",
+    "mysql": "*",
+    "ccap": "*",
+    "multer": "*",
+    "apn": "*",
+    "async": "*",
 
     "should": "*",
     "istanbul-harmony": "*",
     "mocha": "*",
-    "mocha-lcov-reporter": "*"
+    "mocha-lcov-reporter": "*",
+    "supertest": "*"
   }
 }

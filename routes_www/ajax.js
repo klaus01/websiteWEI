@@ -1,3 +1,6 @@
+/* global Buffer */
+/* global __filename */
+var async = require('async');
 var express = require('express');
 var path = require('path');
 var router = express.Router();
@@ -180,45 +183,48 @@ router.post('/partnerUser/post', function(req, res) {
         return;
     }
 
-    dbHelper.partnerUsers.findByLoginName(data.loginName, id, function(rows) {
-        if (rows.length > 0) {
-            publicFunction.error(res, '登录名' + data.loginName + '已存在，请更换');
-            return;
-        }
-
-        var appUserID = null;
-        // 操作入库
-        function operatingDB(){
+    async.waterfall([
+        function (callback) {
+            dbHelper.partnerUsers.findByLoginName(data.loginName, id, function(rows) {
+                if (rows.length > 0)
+                    callback('登录名' + data.loginName + '已存在，请更换');
+                else
+                    callback();
+            });
+        },
+        function (callback) {
+            if (files.iconFile)
+                publicFunction.movePartnerUserIconFile(files.iconFile, callback);
+            else
+                callback();
+        },
+        function (callback) {
+            if (data.appUserPhoneNumber)
+                dbHelper.appUsers.findByPhoneNumber(data.appUserPhoneNumber, function(rows){
+                    if (rows.length)
+                        callback(null, rows[0].AppUserID);
+                    else
+                        callback('App用户手机号' + data.appUserPhoneNumber + '不存在，请确认是否输入正确');
+                });
+            else
+                callback(null, null);
+        },
+        function (appUserID, callback){
             var iconFileName = files.iconFile ? files.iconFile.name : null;
             if (id > 0)
                 dbHelper.partnerUsers.update(id, data.name, iconFileName, data.description, data.loginName, data.password, data.enabled, appUserID, function (result) {
-                    publicFunction.success(res, null);
+                    callback();
                 });
             else
                 dbHelper.partnerUsers.new(data.name, iconFileName, data.description, data.loginName, data.password, data.enabled, appUserID, function (newID) {
-                    publicFunction.success(res, {newID: newID});
+                    callback(null, {newID: newID});
                 });
         }
-
-        // 根据App用户手机号查询出用户ID
-        function findAppUserID(){
-            if (data.appUserPhoneNumber)
-                dbHelper.appUsers.findByPhoneNumber(data.appUserPhoneNumber, function(rows){
-                    if (rows.length) {
-                        appUserID = rows[0].AppUserID;
-                        operatingDB();
-                    }
-                    else
-                        publicFunction.error(res, 'App用户手机号' + data.appUserPhoneNumber + '不存在，请确认是否输入正确');
-                });
-            else
-                operatingDB();
-        }
-
-        if (files.iconFile)
-            publicFunction.movePartnerUserIconFile(files.iconFile, findAppUserID);
+    ], function (err, result) {
+        if (err)
+            publicFunction.error(res, err);
         else
-            findAppUserID();
+            publicFunction.success(res, result);
     });
 });
 
@@ -274,7 +280,7 @@ router.post('/activity/post', function(req, res) {
         publicFunction.error(res, '缺少活动类型');
         return;
     }
-    mode = parseInt(data.mode);
+    var mode = parseInt(data.mode);
     switch(mode) {
         case 2:
             if (data.longitude == undefined || parseFloat(data.longitude) == undefined) {
@@ -335,24 +341,30 @@ router.post('/activity/post', function(req, res) {
                 return;
             }
     }
-
-    publicFunction.moveActivityPictureFile(data.partnerUserID, files.pictureFile, function(){
-        dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.expireAwardTime, data.longitude, data.latitude, data.distanceMeters, function (newID) {
-            var activityID = newID;
-            dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){
-                var i = 0;
-                function next(){
-                    if (i >= rows.length) return;
-                    var user = rows[i++];
-                    dbHelper.appUsers.getFriendIsBlack(user.AppUserID, data.partnerUserID, function (isBlack) {
-                        if (isBlack)
-                            next();
-                        else
-                            dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, next);
-                    });
-                }
-                next();
-                publicFunction.success(res, {newID: activityID});
+    async.series([
+        function (callback) {
+            publicFunction.moveActivityPictureFile(data.partnerUserID, files.pictureFile, callback);
+        },
+        function (callback) {
+            dbHelper.activities.new(data.partnerUserID, mode, files.pictureFile.name, data.content, data.url, data.beginTime, data.endTime, data.expireAwardTime, data.longitude, data.latitude, data.distanceMeters, function (newID) {
+                callback(null, newID);
+            });
+        }
+    ], function (err, result) {
+        if (err) {
+            publicFunction.error(res, err);
+            return;
+        }
+        var activityID = result[1];
+        publicFunction.success(res, {newID: activityID});
+        dbHelper.appUsers.findFriendsByPartnerUserID(data.partnerUserID, function(rows){
+            async.each(rows, function (user, callback) {
+                dbHelper.appUsers.getFriendIsBlack(user.AppUserID, data.partnerUserID, function (isBlack) {
+                    if (isBlack)
+                        callback();
+                    else
+                        dbHelper.messages.newActivityMessage(data.partnerUserID, user.AppUserID, activityID, user.APNSToken, data.content, callback);
+                });
             });
         });
     });

@@ -15,8 +15,8 @@ describe('业务逻辑测试', function() {
                 })
                 .expect(200, function (err, res) {
                     console.log(res.text);
-                    res.text.should.containEql('"appUserID"');
-                    begin.data.newAppUser3.appUserID = res.body.data.appUserID;
+                    res.text.should.containEql('"AppUserID"');
+                    begin.data.newAppUser3.appUserID = res.body.data.AppUserID;
                     done(err);
                 });
         });

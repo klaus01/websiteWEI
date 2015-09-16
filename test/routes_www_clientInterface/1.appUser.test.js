@@ -52,10 +52,9 @@ describe('App用户相关', function() {
             .expect(200, function (err, res) {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
-                res.body.data.should.have.properties('appUserID', 'smsID');
-                res.body.data.appUserID.should.be.above(0);
-                res.body.data.smsID.should.be.above(0);
-                begin.data.newAppUser1.appUserID = res.body.data.appUserID;
+                res.body.data.should.have.properties('AppUserID');
+                res.body.data.AppUserID.should.be.above(0);
+                begin.data.newAppUser1.appUserID = res.body.data.AppUserID;
                 done(err);
             });
     });
@@ -70,10 +69,9 @@ describe('App用户相关', function() {
             .expect(200, function (err, res) {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
-                res.body.data.should.have.properties('appUserID', 'smsID');
-                res.body.data.appUserID.should.be.above(0);
-                res.body.data.smsID.should.be.above(0);
-                begin.data.newAppUser1.appUserID = res.body.data.appUserID;
+                res.body.data.should.have.properties('AppUserID');
+                res.body.data.AppUserID.should.be.above(0);
+                begin.data.newAppUser1.appUserID = res.body.data.AppUserID;
                 done(err);
             });
     });
@@ -88,10 +86,9 @@ describe('App用户相关', function() {
             .expect(200, function (err, res) {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
-                res.body.data.should.have.properties('appUserID', 'smsID');
-                res.body.data.appUserID.should.be.above(0);
-                res.body.data.smsID.should.be.above(0);
-                begin.data.newAppUser2.appUserID = res.body.data.appUserID;
+                res.body.data.should.have.properties('AppUserID');
+                res.body.data.AppUserID.should.be.above(0);
+                begin.data.newAppUser2.appUserID = res.body.data.AppUserID;
                 done(err);
             });
     });
@@ -174,6 +171,7 @@ describe('App用户相关', function() {
             .expect(200, function (err, res) {
                 console.log(res.text);
                 res.text.should.containEql('"success":true');
+                res.body.data.should.have.properties('AppUserID', 'IconUrl');
                 // 检查修改后的数据
                 agent
                     .get(BEGINURL + '/get')

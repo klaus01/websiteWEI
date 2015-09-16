@@ -59,7 +59,7 @@ router.get('/isLogged', function(req, res, next) {
 /**
  * 注册并发送短信验证码
  * @param phoneNumber, device, deviceOS
- * @returns {smsID: Number}
+ * @returns {用户对象}
  *
  * 先判断手机号格式是否正确
  * 再判断手机是否已经注册
@@ -78,9 +78,9 @@ router.get('/registerAndSendCheck', function(req, res, next) {
             return;
         }
         async.auto({
-            findAppUserID: function (callback) {
+            findAppUser: function (callback) {
                 dbHelper.appUsers.findByPhoneNumber(data.phoneNumber, function (rows) {
-                    callback(null, rows.length <= 0 ? null : rows[0].AppUserID);
+                    callback(null, rows.length <= 0 ? null : rows[0]);
                 });
             },
             findSMSID: function (callback) {
@@ -88,9 +88,9 @@ router.get('/registerAndSendCheck', function(req, res, next) {
                     callback(null, rows.length <= 0 ? null : rows[0].SMSID);
                 });
             },
-            getAppUserID: ['findAppUserID', function(callback, results) {
-                if (results.findAppUserID) {
-                    callback(null, results.findAppUserID);
+            getAppUser: ['findAppUser', function(callback, results) {
+                if (results.findAppUser) {
+                    callback(null, results.findAppUser);
                     return;
                 }
                 var keyValues = {
@@ -102,7 +102,9 @@ router.get('/registerAndSendCheck', function(req, res, next) {
                     RegistrationOS: data.deviceOS
                 };
                 dbHelper.appUsers.new(keyValues, function (newAppUserID) {
-                    callback(null, newAppUserID);
+                    dbHelper.appUsers.findByID(newAppUserID, function (rows) {
+                        callback(null, rows[0]);
+                    });
                 });
             }],
             getOldSMSID: ['findSMSID', function(callback, results) {
@@ -154,10 +156,7 @@ router.get('/registerAndSendCheck', function(req, res, next) {
             if (err)
                 publicFunction.error(res, err);
             else
-                publicFunction.success(res, {
-                    appUserID: results.getAppUserID,
-                    smsID: (results.getOldSMSID ? results.getOldSMSID : results.getNewSMSID)
-                });
+                publicFunction.success(res, results.getAppUser);
         });
     }
     else
@@ -167,6 +166,7 @@ router.get('/registerAndSendCheck', function(req, res, next) {
 /**
  * 修改App用户资料
  * @param iconFile, nickname, isMan
+ * @returns {用户对象}
  */
 router.post('/update', function(req, res, next) {
     var data = req.body;
@@ -199,6 +199,10 @@ router.post('/update', function(req, res, next) {
                 if (updateAppUser.RegistrationStatus < 2)
                     setKeyValues.RegistrationStatus = 2;
                 dbHelper.appUsers.update(setKeyValues, {AppUserID: updateAppUser.AppUserID}, function(result){
+                    updateAppUser.IconFileName = setKeyValues.IconFileName;
+                    updateAppUser.Nickname = setKeyValues.Nickname;
+                    updateAppUser.IsMan = setKeyValues.IsMan;
+                    publicFunction.addAppUserIconUrl([updateAppUser]);
                     callback(null, updateAppUser);
                 });
             }
@@ -208,7 +212,7 @@ router.post('/update', function(req, res, next) {
                 return;
             }
             else
-                publicFunction.success(res, null);
+                publicFunction.success(res, updateAppUser);
             
             // 用户首次设置资料 检查是否被邀请过，邀请过则建立邀请朋友关系且发送加好友消息
             if (updateAppUser.RegistrationStatus >= 2) return;
